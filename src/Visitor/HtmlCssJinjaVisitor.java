@@ -11,6 +11,16 @@ import antlr.TemplateParserBaseVisitor;
 
 public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
+
+    //جديدددددددددددددددد
+    private String getOriginalText(org.antlr.v4.runtime.ParserRuleContext ctx) {
+        if (ctx == null || ctx.getStart() == null || ctx.getStop() == null) return "";
+        int start = ctx.getStart().getStartIndex();
+        int stop = ctx.getStop().getStopIndex();
+        return ctx.getStart().getInputStream().getText(
+                new org.antlr.v4.runtime.misc.Interval(start, stop)
+        );
+    }
     // Page
 
     @Override
@@ -288,38 +298,61 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitJinjaExpression(TemplateParser.JinjaExpressionContext ctx) {
-        return new JinjaExpressionNode(ctx.body.getText(), ctx.start.getLine());
+        return new JinjaExpressionNode(getOriginalText(ctx.body).trim(), ctx.start.getLine());
     }
 
 
 
     @Override
+//    public ASTNode visitJinjaSimpleNode(TemplateParser.JinjaSimpleNodeContext ctx) {
+//        String body = getOriginalText(ctx.body).trim();
+//        int line = ctx.start.getLine();
+//
+//        if (body.startsWith("extends")) return new JinjaExtendsNode(body, line);
+//        if (body.startsWith("include")) return new JinjaIncludeNode(body, line);
+//        if (body.startsWith("import")) return new JinjaImportNode(body, line);
+//        if (body.startsWith("set")) return new JinjaSetNode(body, line);
+//        if (body.startsWith("elif")) return new JinjaElifNode(body, line);
+//        if (body.startsWith("else")) return new JinjaElseNode(line);
+//        if (body.startsWith("macro")) {
+//
+//            String cleanBody = body.replace("macro", "").trim();
+//
+//
+//            String macroName = cleanBody.split("\\(")[0].trim();
+//
+//            return new JinjaMacroNode(macroName, line);
+//        }
+//
+//        if (body.startsWith("endmacro")) {
+//            return new JinjaEndMacroNode(line);
+//        }
+//
+//        return new JinjaNode("JinjaSimple " + body, line) {};
+//    }
+
+
     public ASTNode visitJinjaSimpleNode(TemplateParser.JinjaSimpleNodeContext ctx) {
-        String body = ctx.body.getText();
+        String body = getOriginalText(ctx.body).trim();
         int line = ctx.start.getLine();
 
-        if (body.startsWith("extends")) return new JinjaExtendsNode(body, line);
-        if (body.startsWith("include")) return new JinjaIncludeNode(body, line);
-        if (body.startsWith("import")) return new JinjaImportNode(body, line);
-        if (body.startsWith("set")) return new JinjaSetNode(body, line);
-        if (body.startsWith("elif")) return new JinjaElifNode(body, line);
-        if (body.startsWith("else")) return new JinjaElseNode(line);
+        if (body.startsWith("extends"))  return new JinjaExtendsNode(body.substring(7).trim(), line);
+        if (body.startsWith("include"))  return new JinjaIncludeNode(body.substring(7).trim(), line);
+        if (body.startsWith("import"))   return new JinjaImportNode(body.substring(6).trim(), line);
+        if (body.startsWith("set"))      return new JinjaSetNode(body.substring(3).trim(), line);
+        if (body.startsWith("elif"))     return new JinjaElifNode(body.substring(4).trim(), line);
+        if (body.startsWith("if")) return new JinjaIfNode(body, line);
+        if (body.startsWith("else"))     return new JinjaElseNode(line);
         if (body.startsWith("macro")) {
-
-            String cleanBody = body.replace("macro", "").trim();
-
-
+            String cleanBody = body.substring(5).trim();
             String macroName = cleanBody.split("\\(")[0].trim();
-
             return new JinjaMacroNode(macroName, line);
         }
-
-        if (body.startsWith("endmacro")) {
-            return new JinjaEndMacroNode(line);
-        }
-
+        if (body.startsWith("endmacro")) return new JinjaEndMacroNode(line);
         return new JinjaNode("JinjaSimple " + body, line) {};
     }
+
+
 
     @Override
     public ASTNode visitJinjaContainerNode(TemplateParser.JinjaContainerNodeContext ctx) {
@@ -341,7 +374,7 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitIfStatementStart(TemplateParser.IfStatementStartContext ctx) {
-        return new JinjaIfNode(ctx.body.getText(), ctx.start.getLine());
+        return new JinjaIfNode(getOriginalText(ctx.body).trim(), ctx.start.getLine());
     }
 
     @Override
@@ -351,7 +384,7 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitElifStatementStart(TemplateParser.ElifStatementStartContext ctx) {
-        return new JinjaElifNode(ctx.body.getText(), ctx.start.getLine());
+        return new JinjaElifNode(getOriginalText(ctx.body).trim(), ctx.start.getLine());
     }
 
     @Override
@@ -361,7 +394,7 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitForStatementStart(TemplateParser.ForStatementStartContext ctx) {
-        return new JinjaForNode(ctx.body.getText(), ctx.start.getLine());
+        return new JinjaForNode(getOriginalText(ctx.body).trim(), ctx.start.getLine());
     }
 
     @Override

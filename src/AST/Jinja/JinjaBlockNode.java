@@ -1,12 +1,14 @@
 package AST.Jinja;
-
 public class JinjaBlockNode extends JinjaNode {
 
-    private String name;
+    private String blockName;
 
     public JinjaBlockNode(String name, int line) {
         super("JinjaBlock " + name, line);
-        this.name = name;
+        this.blockName = name;
+    }
+
+    public String getBlockName() {
+        return blockName;
     }
 }
-
