@@ -4,12 +4,15 @@ tokens { INDENT, DEDENT }
 
 @header {
 import java.util.Stack;
+import java.util.Deque;
+import java.util.ArrayDeque;
 import org.antlr.v4.runtime.*;
 }
 
 @members {
     private Stack<Integer> indents = new Stack<>();
     private int opened = 0;
+    private Deque<Token> pendingTokens = new ArrayDeque<>();
 
     private Token commonToken(int type, String text) {
         int stop = getCharIndex() - 1;
@@ -20,15 +23,25 @@ import org.antlr.v4.runtime.*;
 
     @Override
     public Token nextToken() {
-        if (_input.LA(1) == EOF && !indents.isEmpty()) {
-            emit(commonToken(NEWLINE, "\n"));
+        // Return pending tokens first (INDENT/DEDENT from previous NEWLINE)
+        if (!pendingTokens.isEmpty()) {
+            return pendingTokens.poll();
+        }
+
+        Token next = super.nextToken();
+
+        // At EOF, emit pending DEDENT tokens for remaining indentation levels
+        if (next.getType() == EOF && !indents.isEmpty()) {
+            pendingTokens.offer(commonToken(NEWLINE, "\n"));
             while (!indents.isEmpty()) {
-                emit(commonToken(DEDENT, ""));
+                pendingTokens.offer(commonToken(DEDENT, ""));
                 indents.pop();
             }
-            emit(commonToken(EOF, "<EOF>"));
+            pendingTokens.offer(next); // EOF at the end
+            return pendingTokens.poll();
         }
-        return super.nextToken();
+
+        return next;
     }
 }
 
@@ -135,23 +148,23 @@ NEWLINE
         if (opened > 0) {
             skip();
         } else {
-            int indent = spaces.length();
-            int prev = indents.isEmpty() ? 0 : indents.peek();
+                      int indent = spaces.length();
+                      int prev = indents.isEmpty() ? 0 : indents.peek();
 
-            emit(commonToken(NEWLINE, "\n"));
-
-            if (indent > prev) {
-                indents.push(indent);
-                emit(commonToken(INDENT, ""));
-            } else {
-                while (!indents.isEmpty() && indents.peek() > indent) {
-                    indents.pop();
-                    emit(commonToken(DEDENT, ""));
+                      // Add INDENT/DEDENT tokens to pending queue (not emit, which overwrites _token)
+                      // The NEWLINE token itself comes from this rule's match naturally
+                      if (indent > prev) {
+                          indents.push(indent);
+                          pendingTokens.offer(commonToken(INDENT, ""));
+                      } else {
+                          while (!indents.isEmpty() && indents.peek() > indent) {
+                              indents.pop();
+                              pendingTokens.offer(commonToken(DEDENT, ""));
+                          }
+                      }
+                  }
                 }
-            }
-        }
-      }
-    ;
+              ;
 
 
 /*  Skip  */

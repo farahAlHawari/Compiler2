@@ -1,4 +1,4 @@
-// Generated from C:/Users/maria/Downloads/Compiler-python_compiler/Compiler-python_compiler/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -32,114 +32,6 @@ public interface PythonParserListener extends ParseTreeListener {
 	 */
 	void exitImportStmtNode(PythonParser.ImportStmtNodeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code assignStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterAssignStmtNode(PythonParser.AssignStmtNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code assignStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitAssignStmtNode(PythonParser.AssignStmtNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code augAssignStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code augAssignStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code globalStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code globalStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code returnStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code returnStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ifStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfStmtNode(PythonParser.IfStmtNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ifStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfStmtNode(PythonParser.IfStmtNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code whileStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterWhileStmtNode(PythonParser.WhileStmtNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code whileStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitWhileStmtNode(PythonParser.WhileStmtNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code forStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterForStmtNode(PythonParser.ForStmtNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code forStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitForStmtNode(PythonParser.ForStmtNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code functionDefNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunctionDefNode(PythonParser.FunctionDefNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code functionDefNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunctionDefNode(PythonParser.FunctionDefNodeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code classDefNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void enterClassDefNode(PythonParser.ClassDefNodeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code classDefNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 */
-	void exitClassDefNode(PythonParser.ClassDefNodeContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code routeDefNode}
 	 * labeled alternative in {@link PythonParser#stmt}.
 	 * @param ctx the parse tree
@@ -152,38 +44,158 @@ public interface PythonParserListener extends ParseTreeListener {
 	 */
 	void exitRouteDefNode(PythonParser.RouteDefNodeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code controlStmtNode}
+	 * Enter a parse tree produced by the {@code blockStmtWrapper}
 	 * labeled alternative in {@link PythonParser#stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code blockStmtWrapper}
+	 * labeled alternative in {@link PythonParser#stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code assignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignStmtNode(PythonParser.AssignStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code assignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignStmtNode(PythonParser.AssignStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code augAssignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code augAssignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code globalStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code globalStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code returnStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code returnStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ifStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfStmtNode(PythonParser.IfStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ifStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfStmtNode(PythonParser.IfStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code whileStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhileStmtNode(PythonParser.WhileStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code whileStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhileStmtNode(PythonParser.WhileStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code forStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterForStmtNode(PythonParser.ForStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code forStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitForStmtNode(PythonParser.ForStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code functionDefNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionDefNode(PythonParser.FunctionDefNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code functionDefNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionDefNode(PythonParser.FunctionDefNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code classDefNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassDefNode(PythonParser.ClassDefNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code classDefNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassDefNode(PythonParser.ClassDefNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code controlStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 */
 	void enterControlStmtNode(PythonParser.ControlStmtNodeContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code controlStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 */
 	void exitControlStmtNode(PythonParser.ControlStmtNodeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code exprStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 */
 	void enterExprStmtNode(PythonParser.ExprStmtNodeContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code exprStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 */
 	void exitExprStmtNode(PythonParser.ExprStmtNodeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code emptyStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 */
 	void enterEmptyStmtNode(PythonParser.EmptyStmtNodeContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code emptyStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 */
 	void exitEmptyStmtNode(PythonParser.EmptyStmtNodeContext ctx);

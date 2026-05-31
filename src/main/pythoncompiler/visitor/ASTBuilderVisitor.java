@@ -24,12 +24,17 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx) {
+        return visit(ctx.blockStmt());
+    }
+
+    @Override
     public ASTNode visitBlockNode(PythonParser.BlockNodeContext ctx) {
         BlockNode block = new BlockNode();
         block.lineNumber = ctx.start.getLine();
 
-        if (ctx.stmt() != null) {
-            for (var stmtCtx : ctx.stmt()) {
+        if (ctx.blockStmt() != null) {
+            for (var stmtCtx : ctx.blockStmt()) {
                 ASTNode child = visit(stmtCtx);
                 if (child != null) {
                     block.addChild(child);
@@ -39,7 +44,6 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
         }
         return block;
     }
-
 
 
     @Override

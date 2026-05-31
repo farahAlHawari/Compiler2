@@ -14,7 +14,14 @@ program
 
 stmt
     : importStmt                         #importStmtNode
-    | assignmentStmt                     #assignStmtNode
+    | routeDef                           #routeDefNode
+    | blockStmt                          #blockStmtWrapper
+    ;
+
+/*  Block-level Statements (can appear inside a block)  */
+
+blockStmt
+    : assignmentStmt                     #assignStmtNode
     | augAssignStmt                      #augAssignStmtNode
     | globalStmt                         #globalStmtNode
     | returnStmt                         #returnStmtNode
@@ -23,12 +30,10 @@ stmt
     | forStmt                            #forStmtNode
     | functionDef                        #functionDefNode
     | classDef                           #classDefNode
-    | routeDef                           #routeDefNode
     | controlStmt                        #controlStmtNode
     | exprStmt                           #exprStmtNode
     | emptyStmt                          #emptyStmtNode
     ;
-
 
 /*  Empty */
 
@@ -102,7 +107,7 @@ classDef
 
 
 block
-    : NEWLINE INDENT stmt+ DEDENT        #blockNode
+    : NEWLINE INDENT blockStmt+ DEDENT        #blockNode
     ;
 
 

@@ -1,4 +1,4 @@
-// Generated from C:/Users/maria/Downloads/Compiler-python_compiler/Compiler-python_compiler/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -25,69 +25,6 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitImportStmtNode(PythonParser.ImportStmtNodeContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code assignStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAssignStmtNode(PythonParser.AssignStmtNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code augAssignStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code globalStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code returnStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code ifStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIfStmtNode(PythonParser.IfStmtNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code whileStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWhileStmtNode(PythonParser.WhileStmtNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code forStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForStmtNode(PythonParser.ForStmtNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code functionDefNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunctionDefNode(PythonParser.FunctionDefNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code classDefNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitClassDefNode(PythonParser.ClassDefNodeContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code routeDefNode}
 	 * labeled alternative in {@link PythonParser#stmt}.
 	 * @param ctx the parse tree
@@ -95,22 +32,92 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitRouteDefNode(PythonParser.RouteDefNodeContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code controlStmtNode}
+	 * Visit a parse tree produced by the {@code blockStmtWrapper}
 	 * labeled alternative in {@link PythonParser#stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignStmtNode(PythonParser.AssignStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code augAssignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code globalStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code returnStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ifStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfStmtNode(PythonParser.IfStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code whileStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhileStmtNode(PythonParser.WhileStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code forStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForStmtNode(PythonParser.ForStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code functionDefNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionDefNode(PythonParser.FunctionDefNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code classDefNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClassDefNode(PythonParser.ClassDefNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code controlStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitControlStmtNode(PythonParser.ControlStmtNodeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code exprStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExprStmtNode(PythonParser.ExprStmtNodeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code emptyStmtNode}
-	 * labeled alternative in {@link PythonParser#stmt}.
+	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
