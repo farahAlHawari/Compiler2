@@ -10,7 +10,7 @@ public class BinaryOpNode extends ASTNode {
     }
 
     @Override
-    protected String getDetails() {
+    public String getDetails() {
         return " (" + operator + ")";
     }
 }

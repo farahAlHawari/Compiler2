@@ -9,6 +9,12 @@ public abstract class ASTNode {
 
     public ASTNode(String nodeName) {
         this.nodeName = nodeName;
+        this.lineNumber = 0;
+    }
+
+    public ASTNode(String nodeName, int lineNumber) {
+        this.nodeName = nodeName;
+        this.lineNumber = lineNumber;
     }
 
     public void addChild(ASTNode node) {
@@ -17,7 +23,7 @@ public abstract class ASTNode {
         }
     }
 
-    protected String getDetails() {
+    public String getDetails() {
         return "";
     }
 

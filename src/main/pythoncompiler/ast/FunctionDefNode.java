@@ -10,7 +10,7 @@ public class FunctionDefNode extends ASTNode {
     }
 
     @Override
-    protected String getDetails() {
+    public String getDetails() {
         return " (Name: " + functionName + ")";
     }
 }

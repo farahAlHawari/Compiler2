@@ -1,4 +1,4 @@
-// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from C:/Users/maria/IdeaProjects/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -140,6 +140,30 @@ public interface PythonParserListener extends ParseTreeListener {
 	 */
 	void exitForStmtNode(PythonParser.ForStmtNodeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code tryStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterTryStmtNode(PythonParser.TryStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code tryStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitTryStmtNode(PythonParser.TryStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code withStmtWrapper}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithStmtWrapper(PythonParser.WithStmtWrapperContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code withStmtWrapper}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithStmtWrapper(PythonParser.WithStmtWrapperContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code functionDefNode}
 	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
@@ -199,6 +223,30 @@ public interface PythonParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEmptyStmtNode(PythonParser.EmptyStmtNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code tryExceptNode}
+	 * labeled alternative in {@link PythonParser#tryStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterTryExceptNode(PythonParser.TryExceptNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code tryExceptNode}
+	 * labeled alternative in {@link PythonParser#tryStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitTryExceptNode(PythonParser.TryExceptNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code withStmtNode}
+	 * labeled alternative in {@link PythonParser#withStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithStmtNode(PythonParser.WithStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code withStmtNode}
+	 * labeled alternative in {@link PythonParser#withStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithStmtNode(PythonParser.WithStmtNodeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code emptyLine}
 	 * labeled alternative in {@link PythonParser#emptyStmt}.

@@ -1,4 +1,4 @@
-// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from C:/Users/maria/IdeaProjects/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -149,6 +149,30 @@ public class PythonParserBaseListener implements PythonParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTryStmtNode(PythonParser.TryStmtNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTryStmtNode(PythonParser.TryStmtNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWithStmtWrapper(PythonParser.WithStmtWrapperContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWithStmtWrapper(PythonParser.WithStmtWrapperContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunctionDefNode(PythonParser.FunctionDefNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -204,6 +228,30 @@ public class PythonParserBaseListener implements PythonParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEmptyStmtNode(PythonParser.EmptyStmtNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTryExceptNode(PythonParser.TryExceptNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTryExceptNode(PythonParser.TryExceptNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWithStmtNode(PythonParser.WithStmtNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWithStmtNode(PythonParser.WithStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

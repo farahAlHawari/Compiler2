@@ -12,7 +12,7 @@ public class AssignNode extends ASTNode {
     }
 
     @Override
-    protected String getDetails() {
+    public String getDetails() {
         return " (" + variableName + " " + operator + " .. )";
     }
 }

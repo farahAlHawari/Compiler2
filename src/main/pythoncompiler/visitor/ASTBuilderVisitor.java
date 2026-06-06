@@ -46,16 +46,75 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
     }
 
 
+//    @Override
+//    public ASTNode visitDecoratedFunctionNode(PythonParser.DecoratedFunctionNodeContext ctx) {
+//        FunctionDefNode func = (FunctionDefNode) visit(ctx.functionDef());
+//
+//        if (ctx.decorator() != null) {
+//            func.nodeName = "RouteFunction";
+//        }
+//        return func;
+//    }
+
+
+    @Override
+    public ASTNode visitDecoratorNode(PythonParser.DecoratorNodeContext ctx) {
+        return null;
+    }
     @Override
     public ASTNode visitDecoratedFunctionNode(PythonParser.DecoratedFunctionNodeContext ctx) {
-        FunctionDefNode func = (FunctionDefNode) visit(ctx.functionDef());
 
-        if (ctx.decorator() != null) {
-            func.nodeName = "RouteFunction";
-        }
-        return func;
+        FunctionDefNode funcNode = (FunctionDefNode) visit(ctx.functionDef());
+        funcNode.nodeName = "RouteFunction";
+
+        DecoratorListNode decoratorList = new DecoratorListNode();
+        decoratorList.lineNumber = ctx.start.getLine();
+
+        DecoratorNode decorator = new DecoratorNode();
+        decorator.lineNumber = ctx.start.getLine();
+
+        ASTNode decoratorExpr = buildDecoratorExpression(
+                (PythonParser.DecoratorNodeContext) ctx.decorator()
+        );
+
+        decorator.addChild(decoratorExpr);
+
+        decoratorList.addChild(decorator);
+
+        // نضيفها قبل البلوك
+        funcNode.children.add(0, decoratorList);
+
+        return funcNode;
     }
 
+    private ASTNode buildDecoratorExpression(PythonParser.DecoratorNodeContext ctx) {
+
+        // 1️⃣ بناء اسم decorator مثل app.route
+        StringBuilder nameBuilder = new StringBuilder();
+
+        for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
+            nameBuilder.append(ctx.IDENTIFIER(i).getText());
+            if (i < ctx.DOT().size()) {
+                nameBuilder.append(".");
+            }
+        }
+
+        String decoratorName = nameBuilder.toString();
+
+        // 2️⃣ إنشاء CallNode
+        CallNode callNode = new CallNode(decoratorName);
+        callNode.lineNumber = ctx.start.getLine();
+
+        // 3️⃣ arguments
+        if (ctx.argList() != null) {
+            ASTNode argsNode = visit(ctx.argList());
+            if (argsNode != null) {
+                callNode.addChild(argsNode);
+            }
+        }
+
+        return callNode;
+    }
 
 
     @Override
@@ -77,9 +136,10 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitParamListNode(PythonParser.ParamListNodeContext ctx) {
-        ASTNode paramsNode = new ASTNode("Parameters") {
+        final int line = ctx.start.getLine();
+        ASTNode paramsNode = new ASTNode("Parameters",line) {
             @Override
-            protected String getDetails() {
+            public String getDetails() {
                 return "";
             }
         };
@@ -116,11 +176,10 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
     int blockIndex = 0;
 
 
-    ASTNode ifBranch = new ASTNode("IfBranch") {
+    final int ifLine = ctx.start.getLine();
+    ASTNode ifBranch = new ASTNode("IfBranch", ifLine) {
         @Override
-        protected String getDetails() {
-            return "";
-        }
+        public String getDetails() { return ""; }
     };
     ifBranch.lineNumber = ctx.start.getLine();
 
@@ -142,11 +201,10 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
 
         for (int i = 0; i < ctx.ELIF().size(); i++) {
 
-            ASTNode elifBranch = new ASTNode("ElifBranch") {
+            final int elifLine = ctx.ELIF(i).getSymbol().getLine();
+            ASTNode elifBranch = new ASTNode("ElifBranch", elifLine) {
                 @Override
-                protected String getDetails() {
-                    return "";
-                }
+                public String getDetails() { return ""; }
             };
 
             elifBranch.lineNumber = ctx.ELIF(i).getSymbol().getLine();
@@ -247,38 +305,28 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
 
     @Override
     public ASTNode visitPassNode(PythonParser.PassNodeContext ctx) {
-        ASTNode passNode = new ASTNode("PassStmt") {
+        return new ASTNode("PassStmt", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
+            public String getDetails() {
                 return "";
             }
         };
-        passNode.lineNumber = ctx.start.getLine();
-        return passNode;
     }
 
     @Override
     public ASTNode visitBreakNode(PythonParser.BreakNodeContext ctx) {
-        ASTNode breakNode = new ASTNode("BreakStmt") {
+        return new ASTNode("BreakStmt", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
-                return "";
-            }
+            public String getDetails() { return ""; }
         };
-        breakNode.lineNumber = ctx.start.getLine();
-        return breakNode;
     }
 
     @Override
     public ASTNode visitContinueNode(PythonParser.ContinueNodeContext ctx) {
-        ASTNode continueNode = new ASTNode("ContinueStmt") {
+        return new ASTNode("ContinueStmt", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
-                return "";
-            }
+            public String getDetails() { return ""; }
         };
-        continueNode.lineNumber = ctx.start.getLine();
-        return continueNode;
     }
 
 
@@ -316,25 +364,41 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
     @Override
     public ASTNode visitGlobalDeclNode(PythonParser.GlobalDeclNodeContext ctx) {
         String varName = ctx.IDENTIFIER().getText();
-        ASTNode globalNode = new ASTNode("GlobalDecl") {
+        final String globalVarName = varName;
+        return new ASTNode("GlobalDecl", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
-                return " (" + varName + ")";
-            }
+            public String getDetails() { return " (" + globalVarName + ")"; }
         };
-        globalNode.lineNumber = ctx.start.getLine();
-        return globalNode;
     }
+
+//    @Override
+//    public ASTNode visitFromImportNode(PythonParser.FromImportNodeContext ctx) {
+//        final String moduleName = ctx.IDENTIFIER(0).getText();
+//        return new ASTNode("ImportStmt", ctx.start.getLine()) {
+//            @Override
+//            public String getDetails() { return " (from " + moduleName + ")"; }
+//        };
+//    }
 
     @Override
     public ASTNode visitFromImportNode(PythonParser.FromImportNodeContext ctx) {
-        ASTNode importNode = new ASTNode("ImportStmt") {
+        final String moduleName = ctx.IDENTIFIER(0).getText();
+        final int line = ctx.start.getLine();
+
+        ASTNode importNode = new ASTNode("ImportStmt", line) {
             @Override
-            protected String getDetails() {
-                return " (from " + ctx.IDENTIFIER(0).getText() + ")";
+            public String getDetails() {
+                return " (from " + moduleName + ")";   // ← بس اسم الموديول
             }
         };
-        importNode.lineNumber = ctx.start.getLine();
+
+        for (int i = 1; i < ctx.IDENTIFIER().size(); i++) {
+            String importedName = ctx.IDENTIFIER(i).getText();
+            IdentifierNode nameNode = new IdentifierNode(importedName);
+            nameNode.lineNumber = ctx.IDENTIFIER(i).getSymbol().getLine();
+            importNode.addChild(nameNode);           // ← الأسماء كأطفال
+        }
+
         return importNode;
     }
 
@@ -342,11 +406,9 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
     public ASTNode visitExpressionStmtNode(PythonParser.ExpressionStmtNodeContext ctx) {
         ASTNode expr = visit(ctx.expression());
         if (expr == null) {
-            return new ASTNode("UnsupportedExpr") {
+            return new ASTNode("UnsupportedExpr", ctx.start.getLine()) {
                 @Override
-                protected String getDetails() {
-                    return "";
-                }
+                public String getDetails() { return ""; }
             };
         }
         return expr;
@@ -574,11 +636,9 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
 
     @Override
     public ASTNode visitDictEntryNode(PythonParser.DictEntryNodeContext ctx) {
-        ASTNode entryNode = new ASTNode("DictEntry") {
+        ASTNode entryNode = new ASTNode("DictEntry", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
-                return "";
-            }
+            public String getDetails() { return ""; }
         };
         entryNode.lineNumber = ctx.start.getLine();
 
@@ -592,13 +652,10 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
 
     @Override
     public ASTNode visitArgListNode(PythonParser.ArgListNodeContext ctx) {
-        ASTNode argsNode = new ASTNode("Arguments") {
+        ASTNode argsNode = new ASTNode("Arguments", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
-                return "";
-            }
+            public String getDetails() { return ""; }
         };
-        argsNode.lineNumber = ctx.start.getLine();
 
         for (PythonParser.ArgumentContext argCtx : ctx.argument()) {
             argsNode.addChild(visit(argCtx));
@@ -609,13 +666,10 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
 
     @Override
     public ASTNode visitPositionalArgNode(PythonParser.PositionalArgNodeContext ctx) {
-        ASTNode argNode = new ASTNode("PositionalArg") {
+        ASTNode argNode = new ASTNode("PositionalArg", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
-                return "";
-            }
+            public String getDetails() { return ""; }
         };
-        argNode.lineNumber = ctx.start.getLine();
         argNode.addChild(visit(ctx.expression()));
         return argNode;
     }
@@ -623,25 +677,56 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
     @Override
     public ASTNode visitNamedArgNode(PythonParser.NamedArgNodeContext ctx) {
         String paramName = ctx.IDENTIFIER().getText();
-        ASTNode argNode = new ASTNode("NamedArg") {
+        final String namedArgName = paramName;
+        ASTNode argNode = new ASTNode("NamedArg", ctx.start.getLine()) {
             @Override
-            protected String getDetails() {
-                return " (" + paramName + "=...)";
-            }
+            public String getDetails() { return " (" + namedArgName + "=...)"; }
         };
-        argNode.lineNumber = ctx.start.getLine();
         argNode.addChild(visit(ctx.expression()));
         return argNode;
     }
 
 
-    @Override public ASTNode visitFactorPrimary(PythonParser.FactorPrimaryContext ctx) {
+    @Override
+    public ASTNode visitFactorPrimary(PythonParser.FactorPrimaryContext ctx) {
         return visit(ctx.primary());
     }
 
     @Override
     public ASTNode visitEmptyLine(PythonParser.EmptyLineContext ctx) {
         return null;
+    }
+
+    @Override
+    public ASTNode visitTryExceptNode(PythonParser.TryExceptNodeContext ctx) {
+        ASTNode tryNode = new ASTNode("TryExcept") {
+            @Override
+            public String getDetails() { return ""; }
+        };
+        tryNode.lineNumber = ctx.start.getLine();
+        // ctx.block() بترجع List — كل الـ blocks (try + except + finally)
+        for (PythonParser.BlockContext block : ctx.block()) {
+            tryNode.addChild(visit(block));
+        }
+        return tryNode;
+    }
+
+    @Override
+    public ASTNode visitWithStmtNode(PythonParser.WithStmtNodeContext ctx) {
+        // ctx.IDENTIFIER() بيكون null لو ما في "as varName"
+        String asName = (ctx.AS() != null && ctx.IDENTIFIER() != null)
+                ? ctx.IDENTIFIER().getText()
+                : "";
+        ASTNode withNode = new ASTNode("WithStmt") {
+            @Override
+            public String getDetails() {
+                return asName.isEmpty() ? "" : " (as " + asName + ")";
+            }
+        };
+        withNode.lineNumber = ctx.start.getLine();
+        withNode.addChild(visit(ctx.expression()));
+        withNode.addChild(visit(ctx.block()));
+        return withNode;
     }
 
 }

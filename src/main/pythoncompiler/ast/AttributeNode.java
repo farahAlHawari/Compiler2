@@ -9,7 +9,7 @@ public class AttributeNode extends ASTNode {
     }
 
     @Override
-    protected String getDetails() {
+    public String getDetails() {
         return " (." + attributeName + ")";
     }
 }

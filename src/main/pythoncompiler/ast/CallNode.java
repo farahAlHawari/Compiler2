@@ -10,7 +10,7 @@ public class CallNode extends ASTNode {
     }
 
     @Override
-    protected String getDetails() {
+    public String getDetails() {
         return " (" + functionName + ")";
     }
 }

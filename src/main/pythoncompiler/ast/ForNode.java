@@ -8,7 +8,7 @@ public class ForNode extends ASTNode {
     }
 
     @Override
-    protected String getDetails() {
+    public String getDetails() {
         return " (iterator: " + iteratorName + ")";
     }
 }

@@ -9,7 +9,7 @@ public class UnaryOpNode extends ASTNode {
     }
 
     @Override
-    protected String getDetails() {
+    public String getDetails() {
         return " (" + operator + ")";
     }
 }

@@ -1,4 +1,4 @@
-// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from C:/Users/maria/IdeaProjects/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -88,6 +88,20 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitForStmtNode(PythonParser.ForStmtNodeContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code tryStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTryStmtNode(PythonParser.TryStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code withStmtWrapper}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWithStmtWrapper(PythonParser.WithStmtWrapperContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code functionDefNode}
 	 * labeled alternative in {@link PythonParser#blockStmt}.
 	 * @param ctx the parse tree
@@ -122,6 +136,20 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitEmptyStmtNode(PythonParser.EmptyStmtNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code tryExceptNode}
+	 * labeled alternative in {@link PythonParser#tryStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTryExceptNode(PythonParser.TryExceptNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code withStmtNode}
+	 * labeled alternative in {@link PythonParser#withStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWithStmtNode(PythonParser.WithStmtNodeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code emptyLine}
 	 * labeled alternative in {@link PythonParser#emptyStmt}.

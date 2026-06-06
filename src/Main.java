@@ -80,10 +80,10 @@ public class Main {
 
         // ===== Python Compiler =====
         PythonCompiler compiler = new PythonCompiler(symbolTable);
-        compiler.compile("src/tests/app2.py");
+        compiler.compile("src/tests/app222.py");
 
         // ===== HTML/CSS/Jinja Parser =====
-        String source = "tests/base.html";
+        String source = "tests/base1.html";
 
         CharStream charStream = CharStreams.fromFileName(source);
 

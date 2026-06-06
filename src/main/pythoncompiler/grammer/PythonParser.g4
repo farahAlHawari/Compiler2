@@ -28,11 +28,27 @@ blockStmt
     | ifStmt                             #ifStmtNode
     | whileStmt                          #whileStmtNode
     | forStmt                            #forStmtNode
+    | tryStmt                            #tryStmtNode      
+    | withStmt                           #withStmtWrapper
     | functionDef                        #functionDefNode
     | classDef                           #classDefNode
     | controlStmt                        #controlStmtNode
     | exprStmt                           #exprStmtNode
     | emptyStmt                          #emptyStmtNode
+    ;
+
+/* Try/Except */
+tryStmt
+    : TRY COLON block
+      (EXCEPT expression? COLON block)*
+      (FINALLY COLON block)?
+                                         #tryExceptNode
+    ;
+
+/* With */
+withStmt
+    : WITH expression (AS IDENTIFIER)? COLON block
+                                         #withStmtNode
     ;
 
 /*  Empty */

@@ -86,9 +86,9 @@ public class SymbolTableVisitor {
             case "GlobalDecl":
                 visitGlobalDecl(node);
                 break;
-//            case "ImportStmt":
-//                visitImportStmt(node);
-//                break;
+            case "ImportStmt":
+                visitImportStmt(node);
+                break;
             case "CallExpr":
                 visitCallExpr(node);
                 break;
@@ -122,12 +122,45 @@ public class SymbolTableVisitor {
             case "ContinueStmt":
                 // No symbol table operations needed
                 break;
+            case "TryExcept":
+                visitTryExcept(node);
+                break;
+            case "WithStmt":
+                visitWithStmt(node);
+                break;
             default:
                 // Visit children for unrecognized nodes
                 for (ASTNode child : node.children) {
                     visit(child);
                 }
                 break;
+        }
+    }
+
+
+
+    private void visitTryExcept(ASTNode node) {
+        for (ASTNode child : node.children) {
+            visit(child);
+        }
+    }
+
+    private void visitWithStmt(ASTNode node) {
+        // node.getDetails() ترجع " (as file)"
+        String details = node.getDetails();
+        if (!details.isEmpty()) {
+            String varName = details.replace("(as", "").replace(")", "").trim();
+            SymbolEntry entry = new SymbolEntry(
+                    varName, "variable", "unknown",
+                    symbolTable.currentScope().getScopeType(),
+                    symbolTable.currentScopeLevel(),
+                    node.lineNumber, "python"
+            );
+            symbolTable.insert(entry);
+        }
+        // ثم زوري أبناء الـ block
+        for (ASTNode child : node.children) {
+            visit(child);
         }
     }
 
@@ -185,21 +218,33 @@ public class SymbolTableVisitor {
                 existingInCurrent.setType(inferredType);
             } else {
                 // Check if it exists in an outer scope
-                SymbolEntry existingAnywhere = symbolTable.lookup(varName);
-                if (existingAnywhere != null) {
-                    // Variable exists in outer scope - update it (Python behavior)
-                    existingAnywhere.setValue(value);
-                    existingAnywhere.setType(inferredType);
-                } else {
-                    // New variable - insert in current scope
-                    String scopeType = symbolTable.currentScope().getScopeType();
-                    int scopeLevel = symbolTable.currentScopeLevel();
+                String currentScopeType = symbolTable.currentScope().getScopeType();
+                boolean isInsideFunction = currentScopeType.equals("function")
+                        || currentScopeType.equals("route_function")
+                        || currentScopeType.equals("class");
+
+                if (isInsideFunction) {
+                    // داخل دالة: أنشئي local variable دائماً
                     SymbolEntry entry = new SymbolEntry(
-                            varName, "variable", inferredType, scopeType,
-                            scopeLevel, node.lineNumber, "python"
+                            varName, "variable", inferredType, currentScopeType,
+                            symbolTable.currentScopeLevel(), node.lineNumber, "python"
                     );
                     entry.setValue(value);
                     symbolTable.insert(entry);
+                } else {
+                    // في global scope: عدّلي المتغير لو موجود
+                    SymbolEntry existingAnywhere = symbolTable.lookup(varName);
+                    if (existingAnywhere != null) {
+                        existingAnywhere.setValue(value);
+                        existingAnywhere.setType(inferredType);
+                    } else {
+                        SymbolEntry entry = new SymbolEntry(
+                                varName, "variable", inferredType, currentScopeType,
+                                symbolTable.currentScopeLevel(), node.lineNumber, "python"
+                        );
+                        entry.setValue(value);
+                        symbolTable.insert(entry);
+                    }
                 }
             }
         } else {
@@ -252,9 +297,13 @@ public class SymbolTableVisitor {
 
         symbolTable.insert(entry);
 
-        // Enter function scope
+        // Enter function scope (route functions get a distinctive scope type)
         int newLevel = scopeLevel + 1;
-        symbolTable.enterScope("function", newLevel, funcName);
+        if ("RouteFunction".equals(node.nodeName)) {
+            symbolTable.enterScope("route_function", newLevel, funcName);
+        } else {
+            symbolTable.enterScope("function", newLevel, funcName);
+        }
 
         // Visit parameters (they go into function scope)
         for (ASTNode child : node.children) {
@@ -370,7 +419,7 @@ public class SymbolTableVisitor {
 
     private void visitGlobalDecl(ASTNode node) {
         // Extract variable name from the GlobalDecl details
-        String details = node.nodeName;
+        String details = node.getDetails();
         // Parse " (varName)" format
         String varName = details.replace("(", "").replace(")", "").trim();
 
@@ -401,6 +450,26 @@ public class SymbolTableVisitor {
 //        insertInGlobalScope(entry);
 //    }
 
+
+    private void visitImportStmt(ASTNode node) {
+        // أزل كل ImportedName كـ child في global scope
+        for (ASTNode child : node.children) {
+            if (child instanceof IdentifierNode) {
+                IdentifierNode idNode = (IdentifierNode) child;
+
+                String scopeType = symbolTable.currentScope().getScopeType();
+                int scopeLevel = symbolTable.currentScopeLevel();
+
+                SymbolEntry entry = new SymbolEntry(
+                        idNode.name, "imported_name",  "module", "global",
+                        0, child.lineNumber, "python"
+                );
+                entry.setValue("imported");
+                insertInGlobalScope(entry);
+            }
+        }
+    }
+
     // ==================== Parameters ====================
 
     private void visitParameters(ASTNode node) {
@@ -408,7 +477,8 @@ public class SymbolTableVisitor {
             if ("Identifier".equals(child.nodeName)) {
                 IdentifierNode idNode = (IdentifierNode) child;
                 SymbolEntry entry = new SymbolEntry(
-                        idNode.name, "parameter", "unknown", "function",
+                        idNode.name, "parameter", "unknown",
+                        symbolTable.currentScope().getScopeType(),
                         symbolTable.currentScopeLevel(), child.lineNumber, "python"
                 );
                 symbolTable.insert(entry);
@@ -417,21 +487,32 @@ public class SymbolTableVisitor {
     }
 
     // ==================== Call Expression ====================
-
     private void visitCallExpr(ASTNode node) {
         CallNode callNode = (CallNode) node;
         String funcName = callNode.functionName;
 
-        // Check if function is defined (for use-before-declaration check)
-        SymbolEntry funcEntry = symbolTable.lookup(funcName);
-        if (funcEntry == null) {
-            // Function not found in any scope - might be a built-in or imported
-            // Don't report error for built-in functions like print, len, etc.
-            if (!isBuiltinFunction(funcName)) {
-                errors.add(String.format(
-                        "Warning [Line %d]: Function '%s' called but not defined in symbol table",
-                        node.lineNumber, funcName
-                ));
+        // ✅ التحقق: هل هذا Method Call على object (مثل date_str.split أو app.run)؟
+        boolean isMethodCall = false;
+        for (ASTNode child : node.children) {
+            if (child instanceof AttributeNode) {
+                isMethodCall = true;
+                break;
+            }
+        }
+
+        // نطلع Warning بس لو كانت:
+        // 1) دالة مستقلة (مش method على object) و
+        // 2) مو موجودة في Symbol Table و
+        // 3) مو من built-in functions
+        if (!isMethodCall) {
+            SymbolEntry funcEntry = symbolTable.lookup(funcName);
+            if (funcEntry == null) {
+                if (!isBuiltinFunction(funcName)) {
+                    errors.add(String.format(
+                            "Warning [Line %d]: Function '%s' called but not defined in symbol table",
+                            node.lineNumber, funcName
+                    ));
+                }
             }
         }
 
@@ -446,14 +527,24 @@ public class SymbolTableVisitor {
     private void visitIdentifier(ASTNode node) {
         IdentifierNode idNode = (IdentifierNode) node;
         String name = idNode.name;
-
-        // Check if identifier is declared somewhere
-        SymbolEntry entry = symbolTable.lookup(name);
-        if (entry == null && !isBuiltinFunction(name)) {
-            // Not found - might be used before declaration or undeclared
-            // We record this as a soft warning, not an error, because
-            // in Python, variables can be used before their assignment in some patterns
+        // لا تفحصي داخل تعريف دالة (لأن البارامتر ما تعرّف بعد)
+        if (!isBuiltinFunction(name) && !isCommonFlaskGlobal(name)) {
+            SymbolEntry entry = symbolTable.lookup(name);
+            if (entry == null) {
+                errors.add(String.format(
+                        "Warning [Line %d]: Identifier '%s' used but not declared",
+                        node.lineNumber, name
+                ));
+            }
         }
+    }
+
+    // أضيفي هالدالة المساعدة
+    private boolean isCommonFlaskGlobal(String name) {
+        return java.util.Set.of(
+                "app", "request", "Flask", "render_template",
+                "redirect", "url_for", "jsonify", "True", "False", "None"
+        ).contains(name);
     }
 
     // ==================== Literal ====================
@@ -579,12 +670,23 @@ public class SymbolTableVisitor {
     /**
      * Check if a function name is a Python built-in.
      */
+//    private static final java.util.Set<String> PYTHON_BUILTINS = java.util.Set.of(
+//            "print", "len", "range", "int", "str", "float", "list", "dict",
+//            "set", "tuple", "type", "isinstance", "input", "open", "append",
+//            "super", "staticmethod", "classmethod", "property", "enumerate",
+//            "zip", "map", "filter", "sorted", "reversed", "min", "max", "sum",
+//            "abs", "round", "any", "all", "hasattr", "getattr", "setattr"
+//    );
     private static final java.util.Set<String> PYTHON_BUILTINS = java.util.Set.of(
             "print", "len", "range", "int", "str", "float", "list", "dict",
             "set", "tuple", "type", "isinstance", "input", "open", "append",
             "super", "staticmethod", "classmethod", "property", "enumerate",
             "zip", "map", "filter", "sorted", "reversed", "min", "max", "sum",
-            "abs", "round", "any", "all", "hasattr", "getattr", "setattr"
+            "abs", "round", "any", "all", "hasattr", "getattr", "setattr",
+            // Flask framework functions (imported)
+            "Flask", "render_template", "request", "redirect", "url_for",
+            "SQLAlchemy", "db",
+            "__name__"
     );
 
     private boolean isBuiltinFunction(String name) {

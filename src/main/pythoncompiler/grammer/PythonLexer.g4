@@ -67,6 +67,7 @@ WITH        : 'with';
 TRY         : 'try';
 EXCEPT      : 'except';
 FINALLY     : 'finally';
+AS          : 'as';
 
 TRUE        : 'True';
 FALSE       : 'False';

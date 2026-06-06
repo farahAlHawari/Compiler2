@@ -6,7 +6,7 @@
         <PerGrammarGenerationSettings>
           <option name="fileName" value="$PROJECT_DIR$/src/main/pythoncompiler/grammer/PythonParser.g4" />
           <option name="autoGen" value="true" />
-          <option name="outputDir" value="D:\My_Projects\Forth year\Compiler2\src\main\pythoncompiler\grammer" />
+          <option name="outputDir" value="C:\Users\maria\IdeaProjects\Compiler2\src\main\pythoncompiler\grammer" />
           <option name="libDir" value="" />
           <option name="encoding" value="" />
           <option name="pkg" value="main.pythoncompiler.grammer" />
@@ -16,7 +16,7 @@
         <PerGrammarGenerationSettings>
           <option name="fileName" value="$PROJECT_DIR$/src/main/pythoncompiler/grammer/PythonLexer.g4" />
           <option name="autoGen" value="true" />
-          <option name="outputDir" value="D:\My_Projects\Forth year\Compiler2\src\main\pythoncompiler\grammer" />
+          <option name="outputDir" value="C:\Users\maria\IdeaProjects\Compiler2\src\main\pythoncompiler\grammer" />
           <option name="libDir" value="" />
           <option name="encoding" value="" />
           <option name="pkg" value="" />
