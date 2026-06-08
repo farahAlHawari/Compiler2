@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Default Title{% endblock %}</title>
+    <style>
+        body { margin: 0; }
+        .card { padding: 10px; }
+    </style>
+</head>
+<body>
+
+
+<h1>{{ store_name }}</h1>
+<p>{{ page_title }}</p>
+
+
+<p>{{ user.name }}</p>
+<p>{{ user.email }}</p>
+<p>{{ user.address.city }}</p>
+
+
+{% if is_logged_in %}
+<p>Welcome back!</p>
+{% endif %}
+
+
+{% if is_admin %}
+<p>Admin Panel</p>
+{% else %}
+<p>User Dashboard</p>
+{% endif %}
+
+
+{% if role == "admin" %}
+<p>Full Access</p>
+{% elif role == "editor" %}
+<p>Edit Access</p>
+{% elif role == "viewer" %}
+<p>Read Only</p>
+{% else %}
+<p>No Access</p>
+{% endif %}
+
+
+{% for item in items %}
+<p>{{ item }}</p>
+{% endfor %}
+
+
+{% for product in products %}
+<div>
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.price }}</p>
+    <p>{{ product.category }}</p>
+</div>
+{% endfor %}
+
+
+{% for category in categories %}
+<h2>{{ category.name }}</h2>
+{% for sub in category.subcategories %}
+<p>{{ sub.title }}</p>
+{% endfor %}
+{% endfor %}
+
+
+{% for product in products %}
+<div>
+    <h3>{{ product.name }}</h3>
+    {% if product.discount %}
+    <span>Sale: {{ product.discount }}</span>
+    {% endif %}
+    {% if product.out_of_stock %}
+    <span>Out of Stock</span>
+    {% else %}
+    <span>Available</span>
+    {% endif %}
+</div>
+{% endfor %}
+
+
+{% block content %}
+<p>Default content</p>
+{% endblock %}
+
+
+{% block sidebar %}
+<p>Default sidebar</p>
+{% endblock %}
+
+
+{% macro greeting(name) %}
+<p>Hello, {{ name }}!</p>
+{% endmacro %}
+
+{{ greeting("Sara") }}
+
+
+{% macro render_card(title, content, color) %}
+<div style="border-color: {{ color }}">
+    <h3>{{ title }}</h3>
+    <p>{{ content }}</p>
+</div>
+{% endmacro %}
+
+{{ render_card("Card 1", "Description 1", "blue") }}
+{{ render_card("Card 2", "Description 2", "red") }}
+
+
+{% set welcome_msg = "Welcome" %}
+<p>{{ welcome_msg }}</p>
+
+
+{% set full_name = user.name %}
+<p>{{ full_name }}</p>
+
+
+{% if is_admin %}
+{% set access_level = "full" %}
+{% else %}
+{% set access_level = "limited" %}
+{% endif %}
+<p>{{ access_level }}</p>
+
+
+{% for product in products %}
+{% set discounted = product.discount %}
+<p>{{ discounted }}</p>
+{% endfor %}
+
+
+{% if show_banner %}
+{% set banner_text = "Big Sale!" %}
+{% endif %}
+<p>{{ banner_text }}</p>
+
+
+{% include "header.html" %}
+
+
+<p>{{ user.name }} - {{ role }}</p>
+<p>Total: {{ total_price }}</p>
+<p>{{ settings.theme }}</p>
+
+
+{% if is_logged_in and is_admin %}
+<p>Admin is logged in</p>
+{% endif %}
+
+{% if role == "admin" or role == "editor" %}
+<p>Can edit</p>
+{% endif %}
+
+
+{% for item in items %}
+{% if item == "apple" %}
+<p>Fruit: {{ item }}</p>
+{% elif item == "carrot" %}
+<p>Vegetable: {{ item }}</p>
+{% else %}
+<p>Other: {{ item }}</p>
+{% endif %}
+{% endfor %}
+
+
+{% if is_logged_in %}
+{% if is_admin %}
+<p>Admin User</p>
+{% else %}
+<p>Regular User</p>
+{% endif %}
+{% endif %}
+
+
+{% macro status_badge(status) %}
+{% if status == "active" %}
+<span class="green">{{ status }}</span>
+{% elif status == "pending" %}
+<span class="yellow">{{ status }}</span>
+{% else %}
+<span class="red">{{ status }}</span>
+{% endif %}
+{% endmacro %}
+
+{{ status_badge("active") }}
+{{ status_badge("pending") }}
+
+
+<a href="/user/{{ user.name }}">Profile</a>
+<div class="{{ settings.theme }}">Content</div>
+
+
+{% for product in products %}
+<p>{{ loop.index }} - {{ product.name }}</p>
+{% endfor %}
+
+
+{% if user %}
+<p>{{ user.name }}</p>
+{% endif %}
+
+
+{% if products %}
+{% for p in products %}
+<p>{{ p.name }}</p>
+{% endfor %}
+{% elif featured %}
+<p>Featured: {{ featured }}</p>
+{% else %}
+<p>No items</p>
+{% endif %}
+
+
+{% for key in settings %}
+<p>{{ key }}</p>
+{% endfor %}
+
+</body>
+</html>

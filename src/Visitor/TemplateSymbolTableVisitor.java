@@ -6,6 +6,7 @@ import AST.Css.Selectors.*;
 import AST.Css.Values.*;
 import AST.Html.*;
 import AST.Jinja.*;
+import symbol_table.Scope;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
 
@@ -144,15 +145,21 @@ public class TemplateSymbolTableVisitor {
         // تخطى لو ما في Jinja expression داخل الـ value
         if (attrValue == null || !attrValue.contains("{{")) return;
 
-        // في Jinja داخل الـ value، نستخرج المتغيرات منه
-        extractVariablesFromExpression(attrValue, node.getLine());
+
+        java.util.regex.Pattern jinjaPattern =
+                java.util.regex.Pattern.compile("\\{\\{(.*?)\\}\\}");
+        java.util.regex.Matcher jinjaMatcher = jinjaPattern.matcher(attrValue);
+        while (jinjaMatcher.find()) {
+            String expr = jinjaMatcher.group(1).trim();
+            extractVariablesFromExpression(expr, node.getLine());
+        }
     }
 
     // ==================== CSS Style Block ====================
 
     private void visitStyleBlock(StyleBlockNode node) {
-        int newLevel = symbolTable.currentScopeLevel() + 1;
-        symbolTable.enterScope("style", newLevel, "style");
+
+        symbolTable.enterScope("style",  "style");
 
         for (ASTNode child : node.children) {
             visit(child);
@@ -163,14 +170,26 @@ public class TemplateSymbolTableVisitor {
 
     // ==================== CSS Rule ====================
 
+    // ✅ الصح:
     private void visitStyleRule(StyleRuleNode node) {
         String selectorText = extractSelectorText(node);
-
         int newLevel = symbolTable.currentScopeLevel() + 1;
-        symbolTable.enterScope("style", newLevel, selectorText);
 
+        // 1) زوري السيلكتورات قبل enterScope (بلفل الأب = 1)
         for (ASTNode child : node.children) {
-            visit(child);
+            if (child instanceof SelectorNode || child instanceof CombinedSelectorNode) {
+                visit(child);
+            }
+        }
+
+        // 2) ادخلي السكوب
+        symbolTable.enterScope("style",  selectorText);
+
+        // 3) زوري الدكليريشنز جوا السكوب (بلفل الابن = 2)
+        for (ASTNode child : node.children) {
+            if (!(child instanceof SelectorNode || child instanceof CombinedSelectorNode)) {
+                visit(child);
+            }
         }
 
         symbolTable.exitScope();
@@ -239,7 +258,7 @@ public class TemplateSymbolTableVisitor {
     }
 
     private void visitClassSelector(ClassSelectorNode node) {
-        String cleanName = "." + node.nodeName.replace("ClassSelector: ", "");
+        String cleanName = node.nodeName.replace("ClassSelector: ", "");
         String scopeType = symbolTable.currentScope().getScopeType();
         int scopeLevel = symbolTable.currentScopeLevel();
 
@@ -251,7 +270,7 @@ public class TemplateSymbolTableVisitor {
     }
 
     private void visitIdSelector(IdSelectorNode node) {
-        String cleanName = "#" + node.nodeName.replace("IDSelector: ", "");
+        String cleanName = node.nodeName.replace("IDSelector: ", "");
         String scopeType = symbolTable.currentScope().getScopeType();
         int scopeLevel = symbolTable.currentScopeLevel();
 
@@ -350,7 +369,7 @@ public class TemplateSymbolTableVisitor {
     private void visitJinjaNode(JinjaNode node) {
         String name = node.nodeName;
 
-        if (name.startsWith("JinjaIf") && !name.startsWith("JinjaIfNode")) {
+        if (node instanceof JinjaIfNode) {
             visitJinjaIf(node);
         } else if (name.startsWith("JinjaElif")) {
             // ✅ [تعديل 4] elif ما عاد بيعمل سكوب لحاله
@@ -374,13 +393,207 @@ public class TemplateSymbolTableVisitor {
             visitJinjaImport(node);
         } else if (name.startsWith("JinjaSet")) {
             visitJinjaSet(node);
-        } else if (name.startsWith("JinjaMacro")) {
+        }
+     else if (name.startsWith("JinjaWith")) {
+        visitJinjaWith(node);}
+        else if (name.startsWith("JinjaMacro")) {
             visitJinjaMacro(node);
-        } else {
+        }
+        else if (name.startsWith("JinjaSimple")) {
+            visitJinjaSimpleFallback(node);
+        }
+        else {
             for (ASTNode child : node.children) {
                 visit(child);
             }
         }
+    }
+
+    private void visitJinjaSimpleFallback(JinjaNode node) {
+        String content = node.nodeName.substring("JinjaSimple".length()).trim();
+
+        if (content.startsWith("for ")) {
+            // {% for product in products %} - بشكل Simple (بدون أطفال)
+            handleSimpleFor(content, node.getLine());
+
+        } else if (content.startsWith("if ")) {
+            // {% if show_banner %} - بشكل Simple
+            handleSimpleIf(content, node.getLine());
+
+        } else if (content.startsWith("elif ")) {
+            // {% elif item == "carrot" %} - بشكل Simple
+            String condition = content.substring(5).trim();
+            extractVariablesFromExpression(condition, node.getLine());
+
+        } else if (content.startsWith("else")) {
+            // {% else %} - ما نساوي شي (الـ scope بيتبدل بالـ processIfBranchChildren)
+
+        } else if (content.startsWith("set ")) {
+            // {% set welcome_msg = "Welcome" %} - بشكل Simple
+            handleSimpleSet(content, node.getLine());
+
+        } else if (content.startsWith("macro ")) {
+            // {% macro greeting(name) %} - بشكل Simple
+            handleSimpleMacro(content, node.getLine());
+
+        } else if (content.startsWith("include ")) {
+            // {% include "header.html" %} - بشكل Simple
+            String templateName = extractQuotedString(content);
+            String scopeType = symbolTable.currentScope().getScopeType();
+            int scopeLevel = symbolTable.currentScopeLevel();
+            SymbolEntry entry = new SymbolEntry(
+                    "include", "jinja_include", "template_ref", scopeType,
+                    scopeLevel, node.getLine(), "template"
+            );
+            entry.setValue(templateName);
+            symbolTable.insert(entry);
+
+        } else if (content.startsWith("with ")) {
+            // {% with x = 5 %} - بشكل Simple
+            String withExpr = content.substring(5).trim();
+            symbolTable.enterScope("jinja_block", "with");
+            if (withExpr.contains("=")) {
+                String varName = withExpr.substring(0, withExpr.indexOf("=")).trim();
+                String valueExpr = withExpr.substring(withExpr.indexOf("=") + 1).trim();
+                SymbolEntry entry = new SymbolEntry(
+                        varName, "variable", "jinja_set_var",
+                        "jinja_block:with", symbolTable.currentScopeLevel(),
+                        node.getLine(), "template"
+                );
+                entry.setValue(valueExpr);
+                symbolTable.insert(entry);
+                extractVariablesFromExpression(valueExpr, node.getLine());
+            }
+            symbolTable.exitScope();
+
+        } else {
+            // endif, endfor, endblock, endmacro - نتخطاها
+            // أو unknown - بس نزور أطفال
+            for (ASTNode child : node.children) {
+                visit(child);
+            }
+        }
+    }
+
+    private void handleSimpleFor(String content, int line) {
+        String expr = content.substring(4).trim();
+        String iteratorName = "";
+        String iterableName = "";
+
+        if (expr.contains(" in ")) {
+            String[] parts = expr.split(" in ", 2);
+            iteratorName = parts[0].trim();
+            iterableName = parts[1].trim();
+            if (iterableName.contains(".")) {
+                iterableName = iterableName.split("\\.")[0].trim();
+            }
+        }
+
+        if (!iteratorName.isEmpty()) {
+            String scopeType = symbolTable.currentScope().getScopeType();
+            int scopeLevel = symbolTable.currentScopeLevel();
+            SymbolEntry iterEntry = new SymbolEntry(
+                    iteratorName, "variable", "jinja_iterator",
+                    scopeType, scopeLevel, line, "template"
+            );
+            symbolTable.insert(iterEntry);
+        }
+
+        // ✅ التعديل: lookupCurrentScope بدل lookup
+        if (!iterableName.isEmpty() && symbolTable.lookupCurrentScope(iterableName) == null) {
+            String scopeType = symbolTable.currentScope().getScopeType();
+            int scopeLevel = symbolTable.currentScopeLevel();
+            SymbolEntry iterableEntry = new SymbolEntry(
+                    iterableName, "variable", "jinja_iterable",
+                    scopeType, scopeLevel, line, "template"
+            );
+            symbolTable.insert(iterableEntry);
+        }
+    }
+
+    private void handleSimpleIf(String content, int line) {
+        // content = "if show_banner" أو "if is_logged_in and is_admin"
+        String condition = content.substring(3).trim();
+        extractVariablesFromExpression(condition, line);
+    }
+
+    private void handleSimpleSet(String content, int line) {
+        // content = "set welcome_msg "Welcome"" أو "set full_name user.name"
+        String setExpr = content.substring(4).trim();
+        if (setExpr.contains("=")) {
+            String varName = setExpr.substring(0, setExpr.indexOf("=")).trim();
+            String valueExpr = setExpr.substring(setExpr.indexOf("=") + 1).trim();
+
+            String scopeType = symbolTable.currentScope().getScopeType();
+            int scopeLevel = symbolTable.currentScopeLevel();
+
+            SymbolEntry entry = new SymbolEntry(
+                    varName, "variable", "jinja_set_var", scopeType,
+                    scopeLevel, line, "template"
+            );
+            entry.setValue(valueExpr);
+            symbolTable.insert(entry);
+
+            extractVariablesFromExpression(valueExpr, line);
+        } else {
+            // {% set x %} بدون = (نادر)
+            String varName = setExpr.trim();
+            String scopeType = symbolTable.currentScope().getScopeType();
+            int scopeLevel = symbolTable.currentScopeLevel();
+            SymbolEntry entry = new SymbolEntry(
+                    varName, "variable", "jinja_set_var", scopeType,
+                    scopeLevel, line, "template"
+            );
+            symbolTable.insert(entry);
+        }
+    }
+
+    private void handleSimpleMacro(String content, int line) {
+        // content = "macro greeting(name)" أو "macro render_card(title, content, color)"
+        String rest = content.substring(6).trim();
+        int parenStart = rest.indexOf("(");
+        int parenEnd = rest.lastIndexOf(")");
+
+        if (parenStart == -1) return;
+
+        String macroName = rest.substring(0, parenStart).trim();
+        String paramsStr = (parenEnd > parenStart) ?
+                rest.substring(parenStart + 1, parenEnd).trim() : "";
+
+        // ✅ تخزين تعريف الماكرو بالسكوب الحالي
+        String scopeType = symbolTable.currentScope().getScopeType();
+        int scopeLevel = symbolTable.currentScopeLevel();
+        SymbolEntry entry = new SymbolEntry(
+                macroName, "function", "jinja_macro", scopeType,
+                scopeLevel, line, "template"
+        );
+        symbolTable.insert(entry);
+
+        // ✅ فتح سكوب الماكرو وتخزين الباراميترات
+        symbolTable.enterScope("jinja_block", "macro:" + macroName);
+
+        if (!paramsStr.isEmpty()) {
+            String[] params = paramsStr.split(",");
+            for (String param : params) {
+                param = param.trim();
+                if (!param.isEmpty()) {
+                    SymbolEntry paramEntry = new SymbolEntry(
+                            param, "parameter", "macro_param",
+                            "jinja_block:macro:" + macroName,
+                            symbolTable.currentScopeLevel(),
+                            line, "template"
+                    );
+                    symbolTable.insert(paramEntry);
+                }
+            }
+        }
+
+        // Simple macro = ما عندو أطفال جوا العقدة
+        // بس ممكن يكون في content كـ siblings
+        // ما نقفل السكوب هون لأنه المحتوى جاي كـ siblings
+        // الحل: نقفل السكوب لما نوصل JinjaSimple endmacro
+        // ⚠️ مؤقتاً نقفل فوراً (لأنه ما فينا نتحكم بالـ siblings)
+        symbolTable.exitScope();
     }
 
     // ==================== [تعديل 4] إصلاح سكوبات if/elif/else ====================
@@ -401,65 +614,121 @@ public class TemplateSymbolTableVisitor {
         String condition = extractJinjaCondition(node.nodeName);
         extractVariablesFromExpression(condition, node.getLine());
 
-        // نحفظ مستوى السكوب يلي راح نستخدمه لكل الفروع
-        int ifScopeLevel = symbolTable.currentScopeLevel() + 1;
+        symbolTable.enterScope("jinja_block", "if");
+        processIfBranchChildren(node);
 
-        // ===== 1) فرع if =====
-        symbolTable.enterScope("jinja_block", ifScopeLevel, "if");
+        Scope exited = symbolTable.exitScope();
+        if (exited != null) {
+            promoteVariablesToParent(exited);
+        }
+    }
 
-        // بنزور أبناء الـ if، بس لازم نميز بين:
-        // - محتوى عادي (نزوره ضمن سكوب if)
-        // - JinjaElse / JinjaElif (نغلق سكوب if ونفتح سكوب جديد بنفس المستوى)
-        // - JinjaEndIf / JinjaEndFor / JinjaEndBlock (نتجاوزها)
-        for (ASTNode child : node.children) {
+    /**
+     * معالجة أطفال فرع if/elif بشكل متكرر.
+     * السبب: الـ grammar بيعمل elif/else كـ containers متداخلة،
+     * فـ JinjaElseNode ممكن يكون داخل JinjaElifNode مش child مباشر لـ IfNode.
+     *
+     * هالدالة بتلف على الأطفال ولما تلاقي elif/else بتعمل:
+     * 1. ترفع متغيرات الفرع الحالي للـ parent (promote)
+     * 2. تقفل سكوب الفرع الحالي
+     * 3. تفتح سكوب جديد للفرع الجديد بنفس المستوى
+     */
+    private void processIfBranchChildren(ASTNode branchNode) {
+        for (ASTNode child : branchNode.children) {
             if (child instanceof JinjaNode) {
                 String childName = child.nodeName;
 
                 if (childName.startsWith("JinjaElse")) {
-                    // نقفل سكوب if ونفتح سكوب else بنفس المستوى
-                    symbolTable.exitScope();
-                    symbolTable.enterScope("jinja_block", ifScopeLevel, "else");
-
-                    // نزور محتوى else (أبناء عقدة else)
-                    for (ASTNode elseChild : child.children) {
-                        visit(elseChild);
-                    }
-                    // ما نعمل exit هنا - بننتظر لآخر الدالة
+                    Scope exited = symbolTable.exitScope();
+                    promoteVariablesToParent(exited);
+                    symbolTable.enterScope("jinja_block", "else");
+                    // المحتوى جاي كـ siblings → اللوب رح يزورهم ضمن سكوب else
 
                 } else if (childName.startsWith("JinjaElif")) {
-                    // نقفل السكوب الحالي ونفتح سكوب elif بنفس المستوى
-                    symbolTable.exitScope();
-
+                    Scope exited = symbolTable.exitScope();
+                    promoteVariablesToParent(exited);
                     String elifCond = extractJinjaCondition(childName);
                     extractVariablesFromExpression(elifCond, child.getLine());
-
-                    symbolTable.enterScope("jinja_block", ifScopeLevel, "elif");
-
-                    // نزور محتوى elif (أبناء عقدة elif)
-                    for (ASTNode elifChild : child.children) {
-                        visit(elifChild);
-                    }
-                    // ما نعمل exit هنا - بننتظر لآخر الدالة
+                    symbolTable.enterScope("jinja_block", "elif");
+                    // المحتوى جاي كـ siblings → اللوب رح يزورهم ضمن سكوب elif
 
                 } else if (childName.startsWith("JinjaEndIf")
                         || childName.startsWith("JinjaEndFor")
                         || childName.startsWith("JinjaEndBlock")
                         || childName.startsWith("JinjaEndMacro")) {
-                    // علامات الإغلاق - نتخطاها فقط
                     continue;
+
                 } else {
-                    // أنواع Jinja تانية (مثل JinjaFor داخل if)
                     visit(child);
                 }
             } else {
-                // محتوى عادي (HTML, text, etc.) - نزوره ضمن السكوب الحالي
                 visit(child);
             }
         }
-
-        // نقفل آخر سكوب مفتوح (if أو else أو elif)
-        symbolTable.exitScope();
     }
+//    private void visitJinjaIf(JinjaNode node) {
+//        String condition = extractJinjaCondition(node.nodeName);
+//        extractVariablesFromExpression(condition, node.getLine());
+//
+//        // نحفظ مستوى السكوب يلي راح نستخدمه لكل الفروع
+//        int ifScopeLevel = symbolTable.currentScopeLevel() + 1;
+//
+//        // ===== 1) فرع if =====
+//        symbolTable.enterScope("jinja_block", ifScopeLevel, "if");
+//
+//        // بنزور أبناء الـ if، بس لازم نميز بين:
+//        // - محتوى عادي (نزوره ضمن سكوب if)
+//        // - JinjaElse / JinjaElif (نغلق سكوب if ونفتح سكوب جديد بنفس المستوى)
+//        // - JinjaEndIf / JinjaEndFor / JinjaEndBlock (نتجاوزها)
+//        for (ASTNode child : node.children) {
+//            if (child instanceof JinjaNode) {
+//                String childName = child.nodeName;
+//
+//                if (childName.startsWith("JinjaElse")) {
+//                    // نقفل سكوب if ونفتح سكوب else بنفس المستوى
+//                    symbolTable.exitScope();
+//                    symbolTable.enterScope("jinja_block", ifScopeLevel, "else");
+//
+//                    // نزور محتوى else (أبناء عقدة else)
+//                    for (ASTNode elseChild : child.children) {
+//                        visit(elseChild);
+//                    }
+//                    // ما نعمل exit هنا - بننتظر لآخر الدالة
+//
+//                } else if (childName.startsWith("JinjaElif")) {
+//                    // نقفل السكوب الحالي ونفتح سكوب elif بنفس المستوى
+//                    symbolTable.exitScope();
+//
+//                    String elifCond = extractJinjaCondition(childName);
+//                    extractVariablesFromExpression(elifCond, child.getLine());
+//
+//                    symbolTable.enterScope("jinja_block", ifScopeLevel, "elif");
+//
+//                    // نزور محتوى elif (أبناء عقدة elif)
+//                    for (ASTNode elifChild : child.children) {
+//                        visit(elifChild);
+//                    }
+//                    // ما نعمل exit هنا - بننتظر لآخر الدالة
+//
+//                } else if (childName.startsWith("JinjaEndIf")
+//                        || childName.startsWith("JinjaEndFor")
+//                        || childName.startsWith("JinjaEndBlock")
+//                        || childName.startsWith("JinjaEndMacro")) {
+//                    // علامات الإغلاق - نتخطاها فقط
+//                    continue;
+//                } else {
+//                    // أنواع Jinja تانية (مثل JinjaFor داخل if)
+//                    visit(child);
+//                }
+//            } else {
+//                // محتوى عادي (HTML, text, etc.) - نزوره ضمن السكوب الحالي
+//                visit(child);
+//            }
+//        }
+//
+//        // نقفل آخر سكوب مفتوح (if أو else أو elif)
+//        symbolTable.exitScope();
+//    }
 
     /**
      * [تعديل 4] معالجة elif لو ظهرت بمعزل عن if
@@ -470,13 +739,16 @@ public class TemplateSymbolTableVisitor {
         extractVariablesFromExpression(condition, node.getLine());
 
         int newLevel = symbolTable.currentScopeLevel() + 1;
-        symbolTable.enterScope("jinja_block", newLevel, "elif");
+        symbolTable.enterScope("jinja_block",  "elif");
 
         for (ASTNode child : node.children) {
             visit(child);
         }
 
-        symbolTable.exitScope();
+        Scope exited = symbolTable.exitScope();
+        if (exited != null) {
+            promoteVariablesToParent(exited);
+        }
     }
 
     /**
@@ -485,18 +757,22 @@ public class TemplateSymbolTableVisitor {
      */
     private void visitJinjaElse(JinjaNode node) {
         int newLevel = symbolTable.currentScopeLevel() + 1;
-        symbolTable.enterScope("jinja_block", newLevel, "else");
+        symbolTable.enterScope("jinja_block",  "else");
 
         for (ASTNode child : node.children) {
             visit(child);
         }
 
-        symbolTable.exitScope();
+        Scope exited = symbolTable.exitScope();
+        if (exited != null) {
+            promoteVariablesToParent(exited);
+        }
     }
     // ==================== نهاية التعديل 4 ====================
 
     private void visitJinjaFor(JinjaNode node) {
-        String expr = extractJinjaCondition(node.nodeName);
+        String expr = node instanceof JinjaForNode ?
+                ((JinjaForNode) node).getForExpr() : extractJinjaCondition(node.nodeName);
 
         String iteratorName = "";
         String iterableName = "";
@@ -505,26 +781,30 @@ public class TemplateSymbolTableVisitor {
             String[] parts = expr.split(" in ", 2);
             iteratorName = parts[0].trim();
             iterableName = parts[1].trim();
+            if (iterableName.contains(".")) {
+                iterableName = iterableName.split("\\.")[0].trim();
+            }
         }
 
-        int newLevel = symbolTable.currentScopeLevel() + 1;
-        symbolTable.enterScope("jinja_block", newLevel, "for:" + iteratorName);
+        symbolTable.enterScope("jinja_block", "for:" + iteratorName);
 
-        // ✅ خزّن iterator variable (p) بالسكوب الجديد
         if (!iteratorName.isEmpty()) {
             SymbolEntry iterEntry = new SymbolEntry(
                     iteratorName, "variable", "jinja_iterator",
-                    "jinja_block", newLevel, node.getLine(), "template"
+                    "jinja_block:for:" + iteratorName,
+                    symbolTable.currentScopeLevel(),
+                    node.getLine(), "template"
             );
             symbolTable.insert(iterEntry);
         }
 
-        // ✅ خزّن iterable (products) بس لو مش موجود بأي scope قبل
-        // لو موجود بالـ Python global scope ما نكرره
-        if (!iterableName.isEmpty() && symbolTable.lookup(iterableName) == null) {
+        // ✅ التعديل: lookupCurrentScope بدل lookup
+        if (!iterableName.isEmpty() && symbolTable.lookupCurrentScope(iterableName) == null) {
             SymbolEntry iterableEntry = new SymbolEntry(
                     iterableName, "variable", "jinja_iterable",
-                    "jinja_block", newLevel, node.getLine(), "template"
+                    "jinja_block:for:" + iteratorName,
+                    symbolTable.currentScopeLevel(),
+                    node.getLine(), "template"
             );
             symbolTable.insert(iterableEntry);
         }
@@ -543,13 +823,13 @@ public class TemplateSymbolTableVisitor {
         int scopeLevel = symbolTable.currentScopeLevel();
 
         SymbolEntry entry = new SymbolEntry(
-                blockName, "jinja_block", "block", scopeType,
+                "block:" + blockName, "jinja_block", "block", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
         symbolTable.insert(entry);
 
-        int newLevel = scopeLevel + 1;
-        symbolTable.enterScope("jinja_block", newLevel, "block:" + blockName);
+
+        symbolTable.enterScope("jinja_block",  "block:" + blockName);
 
         for (ASTNode child : node.children) {
             visit(child);
@@ -563,6 +843,7 @@ public class TemplateSymbolTableVisitor {
                 .replace("JinjaExpression", "")
                 .replace("{{", "").replace("}}", "").trim();
 
+        // بس نستخرج المتغيرات - ما نخزن function calls
         extractVariablesFromExpression(expr, node.getLine());
     }
 
@@ -610,7 +891,6 @@ public class TemplateSymbolTableVisitor {
 
     private void visitJinjaSet(JinjaNode node) {
         String setText = node.nodeName.replace("JinjaSet", "").trim();
-
         if (setText.contains("=")) {
             String varName = setText.substring(0, setText.indexOf("=")).trim();
             String valueExpr = setText.substring(setText.indexOf("=") + 1).trim();
@@ -624,12 +904,34 @@ public class TemplateSymbolTableVisitor {
             );
             entry.setValue(valueExpr);
             symbolTable.insert(entry);
+
+            // ✅ أضيفي: استخراج المتغيرات من الـ value
+            extractVariablesFromExpression(valueExpr, node.getLine());
         }
     }
+    private void visitJinjaWith(JinjaNode node) {
+        // نفس منطق visitJinjaSet بالأساس
+        // بس مع فتح سكوب جديد
+        int newLevel = symbolTable.currentScopeLevel() + 1;
+        symbolTable.enterScope("jinja_block",  "with");
 
+        String withText = node.nodeName.replace("JinjaWith", "").trim();
+        if (withText.contains("=")) {
+            String varName = withText.substring(0, withText.indexOf("=")).trim();
+            String valueExpr = withText.substring(withText.indexOf("=") + 1).trim();
+            SymbolEntry entry = new SymbolEntry(
+                    varName, "variable", "jinja_set_var", "jinja_block",
+                    newLevel, node.getLine(), "template"
+            );
+            entry.setValue(valueExpr);
+            symbolTable.insert(entry);
+        }
+
+        for (ASTNode child : node.children) { visit(child); }
+        symbolTable.exitScope();
+    }
     private void visitJinjaMacro(JinjaNode node) {
         String macroName = ((JinjaMacroNode) node).getMacroName();
-
         String scopeType = symbolTable.currentScope().getScopeType();
         int scopeLevel = symbolTable.currentScopeLevel();
 
@@ -639,24 +941,61 @@ public class TemplateSymbolTableVisitor {
         );
         symbolTable.insert(entry);
 
-        int newLevel = scopeLevel + 1;
-        symbolTable.enterScope("jinja_block", newLevel, "macro:" + macroName);
+        symbolTable.enterScope("jinja_block", "macro:" + macroName);
 
-        for (ASTNode child : node.children) {
-            visit(child);
+        JinjaMacroNode macroNode = (JinjaMacroNode) node;
+        for (String param : macroNode.getParameters()) {
+            SymbolEntry paramEntry = new SymbolEntry(
+                    param, "parameter", "macro_param",
+                    "jinja_block:macro:" + macroName,
+                    symbolTable.currentScopeLevel(),  // ← بعد enterScope
+                    node.getLine(), "template"
+            );
+            symbolTable.insert(paramEntry);
         }
 
+        for (ASTNode child : node.children) { visit(child); }
         symbolTable.exitScope();
     }
 
+
+    // ==================== Jinja Variable Leakage ====================
+
+    /**
+     * Jinja variable leakage: المتغيرات المعرّفة بأي فرع (if/elif/else)
+     * بتكون مرئية بعد endif بالسكوب الأب.
+     * هاد سلوك صحيح بالـ Jinja - مش خطأ.
+     */
+    private void promoteVariablesToParent(Scope exitedScope) {
+        if (exitedScope == null || symbolTable.getScopeStack().isEmpty()) return;
+
+        // الأب الفعلي = أعلى شي بالستاك بعد ما طلعنا
+        Scope parentScope = symbolTable.getScopeStack().peek();
+
+        for (SymbolEntry entry : exitedScope.getAllSymbols()) {
+
+            if (entry.getType().equals("jinja_set_var")) {
+                if (!parentScope.contains(entry.getName())) {
+                    SymbolEntry promotedEntry = new SymbolEntry(
+                            entry.getName(), entry.getKind(), entry.getType(),
+                            parentScope.getScopeType(), parentScope.getScopeLevel(),
+                            entry.getLine(), entry.getSource()
+                    );
+                    promotedEntry.setValue(entry.getValue());
+                    parentScope.insert(promotedEntry);
+                    symbolTable.getAllEntries().add(promotedEntry);
+                }
+            }
+        }
+    }
     // ==================== Helper Methods ====================
 
     private String cleanSelectorName(String nodeName) {
         if (nodeName == null) return "unknown";
 
         nodeName = nodeName.replace("TypeSelector: ", "");
-        nodeName = nodeName.replace("ClassSelector: ", ".");
-        nodeName = nodeName.replace("IDSelector: ", "#");
+        nodeName = nodeName.replace("ClassSelector: ", "");
+        nodeName = nodeName.replace("IDSelector: ", "");
         nodeName = nodeName.replace("PseudoClassSelector :", ":");
         nodeName = nodeName.replace("PseudoElementSelector ::", "::");
         nodeName = nodeName.replace("UniversalSelector *", "*");
@@ -705,41 +1044,27 @@ public class TemplateSymbolTableVisitor {
      * - products  → بنخزن "products" كـ jinja_var
      * - 123, "hello" → نتخطى (أرقام ونصوص)
      */
+
     private void extractVariablesFromExpression(String expr, int line) {
         if (expr == null || expr.isEmpty()) return;
 
-        // نشيل الـ string literals أول (مثل "base.html", 'text')
-        // عشان ما نستخرج كلمات من داخل quotes
         expr = expr.replaceAll("\"[^\"]*\"", "").replaceAll("'[^']*'", "");
 
-        // نستخدم regex يلتقط أسماء مثل "p.name" كوحدة واحدة
-        // [a-zA-Z_][a-zA-Z0-9_]* = اسم متغير
-        // (\.[a-zA-Z_][a-zA-Z0-9_]*)* = attribute access اختياري
         java.util.regex.Pattern varPattern = java.util.regex.Pattern.compile(
                 "\\b([a-zA-Z_][a-zA-Z0-9_]*)(\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\b"
         );
         java.util.regex.Matcher matcher = varPattern.matcher(expr);
 
         while (matcher.find()) {
-            // نأخذ بس الاسم الأول (الـ root variable)
-            // p.name → p فقط
-            // loop.index0 → loop (سيُتجاهل لأنه builtin)
-            // products → products
             String token = matcher.group(1);
 
             if (token.isEmpty()) continue;
-
-            // تجاهل Jinja builtins (loop, request, session...)
             if (JINJA_BUILTINS.contains(token)) continue;
-
-            // تجاهل Jinja/Python keywords
             if (JINJA_KEYWORDS.contains(token)) continue;
-
-            // تجاهل أرقام
             if (token.matches("\\d+.*")) continue;
 
-            // نخزن بس لو مش موجود بأي scope
-            if (symbolTable.lookup(token) == null) {
+            // ✅ التعديل: lookupCurrentScope بدل lookup
+            if (symbolTable.lookupCurrentScope(token) == null) {
                 String scopeType = symbolTable.currentScope().getScopeType();
                 int scopeLevel = symbolTable.currentScopeLevel();
 

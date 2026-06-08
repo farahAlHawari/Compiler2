@@ -158,25 +158,33 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
         }
         return list;
     }
-
     @Override
     public ASTNode visitDeclarationNode(TemplateParser.DeclarationNodeContext ctx) {
         String property = ctx.property.getText();
 
-
-        DeclarationNode node = new DeclarationNode(property, "", ctx.start.getLine());
+        // ✅ بناء قيمة CSS من الأبناء بدل ""
+        StringBuilder valueBuilder = new StringBuilder();
 
         if (ctx.val != null) {
-
             for (int i = 0; i < ctx.val.getChildCount(); i++) {
-
-
                 if (ctx.val.getChild(i) instanceof TemplateParser.StyleValuePartContext) {
+                    // خذي النص الأصلي من الـ token
+                    String partText = ctx.val.getChild(i).getText().trim();
+                    if (!partText.isEmpty()) {
+                        if (valueBuilder.length() > 0) valueBuilder.append(" ");
+                        valueBuilder.append(partText);
+                    }
+                }
+            }
+        }
 
+        DeclarationNode node = new DeclarationNode(property, valueBuilder.toString(), ctx.start.getLine());
 
+        // ما زلنا نخزن الأبناء كـ AST nodes
+        if (ctx.val != null) {
+            for (int i = 0; i < ctx.val.getChildCount(); i++) {
+                if (ctx.val.getChild(i) instanceof TemplateParser.StyleValuePartContext) {
                     ASTNode valueNode = visit(ctx.val.getChild(i));
-
-
                     if (valueNode != null) {
                         node.addChild(valueNode);
                     }
@@ -186,6 +194,33 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
         return node;
     }
+//    @Override
+//    public ASTNode visitDeclarationNode(TemplateParser.DeclarationNodeContext ctx) {
+//        String property = ctx.property.getText();
+//
+//
+//        DeclarationNode node = new DeclarationNode(property, "", ctx.start.getLine());
+//
+//        if (ctx.val != null) {
+//
+//            for (int i = 0; i < ctx.val.getChildCount(); i++) {
+//
+//
+//                if (ctx.val.getChild(i) instanceof TemplateParser.StyleValuePartContext) {
+//
+//
+//                    ASTNode valueNode = visit(ctx.val.getChild(i));
+//
+//
+//                    if (valueNode != null) {
+//                        node.addChild(valueNode);
+//                    }
+//                }
+//            }
+//        }
+//
+//        return node;
+//    }
 
 
     // CSS SELECTORS SECTION
@@ -346,7 +381,9 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
         if (body.startsWith("macro")) {
             String cleanBody = body.substring(5).trim();
             String macroName = cleanBody.split("\\(")[0].trim();
-            return new JinjaMacroNode(macroName, line);
+            JinjaMacroNode macroNode = new JinjaMacroNode(macroName, line);
+            macroNode.parseParameters(cleanBody);  // ← أضيفي
+            return macroNode;
         }
         if (body.startsWith("endmacro")) return new JinjaEndMacroNode(line);
         return new JinjaNode("JinjaSimple " + body, line) {};
@@ -414,7 +451,9 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitMacroStatementStart(TemplateParser.MacroStatementStartContext ctx) {
-        return new JinjaMacroNode(ctx.name.getText(), ctx.start.getLine());
+        JinjaMacroNode macroNode = new JinjaMacroNode(ctx.name.getText(), ctx.start.getLine());
+        macroNode.parseParameters(ctx.getText());
+        return macroNode;
     }
 
     @Override

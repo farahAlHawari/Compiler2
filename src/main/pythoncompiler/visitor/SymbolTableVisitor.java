@@ -300,9 +300,9 @@ public class SymbolTableVisitor {
         // Enter function scope (route functions get a distinctive scope type)
         int newLevel = scopeLevel + 1;
         if ("RouteFunction".equals(node.nodeName)) {
-            symbolTable.enterScope("route_function", newLevel, funcName);
+            symbolTable.enterScope("route_function",  funcName);
         } else {
-            symbolTable.enterScope("function", newLevel, funcName);
+            symbolTable.enterScope("function",  funcName);
         }
 
         // Visit parameters (they go into function scope)
@@ -341,7 +341,7 @@ public class SymbolTableVisitor {
 
         // Enter class scope
         int newLevel = scopeLevel + 1;
-        symbolTable.enterScope("class", newLevel, className);
+        symbolTable.enterScope("class",  className);
 
         // Visit class body
         for (ASTNode child : node.children) {

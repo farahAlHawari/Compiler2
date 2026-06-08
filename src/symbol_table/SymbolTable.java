@@ -58,7 +58,7 @@ public class SymbolTable {
         this.currentSource = "python";
         this.completedScopes = new ArrayList<>();
         // Start with a global scope
-        enterScope("global", 0, "global");
+        enterScope("global",  "global");
     }
 
     // ==================== Scope Management (Stack Operations) ====================
@@ -67,22 +67,30 @@ public class SymbolTable {
      * Enter a new scope (push onto stack).
      * Called when entering: function, class, block, style block, jinja block.
      */
-    public void enterScope(String scopeType, int level, String contextName) {
+//    public void enterScope(String scopeType, String contextName) {
+//        int level = scopeStack.size();  // تلقائي من الـ stack
+//        Scope newScope = new Scope(scopeType, level, contextName);
+//        scopeStack.push(newScope);
+//        completedScopes.add(newScope);
+//    }
+
+    public void enterScope(String scopeType, String contextName) {
+        int level = scopeStack.size();
         Scope newScope = new Scope(scopeType, level, contextName);
-        if (!scopeStack.isEmpty()) {
-            newScope.setParent(scopeStack.peek());
-        }
         scopeStack.push(newScope);
+
+        // completedScopes.add(newScope);
     }
 
     /**
      * Exit the current scope (pop from stack).
      * Called when exiting: function, class, block, style block, jinja block.
      */
+    // ✅ هذا صح - بعد ما السكوب يتقفل
     public Scope exitScope() {
         if (scopeStack.size() > 1) {
             Scope finished = scopeStack.pop();
-            completedScopes.add(finished);  // احفظيها قبل الحذف
+            completedScopes.add(finished);  // ← بس هاد يضيف
             return finished;
         }
         return null;
@@ -245,6 +253,7 @@ public class SymbolTable {
         return globalScope.contains(name);
     }
 
+
     /**
      * Get the scope type where a symbol is declared.
      */
@@ -291,7 +300,7 @@ public class SymbolTable {
         cssSelectors.clear();
         htmlAttributes.clear();
         completedScopes.clear();  // أضيفي هاد السطر
-        enterScope("global", 0, "global");
+        enterScope("global",  "global");
     }
 
     /**
@@ -346,76 +355,80 @@ public class SymbolTable {
      * طباعة هيكل السكوبات كاملة - مفيد للعرض والتوضيح.
      * بيظهر كل سكوب ومحتوياته بشكل شجري.
      */
-    public void printScopeStructure() {
-        System.out.println("\n" + "=".repeat(80));
-        System.out.println("                    SCOPE STRUCTURE");
-        System.out.println("=".repeat(80));
-
-        List<Scope> allScopes = new ArrayList<>();
-        allScopes.addAll(completedScopes);
-        for (Scope s : scopeStack) {
-            allScopes.add(s);
-        }
-
-        allScopes.sort((a, b) -> Integer.compare(a.getScopeLevel(), b.getScopeLevel()));
-
-        for (Scope scope : allScopes) {
-            // ✅ التعديل هنا: تخطى السكوبات الفارغة عند الطباعة
-            if (scope.size() == 0 && !scope.getScopeType().equals("global")) continue;
-
-            String indent = "  ".repeat(scope.getScopeLevel());
-            System.out.println(indent + "┌── Scope: "
-                    + scope.getScopeType() + ":"
-                    + scope.getContextName()
-                    + " (level " + scope.getScopeLevel() + ")");
-
-            for (SymbolEntry entry : scope.getAllSymbols()) {
-                System.out.println(indent + "│   "
-                        + entry.getName()
-                        + " [" + entry.getKind() + "]"
-                        + " type=" + entry.getType()
-                        + " line=" + entry.getLine());
-            }
-            System.out.println(indent + "└── (" + scope.size() + " symbols)");
-        }
-        System.out.println("=".repeat(80));
-    }
 //    public void printScopeStructure() {
 //        System.out.println("\n" + "=".repeat(80));
 //        System.out.println("                    SCOPE STRUCTURE");
 //        System.out.println("=".repeat(80));
 //
-//        // اجمعي كل السكوبات: المنتهية + الحالية بالـ stack
 //        List<Scope> allScopes = new ArrayList<>();
 //        allScopes.addAll(completedScopes);
 //        for (Scope s : scopeStack) {
 //            allScopes.add(s);
 //        }
 //
-//        // رتبيهم حسب المستوى عشان الطباعة تكون منظمة
-//        allScopes.sort((a, b) -> a.getScopeLevel() - b.getScopeLevel());
+//        allScopes.sort((a, b) -> Integer.compare(a.getScopeLevel(), b.getScopeLevel()));
 //
 //        for (Scope scope : allScopes) {
+//            // ✅ التعديل هنا: تخطى السكوبات الفارغة عند الطباعة
+////            if (scope.size() == 0 && !scope.getScopeType().equals("global")) continue;
+//
 //            String indent = "  ".repeat(scope.getScopeLevel());
 //            System.out.println(indent + "┌── Scope: "
 //                    + scope.getScopeType() + ":"
 //                    + scope.getContextName()
 //                    + " (level " + scope.getScopeLevel() + ")");
 //
-//            List<SymbolEntry> symbols = scope.getAllSymbols();
-//            for (SymbolEntry entry : symbols) {
+//            for (SymbolEntry entry : scope.getAllSymbols()) {
 //                System.out.println(indent + "│   "
 //                        + entry.getName()
 //                        + " [" + entry.getKind() + "]"
 //                        + " type=" + entry.getType()
 //                        + " line=" + entry.getLine());
 //            }
-//            System.out.println(indent + "└── ("
-//                    + symbols.size() + " symbols)");
+//            System.out.println(indent + "└── (" + scope.size() + " symbols)");
 //        }
-//
 //        System.out.println("=".repeat(80));
 //    }
+
+public void printScopeStructure() {
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("                    SCOPE STRUCTURE");
+    System.out.println("=".repeat(80));
+
+    List<Scope> allScopes = new ArrayList<>();
+
+    // 1) أضيفي السكوبات المكتملة (اللي اتقفلت)
+    allScopes.addAll(completedScopes);
+
+    // 2) أضيفي السكوبات اللي لسه مفتوحة على الستاك
+    //    (بشكل رئيسي global scope اللي ما بيتقفل أبداً)
+    Set<Scope> alreadyAdded = new HashSet<>(completedScopes);
+    for (Scope s : scopeStack) {
+        if (!alreadyAdded.contains(s)) {  // ← منع التكرار
+            allScopes.add(s);
+        }
+    }
+
+    allScopes.sort((a, b) -> Integer.compare(a.getScopeLevel(), b.getScopeLevel()));
+
+    for (Scope scope : allScopes) {
+        String indent = "  ".repeat(scope.getScopeLevel());
+        System.out.println(indent + "┌── Scope: "
+                + scope.getScopeType() + ":"
+                + scope.getContextName()
+                + " (level " + scope.getScopeLevel() + ")");
+
+        for (SymbolEntry entry : scope.getAllSymbols()) {
+            System.out.println(indent + "│   "
+                    + entry.getName()
+                    + " [" + entry.getKind() + "]"
+                    + " type=" + entry.getType()
+                    + " line=" + entry.getLine());
+        }
+        System.out.println(indent + "└── (" + scope.size() + " symbols)");
+    }
+    System.out.println("=".repeat(80));
+}
     // ==================== نهاية التعديل 3 ====================
 
     // ==================== Getters for all data ====================
