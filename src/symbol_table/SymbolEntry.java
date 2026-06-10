@@ -21,6 +21,12 @@ public class SymbolEntry {
     private String value;          // Initial/assigned value (as string representation)
     private String source;         // Source of the symbol: "python" or "template"
 
+    private String returnType;     // For functions: declared return type from type hint (e.g., "int", "string")
+    // Empty/null if no type hint declared
+    private int paramCount;        // For functions: number of parameters in the definition
+    // -1 if unknown
+
+
     public SymbolEntry(String name, String kind, String type, String scopeType,
                        int scopeLevel, int line, String source) {
         this.name = name;
@@ -31,6 +37,8 @@ public class SymbolEntry {
         this.line = line;
         this.source = source;
         this.value = "";
+        this.returnType = "";     // NEW: default empty (no type hint)
+        this.paramCount = -1;     // NEW: default -1 (unknown)
     }
 
     // ==================== Getters and Setters ====================
@@ -97,6 +105,22 @@ public class SymbolEntry {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+
+    public int getParamCount() {
+        return paramCount;
+    }
+
+    public void setParamCount(int paramCount) {
+        this.paramCount = paramCount;
     }
 
     /**

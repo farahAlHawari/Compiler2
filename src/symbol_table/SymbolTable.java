@@ -44,6 +44,17 @@ public class SymbolTable {
     private List<SymbolEntry> cssSelectors;             // CSS selectors
     private List<SymbolEntry> htmlAttributes;           // HTML attributes (can repeat across elements)
 
+    // ==================== Semantic Error Checking Data ====================
+
+    // For Missing Flask Variable: track render_template() calls from Flask
+    private List<FlaskTemplateCall> renderTemplateCalls;
+
+    // For Invalid Func Call + Wrong Args Count: track all function calls
+    private List<FunctionCallInfo> functionCallInfos;
+
+    // For Return Type Mismatch: track all return statements
+    private List<ReturnInfo> returnInfos;
+
     // Track current scope context for qualified naming
     private String currentSource;                       // "python" or "template"
 
@@ -57,6 +68,9 @@ public class SymbolTable {
         this.htmlAttributes = new ArrayList<>();
         this.currentSource = "python";
         this.completedScopes = new ArrayList<>();
+        this.renderTemplateCalls = new ArrayList<>();
+        this.functionCallInfos = new ArrayList<>();
+        this.returnInfos = new ArrayList<>();
         // Start with a global scope
         enterScope("global",  "global");
     }
@@ -286,6 +300,32 @@ public class SymbolTable {
         return !errorMessages.isEmpty();
     }
 
+    // ==================== Semantic Error Checking Getters ====================
+
+    public List<FlaskTemplateCall> getRenderTemplateCalls() {
+        return renderTemplateCalls;
+    }
+
+    public void addRenderTemplateCall(FlaskTemplateCall call) {
+        renderTemplateCalls.add(call);
+    }
+
+    public List<FunctionCallInfo> getFunctionCallInfos() {
+        return functionCallInfos;
+    }
+
+    public void addFunctionCallInfo(FunctionCallInfo info) {
+        functionCallInfos.add(info);
+    }
+
+    public List<ReturnInfo> getReturnInfos() {
+        return returnInfos;
+    }
+
+    public void addReturnInfo(ReturnInfo info) {
+        returnInfos.add(info);
+    }
+
     // ==================== Allocation / Free (as per lecture) ====================
 
     /**
@@ -300,6 +340,9 @@ public class SymbolTable {
         cssSelectors.clear();
         htmlAttributes.clear();
         completedScopes.clear();  // أضيفي هاد السطر
+        renderTemplateCalls.clear();
+        functionCallInfos.clear();
+        returnInfos.clear();
         enterScope("global",  "global");
     }
 
@@ -314,6 +357,9 @@ public class SymbolTable {
         cssProperties.clear();
         cssSelectors.clear();
         htmlAttributes.clear();
+        renderTemplateCalls.clear();
+        functionCallInfos.clear();
+        returnInfos.clear();
     }
 
     // ==================== Printing ====================

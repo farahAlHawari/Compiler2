@@ -61,6 +61,7 @@ import antlr.TemplateLexer;
 import antlr.TemplateParser;
 import main.pythoncompiler.PythonCompiler;
 import symbol_table.SymbolTable;
+import semantic_errors.SemanticChecker;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -80,10 +81,10 @@ public class Main {
 
         // ===== Python Compiler =====
         PythonCompiler compiler = new PythonCompiler(symbolTable);
-        compiler.compile("src/tests/app222.py");
+        compiler.compile("src/tests/test_no_errors.py");
 
         // ===== HTML/CSS/Jinja Parser =====
-        String source = "tests/base1.html";
+        String source = "tests/test_no_errors.html";
 
         CharStream charStream = CharStreams.fromFileName(source);
 
@@ -120,5 +121,11 @@ public class Main {
 
         // [إضافة جديدة] طباعة هيكل السكوبات بشكل شجري - مفيد للعرض
         symbolTable.printScopeStructure();
+        // ===== NEW: Semantic Error Checking =====
+        System.out.println("\n---------- SEMANTIC ERROR CHECKING ----------");
+        SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
+        semanticChecker.checkErrors();
+        semanticChecker.printErrors();
+        semanticChecker.writeErrorsToFile("Result/Semantic.txt");
     }
 }

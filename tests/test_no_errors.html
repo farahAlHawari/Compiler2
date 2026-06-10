@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>No Errors Test</title>
+    <style>
+        body { font-family: Arial; }
+        .header { color: blue; }
+    </style>
+</head>
+<body>
+<!-- ✅ كل المتغيرات ممررة -->
+<h1>Hello {{ name }}</h1>
+<p>Age: {{ age }}</p>
+
+<!-- ✅ فلتر مدمج -->
+<p>{{ name|upper }}</p>
+<p>{{ name|lower }}</p>
+
+<!-- ✅ حلقة على متغير ممرر -->
+{% for product in products %}
+<li>{{ product }}</li>
+{% endfor %}
+
+<!-- ✅ ماكرو معرف ومستدعى بشكل صحيح -->
+{% macro greeting(person) %}
+Hello {{ person }}!
+{% endmacro %}
+
+{{ greeting(name) }}
+
+<!-- ✅ set محلي - لا يحتاج تمرير من Flask -->
+{% set welcome = "Welcome" %}
+<p>{{ welcome }}</p>
+
+<!-- ✅ if على متغير ممرر -->
+{% if age > 18 %}
+<p>Adult</p>
+{% endif %}
+</body>
+</html>

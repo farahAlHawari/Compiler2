@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Missing Flask Var</title>
+</head>
+<body>
+<!-- ✅ name ممرر من Flask -->
+<h1>Hello {{ name }}</h1>
+
+<!-- ✅ age ممرر من Flask -->
+<p>Age: {{ age }}</p>
+
+<!-- ❌ car غير ممرر من Flask -->
+<p>Car: {{ car }}</p>
+
+<!-- ❌ color غير ممرر من Flask -->
+<p>Color: {{ color }}</p>
+
+<!-- ❌ users غير ممرر (حلقة تكرارية) -->
+{% for user in users %}
+<li>{{ user }}</li>
+{% endfor %}
+
+<!-- ✅ products ممرر من Flask -->
+{% for product in products %}
+<li>{{ product }}</li>
+{% endfor %}
+
+<!-- ❌ x ممرر بقيمة None واستخدمناه في عملية -->
+<p>Result: {{ x }}</p>
+</body>
+</html>

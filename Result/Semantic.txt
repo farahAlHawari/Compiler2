@@ -1,0 +1,3 @@
+Semantic Check :
+Error Name : MISSING_FLASK_VARIABLE , Error Description : Variable 'person' is used in Jinja but not passed from Flask via render_template , Error Location : 26
+Error Name : INVALID_FUNC_CALL , Error Description : Function 'greeting' is called but not defined , Error Location : 29

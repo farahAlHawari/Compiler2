@@ -104,7 +104,7 @@ decorator
 
 
 functionDef
-    : DEF IDENTIFIER LPAREN paramList? RPAREN COLON block
+    : DEF IDENTIFIER LPAREN paramList? RPAREN (ARROW IDENTIFIER)? COLON block
                                         #functionNode
     ;
 

@@ -98,6 +98,7 @@ MOD         : '%';
 AND         : 'and';
 OR          : 'or';
 NOT         : 'not';
+ARROW : '->' ;
 
 
 /*  Delimiters  */

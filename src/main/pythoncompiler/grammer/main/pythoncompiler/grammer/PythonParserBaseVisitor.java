@@ -1,4 +1,4 @@
-// Generated from C:/Users/maria/IdeaProjects/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 

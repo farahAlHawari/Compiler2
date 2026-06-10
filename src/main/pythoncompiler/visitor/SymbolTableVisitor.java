@@ -3,6 +3,10 @@ package main.pythoncompiler.visitor;
 import main.pythoncompiler.ast.*;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
+import symbol_table.FlaskTemplateCall;
+import symbol_table.FunctionCallInfo;
+import symbol_table.ReturnInfo;
+import java.util.Stack;
 
 /**
  * Visitor that walks the Python AST and populates the Symbol Table.
@@ -30,12 +34,14 @@ public class SymbolTableVisitor {
     private SymbolTable symbolTable;
     private java.util.List<String> errors;
     private java.util.Set<String> globalDeclarations; // Track 'global' keyword declarations
+    private Stack<String> currentFunctionStack;  // Track which function we're inside (for return type checking)
 
     public SymbolTableVisitor(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
         this.errors = new java.util.ArrayList<>();
         this.globalDeclarations = new java.util.HashSet<>();
         this.symbolTable.setSource("python");
+        this.currentFunctionStack = new Stack<>();
     }
 
     public java.util.List<String> getErrors() {
@@ -290,6 +296,12 @@ public class SymbolTableVisitor {
                 scopeLevel, node.lineNumber, "python"
         );
 
+        // NEW: Store return type and parameter count in the SymbolEntry
+        if (funcNode.returnType != null && !funcNode.returnType.isEmpty()) {
+            entry.setReturnType(funcNode.returnType);
+        }
+        entry.setParamCount(funcNode.paramCount);
+
         // If it's a RouteFunction, add decorator info
         if ("RouteFunction".equals(node.nodeName)) {
             entry.setKind("route_function");
@@ -297,8 +309,10 @@ public class SymbolTableVisitor {
 
         symbolTable.insert(entry);
 
+        // NEW: Push current function name onto the stack (for return statement tracking)
+        currentFunctionStack.push(funcName);
+
         // Enter function scope (route functions get a distinctive scope type)
-        int newLevel = scopeLevel + 1;
         if ("RouteFunction".equals(node.nodeName)) {
             symbolTable.enterScope("route_function",  funcName);
         } else {
@@ -321,6 +335,11 @@ public class SymbolTableVisitor {
 
         // Exit function scope
         symbolTable.exitScope();
+
+        // NEW: Pop current function name from the stack
+        if (!currentFunctionStack.isEmpty()) {
+            currentFunctionStack.pop();
+        }
     }
 
     // ==================== Class Definition ====================
@@ -410,6 +429,27 @@ public class SymbolTableVisitor {
     // ==================== Return Statement ====================
 
     private void visitReturnStmt(ASTNode node) {
+        // NEW: Track return statement for Return Type Mismatch checking
+        String returnExprType = "unknown";
+        String enclosingFuncName = currentFunctionStack.isEmpty() ? "" : currentFunctionStack.peek();
+
+        if (!node.children.isEmpty()) {
+            ASTNode returnExpr = node.children.get(0);
+            returnExprType = inferType(returnExpr);
+        } else {
+            returnExprType = "none"; // bare "return" or "return None"
+        }
+
+        // Normalize the inferred type to match type hint format
+        returnExprType = normalizeType(returnExprType);
+
+        // Add ReturnInfo to symbol table for semantic checker
+        if (!enclosingFuncName.isEmpty()) {
+            ReturnInfo returnInfo = new ReturnInfo(enclosingFuncName, returnExprType, node.lineNumber);
+            symbolTable.addReturnInfo(returnInfo);
+        }
+
+        // Visit children (for nested references)
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -491,7 +531,7 @@ public class SymbolTableVisitor {
         CallNode callNode = (CallNode) node;
         String funcName = callNode.functionName;
 
-        // ✅ التحقق: هل هذا Method Call على object (مثل date_str.split أو app.run)؟
+        // Check if this is a method call (e.g., obj.method())
         boolean isMethodCall = false;
         for (ASTNode child : node.children) {
             if (child instanceof AttributeNode) {
@@ -500,10 +540,23 @@ public class SymbolTableVisitor {
             }
         }
 
-        // نطلع Warning بس لو كانت:
-        // 1) دالة مستقلة (مش method على object) و
-        // 2) مو موجودة في Symbol Table و
-        // 3) مو من built-in functions
+        // NEW: Track function call info for semantic error checking
+        FunctionCallInfo callInfo = new FunctionCallInfo(
+                funcName,
+                callNode.argCount,
+                node.lineNumber,
+                "python",
+                isMethodCall,
+                false  // not a Jinja filter
+        );
+        symbolTable.addFunctionCallInfo(callInfo);
+
+        // NEW: Special handling for render_template() — track passed variables
+        if ("render_template".equals(funcName)) {
+            trackRenderTemplateCall(node);
+        }
+
+        // Existing warning for undefined functions
         if (!isMethodCall) {
             SymbolEntry funcEntry = symbolTable.lookup(funcName);
             if (funcEntry == null) {
@@ -709,6 +762,81 @@ public class SymbolTableVisitor {
         } else {
             globalScope.insert(entry);
             symbolTable.getAllEntries().add(entry);
+        }
+    }
+
+    // ==================== NEW: Helper Methods for Semantic Error Tracking ====================
+
+    /**
+     * Track a render_template() call for Missing Flask Variable checking.
+     * Extracts the template name and keyword argument variable names.
+     *
+     * Example: render_template("page.html", name=name, age=age)
+     *   → templateName = "page.html", passedVariables = ["name", "age"]
+     */
+    private void trackRenderTemplateCall(ASTNode callNode) {
+        FlaskTemplateCall flaskCall = new FlaskTemplateCall("", callNode.lineNumber);
+
+        // Find the Arguments child node
+        for (ASTNode child : callNode.children) {
+            if ("Arguments".equals(child.nodeName)) {
+                for (ASTNode arg : child.children) {
+                    if ("PositionalArg".equals(arg.nodeName)) {
+                        // First positional arg should be the template name (string literal)
+                        if (!arg.children.isEmpty()) {
+                            ASTNode expr = arg.children.get(0);
+                            if (expr instanceof LiteralNode) {
+                                String value = ((LiteralNode) expr).value;
+                                // Remove quotes from the template name
+                                flaskCall.setTemplateName(value.replace("\"", "").replace("'", ""));
+                            }
+                        }
+                    } else if ("NamedArg".equals(arg.nodeName)) {
+                        // Named arg like "name=name" — extract the parameter name
+                        String details = arg.getDetails();
+                        // details format: " (name=...)"
+                        if (details.contains("=")) {
+                            String varName = details.substring(
+                                    details.indexOf("(") + 1,
+                                    details.indexOf("=")
+                            ).trim();
+                            flaskCall.addPassedVariable(varName);
+                        }
+                    }
+                }
+            }
+        }
+
+        symbolTable.addRenderTemplateCall(flaskCall);
+    }
+
+    /**
+     * Normalize type names to match type hint format.
+     * Python uses "str" for strings, but LiteralNode uses "STRING".
+     */
+    private String normalizeType(String type) {
+        if (type == null) return "unknown";
+        switch (type.toLowerCase()) {
+            case "string":
+            case "str":
+                return "str";
+            case "int":
+                return "int";
+            case "float":
+                return "float";
+            case "bool":
+            case "boolean":
+                return "bool";
+            case "list":
+                return "list";
+            case "dict":
+            case "dictionary":
+                return "dict";
+            case "none":
+            case "nonetype":
+                return "None";
+            default:
+                return type;
         }
     }
 }

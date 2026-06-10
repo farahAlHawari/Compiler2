@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Invalid Func Call</title>
+</head>
+<body>
+<!-- ✅ فلتر مدمج -->
+<p>{{ name|upper }}</p>
+
+<!-- ✅ فلتر مدمج -->
+<p>{{ title|lower }}</p>
+
+<!-- ❌ فلتر غير موجود -->
+<p>{{ name|unknown_filter }}</p>
+
+<!-- ❌ فلتر غير موجود آخر -->
+<p>{{ age|super_filter }}</p>
+
+<!-- ✅ ماكرو معرف -->
+{% macro greeting(name) %}
+Hello {{ name }}!
+{% endmacro %}
+
+<!-- ✅ استدعاء ماكرو موجود -->
+{{ greeting("Ali") }}
+
+<!-- ❌ استدعاء ماكرو غير موجود -->
+{{ non_existent_macro("test") }}
+</body>
+</html>

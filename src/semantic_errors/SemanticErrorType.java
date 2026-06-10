@@ -1,0 +1,8 @@
+package semantic_errors;
+
+public enum SemanticErrorType {
+    MISSING_FLASK_VARIABLE,
+    INVALID_FUNC_CALL,
+    WRONG_ARGS_COUNT,
+    RETURN_TYPE_MISMATCH
+}

@@ -119,12 +119,20 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitFunctionNode(PythonParser.FunctionNodeContext ctx) {
-        String funcName = ctx.IDENTIFIER().getText();
+        String funcName = ctx.IDENTIFIER(0).getText();
         FunctionDefNode funcNode = new FunctionDefNode(funcName);
         funcNode.lineNumber = ctx.start.getLine();
 
+        // Visit paramList and count parameters from the built AST
         if (ctx.paramList() != null) {
-            funcNode.addChild(visit(ctx.paramList()));
+            ASTNode paramsNode = visit(ctx.paramList());
+            funcNode.paramCount = paramsNode.children.size();
+            funcNode.addChild(paramsNode);
+        }
+
+        // Extract return type hint from grammar (ARROW IDENTIFIER)?
+        if (ctx.ARROW() != null && ctx.IDENTIFIER().size() > 1) {
+            funcNode.returnType = ctx.IDENTIFIER(1).getText();
         }
 
         if (ctx.block() != null) {
@@ -529,7 +537,9 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
         }
 
         if (ctx.argList() != null) {
-            callNode.addChild(visit(ctx.argList()));
+            ASTNode argsNode = visit(ctx.argList());
+            callNode.argCount = argsNode.children.size();
+            callNode.addChild(argsNode);
         }
 
         return callNode;

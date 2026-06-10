@@ -9,6 +9,7 @@ import AST.Jinja.*;
 import symbol_table.Scope;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
+import symbol_table.FunctionCallInfo;
 
 /**
  * Visitor that walks the Template AST (HTML/CSS/Jinja) and populates
@@ -50,6 +51,15 @@ public class TemplateSymbolTableVisitor {
             "length", "string", "int", "float", "list", "bool",
             "upper", "lower", "title", "trim", "default", "safe",
             "join", "first", "last", "count", "sort", "reverse"
+    );
+
+    private static final java.util.Set<String> JINJA_BUILTIN_FILTERS = java.util.Set.of(
+            "upper", "lower", "title", "trim", "default", "safe",
+            "join", "first", "last", "count", "sort", "reverse",
+            "length", "string", "int", "float", "list", "bool",
+            "round", "batch", "center", "e", "escape", "filesizeformat",
+            "format", "indent", "replace", "truncate", "striptags",
+            "wordcount", "capitalize", "xmlattr", "urlencode"
     );
     // ==================== نهاية التعديل 6 ====================
 
@@ -1075,6 +1085,95 @@ public class TemplateSymbolTableVisitor {
                 symbolTable.insert(entry);
             }
         }
+        // NEW: Track Jinja function/macro calls for Invalid Func Call and Wrong Args Count checking
+        // Pattern: function_name(arg1, arg2)
+        java.util.regex.Pattern funcCallPattern = java.util.regex.Pattern.compile(
+                "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(([^)]*)\\)"
+        );
+        java.util.regex.Matcher funcMatcher = funcCallPattern.matcher(expr);
+        while (funcMatcher.find()) {
+            String calledFuncName = funcMatcher.group(1);
+            String argsStr = funcMatcher.group(2).trim();
+
+            if (JINJA_BUILTINS.contains(calledFuncName)) continue;
+            if (JINJA_KEYWORDS.contains(calledFuncName)) continue;
+
+            // Count arguments
+            int macroArgCount = 0;
+            if (!argsStr.isEmpty()) {
+                // Split by comma, but ignore commas inside quotes
+                macroArgCount = countArguments(argsStr);
+            }
+
+            FunctionCallInfo macroCall = new FunctionCallInfo(
+                    calledFuncName, macroArgCount, line, "template", false, false
+            );
+            symbolTable.addFunctionCallInfo(macroCall);
+        }
+        // NEW: Track Jinja filters for Invalid Function Call checking
+        // Jinja filters are after the pipe: {{ var|filter1|filter2 }}
+        if (expr.contains("|")) {
+            String[] parts = expr.split("\\|");
+            for (int i = 1; i < parts.length; i++) {  // Skip first part (the variable)
+                String filterName = parts[i].trim();
+                // Remove any arguments: "default('N/A')" → "default"
+                if (filterName.contains("(")) {
+                    filterName = filterName.substring(0, filterName.indexOf("(")).trim();
+                }
+                if (!filterName.isEmpty() && !JINJA_BUILTIN_FILTERS.contains(filterName)
+                        && !JINJA_KEYWORDS.contains(filterName)) {
+                    // Count arguments if present: filter(arg1, arg2) → 2 args
+                    int filterArgCount = 0;
+                    if (parts[i].contains("(") && parts[i].contains(")")) {
+                        String argsStr = parts[i].substring(
+                                parts[i].indexOf("(") + 1,
+                                parts[i].lastIndexOf(")")
+                        ).trim();
+                        if (!argsStr.isEmpty()) {
+                            filterArgCount = argsStr.split(",").length;
+                        }
+                    }
+                    FunctionCallInfo filterCall = new FunctionCallInfo(
+                            filterName, filterArgCount, line, "template", false, true
+                    );
+                    symbolTable.addFunctionCallInfo(filterCall);
+                }
+            }
+        }
+    }
+    /**
+     * Count the number of arguments in a function call argument string.
+     * Handles nested parentheses and quoted strings.
+     */
+    private int countArguments(String argsStr) {
+        if (argsStr == null || argsStr.trim().isEmpty()) return 0;
+
+        int count = 1; // At least 1 arg if string is not empty
+        int depth = 0;
+        boolean inQuotes = false;
+        char quoteChar = 0;
+
+        for (int i = 0; i < argsStr.length(); i++) {
+            char c = argsStr.charAt(i);
+
+            if (inQuotes) {
+                if (c == quoteChar) inQuotes = false;
+                continue;
+            }
+
+            if (c == '"' || c == '\'') {
+                inQuotes = true;
+                quoteChar = c;
+            } else if (c == '(' || c == '[') {
+                depth++;
+            } else if (c == ')' || c == ']') {
+                depth--;
+            } else if (c == ',' && depth == 0) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
 }

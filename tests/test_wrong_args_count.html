@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Wrong Args Count</title>
+</head>
+<body>
+<!-- ✅ ماكرو بعدد صحيح -->
+{% macro render_card(title, content) %}
+<div>{{ title }}: {{ content }}</div>
+{% endmacro %}
+
+<!-- ✅ استدعاء صحيح -->
+{{ render_card("News", "Breaking news") }}
+
+<!-- ❌ معامل واحد ناقص -->
+{{ render_card("News") }}
+
+<!-- ❌ معامل زائد -->
+{{ render_card("News", "Content", "Extra") }}
+</body>
+</html>
