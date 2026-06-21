@@ -5,5 +5,6 @@ public enum SemanticErrorType {
     INVALID_FUNC_CALL,
     WRONG_ARGS_COUNT,
     RETURN_TYPE_MISMATCH,
-    TYPE_MISMATCH
+    TYPE_MISMATCH,
+    DIVISION_BY_ZERO
 }

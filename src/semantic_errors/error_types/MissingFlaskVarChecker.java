@@ -81,7 +81,7 @@ public class MissingFlaskVarChecker {
             // Skip builtins
             if (JINJA_BUILTINS.contains(varName)) continue;
             if (JINJA_BUILTIN_FILTERS.contains(varName)) continue;
-
+            if (isLocallyDefinedInJinja(varName)) continue;
             // Skip if already checked (deduplicate by name)
             if (checkedVars.contains(varName)) continue;
             checkedVars.add(varName);
@@ -106,5 +106,19 @@ public class MissingFlaskVarChecker {
                 ));
             }
         }
+    }
+    /**
+     * ✅ يتحقق إذا كان المتغير معرّف محلياً في Jinja عبر {% set %} أو {% with %}
+     * (بدل ما نعتبره missing من Flask)
+     */
+    private boolean isLocallyDefinedInJinja(String varName) {
+        for (SymbolEntry entry : symbolTable.getAllEntries()) {
+            if (!"template".equals(entry.getSource())) continue;
+            if (varName.equals(entry.getName())
+                    && "jinja_set_var".equals(entry.getType())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

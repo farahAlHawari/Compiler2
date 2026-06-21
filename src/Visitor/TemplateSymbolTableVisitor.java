@@ -492,6 +492,7 @@ public class TemplateSymbolTableVisitor {
                         node.getLine(), "template"
                 );
                 entry.setValue(valueExpr);
+                entry.setDeclaredType(inferTypeFromJinjaValue(valueExpr));
                 entry.setFileName(symbolTable.getCurrentFileName());
                 entry.setFilePath(symbolTable.getCurrentFilePath());
                 symbolTable.insert(entry);
@@ -563,41 +564,177 @@ public class TemplateSymbolTableVisitor {
         extractVariablesFromExpression(condition, line);
     }
 
-    private void handleSimpleSet(String content, int line) {
-        // content = "set welcome_msg "Welcome"" أو "set full_name user.name"
-        String setExpr = content.substring(4).trim();
-        if (setExpr.contains("=")) {
-            String varName = setExpr.substring(0, setExpr.indexOf("=")).trim();
-            String valueExpr = setExpr.substring(setExpr.indexOf("=") + 1).trim();
+//    private void handleSimpleSet(String content, int line) {
+//        // content = "set welcome_msg "Welcome"" أو "set full_name user.name"
+//        String setExpr = content.substring(4).trim();
+//        if (setExpr.contains("=")) {
+//            String varName = setExpr.substring(0, setExpr.indexOf("=")).trim();
+//            String valueExpr = setExpr.substring(setExpr.indexOf("=") + 1).trim();
+//
+//            String scopeType = symbolTable.currentScope().getScopeType();
+//            int scopeLevel = symbolTable.currentScopeLevel();
+//
+//            SymbolEntry entry = new SymbolEntry(
+//                    varName, "variable", "jinja_set_var", scopeType,
+//                    scopeLevel, line, "template"
+//            );
+//            entry.setValue(valueExpr);
+//            entry.setFileName(symbolTable.getCurrentFileName());
+//            entry.setFilePath(symbolTable.getCurrentFilePath());
+//            symbolTable.insert(entry);
+//
+//            extractVariablesFromExpression(valueExpr, line);
+//        } else {
+//            // {% set x %} بدون = (نادر)
+//            String varName = setExpr.trim();
+//            String scopeType = symbolTable.currentScope().getScopeType();
+//            int scopeLevel = symbolTable.currentScopeLevel();
+//            SymbolEntry entry = new SymbolEntry(
+//                    varName, "variable", "jinja_set_var", scopeType,
+//                    scopeLevel, line, "template"
+//            );
+//            entry.setFileName(symbolTable.getCurrentFileName());
+//            entry.setFilePath(symbolTable.getCurrentFilePath());
+//            symbolTable.insert(entry);
+//        }
+//    }
 
-            String scopeType = symbolTable.currentScope().getScopeType();
-            int scopeLevel = symbolTable.currentScopeLevel();
+private void handleSimpleSet(String content, int line) {
+    String setExpr = content.substring(4).trim();
+    if (setExpr.contains("=")) {
+        String varName = setExpr.substring(0, setExpr.indexOf("=")).trim();
+        String valueExpr = setExpr.substring(setExpr.indexOf("=") + 1).trim();
 
-            SymbolEntry entry = new SymbolEntry(
-                    varName, "variable", "jinja_set_var", scopeType,
-                    scopeLevel, line, "template"
-            );
-            entry.setValue(valueExpr);
-            entry.setFileName(symbolTable.getCurrentFileName());
-            entry.setFilePath(symbolTable.getCurrentFilePath());
-            symbolTable.insert(entry);
+        String scopeType = symbolTable.currentScope().getScopeType();
+        int scopeLevel = symbolTable.currentScopeLevel();
 
-            extractVariablesFromExpression(valueExpr, line);
-        } else {
-            // {% set x %} بدون = (نادر)
-            String varName = setExpr.trim();
-            String scopeType = symbolTable.currentScope().getScopeType();
-            int scopeLevel = symbolTable.currentScopeLevel();
-            SymbolEntry entry = new SymbolEntry(
-                    varName, "variable", "jinja_set_var", scopeType,
-                    scopeLevel, line, "template"
-            );
-            entry.setFileName(symbolTable.getCurrentFileName());
-            entry.setFilePath(symbolTable.getCurrentFilePath());
-            symbolTable.insert(entry);
-        }
+        SymbolEntry entry = new SymbolEntry(
+                varName, "variable", "jinja_set_var", scopeType,
+                scopeLevel, line, "template"
+        );
+        entry.setValue(valueExpr);
+
+        // ✅ تعديل 5: خزّن نوع القيمة المستنتج من valueExpr
+        //   بدل ما يكون نوع المتغير "jinja_set_var" فقط، نحطي النوع الحقيقي
+        //   في حقل منفصل عشان نقدر نفحصه في TypeMismatchChecker
+        String inferredType = inferTypeFromJinjaValue(valueExpr);
+        entry.setDeclaredType(inferredType);   // ← نستخدم declaredType لتخزين النوع المستنتج
+
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.insert(entry);
+
+        extractVariablesFromExpression(valueExpr, line);
+    } else {
+        String varName = setExpr.trim();
+        String scopeType = symbolTable.currentScope().getScopeType();
+        int scopeLevel = symbolTable.currentScopeLevel();
+        SymbolEntry entry = new SymbolEntry(
+                varName, "variable", "jinja_set_var", scopeType,
+                scopeLevel, line, "template"
+        );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.insert(entry);
     }
+}
 
+    /**
+     * ✅ تعديل 5: استنتاج نوع القيمة في Jinja {% set %}
+     * يعطي النوع التقريبي للقيمة:
+     *   "hello"  → "string"
+     *   5        → "int"
+     *   5.0      → "float"
+     *   true     → "bool"
+     *   [1,2,3]  → "list"
+     *   {...}    → "dict"
+     *   (1,2,3)  → "tuple"
+     *   متغير آخر  → يرجع نوع المتغير الآخر (لو معروف)
+     *   تعبير    → "unknown"
+     */
+//    private String inferTypeFromJinjaValue(String valueExpr) {
+//        if (valueExpr == null || valueExpr.trim().isEmpty()) return "unknown";
+//
+//        valueExpr = valueExpr.trim();
+//
+//        // String literal
+//        if ((valueExpr.startsWith("\"") && valueExpr.endsWith("\""))
+//                || (valueExpr.startsWith("'") && valueExpr.endsWith("'"))) {
+//            return "string";
+//        }
+//
+//        // List
+//        if (valueExpr.startsWith("[") && valueExpr.endsWith("]")) {
+//            return "list";
+//        }
+//
+//        // Dict
+//        if (valueExpr.startsWith("{") && valueExpr.endsWith("}")) {
+//            return "dict";
+//        }
+//
+//        // Tuple
+//        if (valueExpr.startsWith("(") && valueExpr.endsWith(")")) {
+//            return "tuple";
+//        }
+//
+//        // Boolean
+//        if ("true".equalsIgnoreCase(valueExpr) || "false".equalsIgnoreCase(valueExpr)) {
+//            return "bool";
+//        }
+//
+//        // None
+//        if ("none".equalsIgnoreCase(valueExpr) || "null".equalsIgnoreCase(valueExpr)) {
+//            return "NoneType";
+//        }
+//
+//        // Integer
+//        if (valueExpr.matches("-?\\d+")) {
+//            return "int";
+//        }
+//
+//        // Float
+//        if (valueExpr.matches("-?\\d+\\.\\d+")) {
+//            return "float";
+//        }
+//
+//        // متغير آخر — حاول تجيب نوعه من SymbolTable
+//        SymbolEntry refEntry = symbolTable.lookup(valueExpr);
+//        if (refEntry != null) {
+//            String t = refEntry.getDeclaredType();
+//            if (t != null && !t.isEmpty()) return t;
+//            // لو ما عندوش declaredType، استخدم type العادي
+//            String regularType = refEntry.getType();
+//            if (regularType != null && !"jinja_set_var".equals(regularType)) {
+//                return regularType;
+//            }
+//        }
+//
+//        return "unknown";
+//    }
+    private String inferTypeFromJinjaValue(String valueExpr) {
+        if (valueExpr == null || valueExpr.trim().isEmpty()) return "unknown";
+        valueExpr = valueExpr.trim();
+
+        if ((valueExpr.startsWith("\"") && valueExpr.endsWith("\""))
+                || (valueExpr.startsWith("'") && valueExpr.endsWith("'"))) return "string";
+        if (valueExpr.startsWith("[") && valueExpr.endsWith("]")) return "list";
+        if (valueExpr.startsWith("{") && valueExpr.endsWith("}")) return "dict";
+        if (valueExpr.startsWith("(") && valueExpr.endsWith(")")) return "tuple";
+        if ("true".equalsIgnoreCase(valueExpr) || "false".equalsIgnoreCase(valueExpr)) return "bool";
+        if ("none".equalsIgnoreCase(valueExpr) || "null".equalsIgnoreCase(valueExpr)) return "NoneType";
+        if (valueExpr.matches("-?\\d+")) return "int";
+        if (valueExpr.matches("-?\\d+\\.\\d+")) return "float";
+
+        SymbolEntry refEntry = symbolTable.lookup(valueExpr);
+        if (refEntry != null) {
+            String t = refEntry.getDeclaredType();
+            if (t != null && !t.isEmpty()) return t;
+            String regularType = refEntry.getType();
+            if (regularType != null && !"jinja_set_var".equals(regularType)) return regularType;
+        }
+        return "unknown";
+    }
     private void handleSimpleMacro(String content, int line) {
         // content = "macro greeting(name)" أو "macro render_card(title, content, color)"
         String rest = content.substring(6).trim();
@@ -963,51 +1100,102 @@ public class TemplateSymbolTableVisitor {
         symbolTable.insert(entry);
     }
 
-    private void visitJinjaSet(JinjaNode node) {
-        String setText = node.nodeName.replace("JinjaSet", "").trim();
-        if (setText.contains("=")) {
-            String varName = setText.substring(0, setText.indexOf("=")).trim();
-            String valueExpr = setText.substring(setText.indexOf("=") + 1).trim();
+//    private void visitJinjaSet(JinjaNode node) {
+//        String setText = node.nodeName.replace("JinjaSet", "").trim();
+//        if (setText.contains("=")) {
+//            String varName = setText.substring(0, setText.indexOf("=")).trim();
+//            String valueExpr = setText.substring(setText.indexOf("=") + 1).trim();
+//
+//            String scopeType = symbolTable.currentScope().getScopeType();
+//            int scopeLevel = symbolTable.currentScopeLevel();
+//
+//            SymbolEntry entry = new SymbolEntry(
+//                    varName, "variable", "jinja_set_var", scopeType,
+//                    scopeLevel, node.getLine(), "template"
+//            );
+//            entry.setValue(valueExpr);
+//            entry.setFileName(symbolTable.getCurrentFileName());
+//            entry.setFilePath(symbolTable.getCurrentFilePath());
+//            symbolTable.insert(entry);
+//
+//            // ✅ أضيفي: استخراج المتغيرات من الـ value
+//            extractVariablesFromExpression(valueExpr, node.getLine());
+//        }
+//    }
+private void visitJinjaSet(JinjaNode node) {
+    String setText = node.nodeName.replace("JinjaSet", "").trim();
+    if (setText.contains("=")) {
+        String varName = setText.substring(0, setText.indexOf("=")).trim();
+        String valueExpr = setText.substring(setText.indexOf("=") + 1).trim();
 
-            String scopeType = symbolTable.currentScope().getScopeType();
-            int scopeLevel = symbolTable.currentScopeLevel();
+        String scopeType = symbolTable.currentScope().getScopeType();
+        int scopeLevel = symbolTable.currentScopeLevel();
 
-            SymbolEntry entry = new SymbolEntry(
-                    varName, "variable", "jinja_set_var", scopeType,
-                    scopeLevel, node.getLine(), "template"
-            );
-            entry.setValue(valueExpr);
-            entry.setFileName(symbolTable.getCurrentFileName());
-            entry.setFilePath(symbolTable.getCurrentFilePath());
-            symbolTable.insert(entry);
+        SymbolEntry entry = new SymbolEntry(
+                varName, "variable", "jinja_set_var", scopeType,
+                scopeLevel, node.getLine(), "template"
+        );
+        entry.setValue(valueExpr);
 
-            // ✅ أضيفي: استخراج المتغيرات من الـ value
-            extractVariablesFromExpression(valueExpr, node.getLine());
-        }
+        // ✅ تعديل 5: خزّن النوع المستنتج من القيمة
+        String inferredType = inferTypeFromJinjaValue(valueExpr);
+        entry.setDeclaredType(inferredType);
+
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.insert(entry);
+
+        extractVariablesFromExpression(valueExpr, node.getLine());
     }
-    private void visitJinjaWith(JinjaNode node) {
-        // نفس منطق visitJinjaSet بالأساس
-        // بس مع فتح سكوب جديد
-        int newLevel = symbolTable.currentScopeLevel() + 1;
-        symbolTable.enterScope("jinja_block",  "with");
+}
+//    private void visitJinjaWith(JinjaNode node) {
+//        // نفس منطق visitJinjaSet بالأساس
+//        // بس مع فتح سكوب جديد
+//        int newLevel = symbolTable.currentScopeLevel() + 1;
+//        symbolTable.enterScope("jinja_block",  "with");
+//
+//        String withText = node.nodeName.replace("JinjaWith", "").trim();
+//        if (withText.contains("=")) {
+//            String varName = withText.substring(0, withText.indexOf("=")).trim();
+//            String valueExpr = withText.substring(withText.indexOf("=") + 1).trim();
+//            SymbolEntry entry = new SymbolEntry(
+//                    varName, "variable", "jinja_set_var", "jinja_block",
+//                    newLevel, node.getLine(), "template"
+//            );
+//            entry.setValue(valueExpr);
+//            entry.setFileName(symbolTable.getCurrentFileName());
+//            entry.setFilePath(symbolTable.getCurrentFilePath());
+//            symbolTable.insert(entry);
+//        }
+//
+//        for (ASTNode child : node.children) { visit(child); }
+//        symbolTable.exitScope();
+//    }
+private void visitJinjaWith(JinjaNode node) {
+    int newLevel = symbolTable.currentScopeLevel() + 1;
+    symbolTable.enterScope("jinja_block",  "with");
 
-        String withText = node.nodeName.replace("JinjaWith", "").trim();
-        if (withText.contains("=")) {
-            String varName = withText.substring(0, withText.indexOf("=")).trim();
-            String valueExpr = withText.substring(withText.indexOf("=") + 1).trim();
-            SymbolEntry entry = new SymbolEntry(
-                    varName, "variable", "jinja_set_var", "jinja_block",
-                    newLevel, node.getLine(), "template"
-            );
-            entry.setValue(valueExpr);
-            entry.setFileName(symbolTable.getCurrentFileName());
-            entry.setFilePath(symbolTable.getCurrentFilePath());
-            symbolTable.insert(entry);
-        }
+    String withText = node.nodeName.replace("JinjaWith", "").trim();
+    if (withText.contains("=")) {
+        String varName = withText.substring(0, withText.indexOf("=")).trim();
+        String valueExpr = withText.substring(withText.indexOf("=") + 1).trim();
+        SymbolEntry entry = new SymbolEntry(
+                varName, "variable", "jinja_set_var", "jinja_block",
+                newLevel, node.getLine(), "template"
+        );
+        entry.setValue(valueExpr);
 
-        for (ASTNode child : node.children) { visit(child); }
-        symbolTable.exitScope();
+        // ✅ تعديل 5
+        entry.setDeclaredType(inferTypeFromJinjaValue(valueExpr));
+
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.insert(entry);
     }
+
+    for (ASTNode child : node.children) { visit(child); }
+    symbolTable.exitScope();
+}
     private void visitJinjaMacro(JinjaNode node) {
         String macroName = ((JinjaMacroNode) node).getMacroName();
         String scopeType = symbolTable.currentScope().getScopeType();
@@ -1064,6 +1252,7 @@ public class TemplateSymbolTableVisitor {
                             entry.getLine(), entry.getSource()
                     );
                     promotedEntry.setValue(entry.getValue());
+                    promotedEntry.setDeclaredType(entry.getDeclaredType());
                     promotedEntry.setFileName(symbolTable.getCurrentFileName());
                     promotedEntry.setFilePath(symbolTable.getCurrentFilePath());
                     parentScope.insert(promotedEntry);
@@ -1128,7 +1317,6 @@ public class TemplateSymbolTableVisitor {
      * - products  → بنخزن "products" كـ jinja_var
      * - 123, "hello" → نتخطى (أرقام ونصوص)
      */
-
     private void extractVariablesFromExpression(String expr, int line) {
         if (expr == null || expr.isEmpty()) return;
 
@@ -1161,6 +1349,45 @@ public class TemplateSymbolTableVisitor {
                 symbolTable.insert(entry);
             }
         }
+
+        // ===== Division By Zero case 4 (Bridge): {{ count / price }} or {{ x % y }} =====
+        // Jinja expressions are plain text here, so we scan for "<left> / <right>"
+        // or "<left> % <right>" directly. We only care about the divisor (right
+        // side): if it's a literal 0, or a Flask-passed variable whose value is 0,
+        // DivisionByZeroChecker will flag it — exactly like Python's runtime
+        // ZeroDivisionError would when Jinja evaluates the expression.
+        java.util.regex.Pattern divPattern = java.util.regex.Pattern.compile(
+                "([a-zA-Z_][a-zA-Z0-9_.]*|\\d+(?:\\.\\d+)?)\\s*([/%])\\s*([a-zA-Z_][a-zA-Z0-9_.]*|\\d+(?:\\.\\d+)?)"
+        );
+        java.util.regex.Matcher divMatcher = divPattern.matcher(expr);
+        while (divMatcher.find()) {
+            String divisorToken = divMatcher.group(3).trim();
+            String operatorToken = divMatcher.group(2).trim();
+
+            boolean divisorIsNumericLiteral = divisorToken.matches("\\d+(?:\\.\\d+)?");
+            String filterNameForDivision = "__division__" + operatorToken; // marks usage as a division/modulo, not a real filter
+
+            if (divisorIsNumericLiteral) {
+                // Direct literal divisor inside a Jinja expression, e.g. {{ x / 0 }}
+                symbol_table.JinjaFilterUsage divUsage = new symbol_table.JinjaFilterUsage(
+                        divisorToken, filterNameForDivision, "division_literal", line
+                );
+                divUsage.setFileName(symbolTable.getCurrentFileName());
+                divUsage.setFilePath(symbolTable.getCurrentFilePath());
+                symbolTable.addJinjaFilterUsage(divUsage);
+            } else if (!JINJA_BUILTINS.contains(divisorToken)) {
+                // لاحظي: شلنا فحص JINJA_KEYWORDS هون فقط (مش من باقي الكود)
+                // لأنه كلمات متل count/length/string هي أسماء filters بس برضو
+                // ممكن تكون أسماء متغيرات عادية بسياق رياضي زي {{ price / count }}
+                symbol_table.JinjaFilterUsage divUsage = new symbol_table.JinjaFilterUsage(
+                        divisorToken, filterNameForDivision, "division_variable", line
+                );
+                divUsage.setFileName(symbolTable.getCurrentFileName());
+                divUsage.setFilePath(symbolTable.getCurrentFilePath());
+                symbolTable.addJinjaFilterUsage(divUsage);
+            }
+        }
+
         // NEW: Track Jinja function/macro calls for Invalid Func Call and Wrong Args Count checking
         // Pattern: function_name(arg1, arg2)
         java.util.regex.Pattern funcCallPattern = java.util.regex.Pattern.compile(
@@ -1202,8 +1429,8 @@ public class TemplateSymbolTableVisitor {
                 if (!varName.isEmpty() && !JINJA_KEYWORDS.contains(varName)) {
 
 
-                            symbol_table.JinjaFilterUsage usage =
-                                    new symbol_table.JinjaFilterUsage(varName, filterName, "filter", line);
+                    symbol_table.JinjaFilterUsage usage =
+                            new symbol_table.JinjaFilterUsage(varName, filterName, "filter", line);
                     usage.setFileName(symbolTable.getCurrentFileName());
                     usage.setFilePath(symbolTable.getCurrentFilePath());
                     symbolTable.addJinjaFilterUsage(usage);
@@ -1232,6 +1459,109 @@ public class TemplateSymbolTableVisitor {
             }
         }
     }
+//    private void extractVariablesFromExpression(String expr, int line) {
+//        if (expr == null || expr.isEmpty()) return;
+//
+//        expr = expr.replaceAll("\"[^\"]*\"", "").replaceAll("'[^']*'", "");
+//
+//        java.util.regex.Pattern varPattern = java.util.regex.Pattern.compile(
+//                "\\b([a-zA-Z_][a-zA-Z0-9_]*)(\\.[a-zA-Z_][a-zA-Z0-9_]*)*\\b"
+//        );
+//        java.util.regex.Matcher matcher = varPattern.matcher(expr);
+//
+//        while (matcher.find()) {
+//            String token = matcher.group(1);
+//
+//            if (token.isEmpty()) continue;
+//            if (JINJA_BUILTINS.contains(token)) continue;
+//            if (JINJA_KEYWORDS.contains(token)) continue;
+//            if (token.matches("\\d+.*")) continue;
+//
+//            // ✅ التعديل: lookupCurrentScope بدل lookup
+//            if (symbolTable.lookupCurrentScope(token) == null) {
+//                String scopeType = symbolTable.currentScope().getScopeType();
+//                int scopeLevel = symbolTable.currentScopeLevel();
+//
+//                SymbolEntry entry = new SymbolEntry(
+//                        token, "jinja_var", "context_var", scopeType,
+//                        scopeLevel, line, "template"
+//                );
+//                entry.setFileName(symbolTable.getCurrentFileName());
+//                entry.setFilePath(symbolTable.getCurrentFilePath());
+//                symbolTable.insert(entry);
+//            }
+//        }
+//        // NEW: Track Jinja function/macro calls for Invalid Func Call and Wrong Args Count checking
+//        // Pattern: function_name(arg1, arg2)
+//        java.util.regex.Pattern funcCallPattern = java.util.regex.Pattern.compile(
+//                "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(([^)]*)\\)"
+//        );
+//        java.util.regex.Matcher funcMatcher = funcCallPattern.matcher(expr);
+//        while (funcMatcher.find()) {
+//            String calledFuncName = funcMatcher.group(1);
+//            String argsStr = funcMatcher.group(2).trim();
+//
+//            if (JINJA_BUILTINS.contains(calledFuncName)) continue;
+//            if (JINJA_KEYWORDS.contains(calledFuncName)) continue;
+//
+//            // Count arguments
+//            int macroArgCount = 0;
+//            if (!argsStr.isEmpty()) {
+//                // Split by comma, but ignore commas inside quotes
+//                macroArgCount = countArguments(argsStr);
+//            }
+//
+//            FunctionCallInfo macroCall = new FunctionCallInfo(
+//                    calledFuncName, macroArgCount, line, "template", false, false
+//            );
+//            macroCall.setFileName(symbolTable.getCurrentFileName());
+//            macroCall.setFilePath(symbolTable.getCurrentFilePath());
+//            symbolTable.addFunctionCallInfo(macroCall);
+//        }
+//        // NEW: Track Jinja filters for Invalid Function Call checking
+//        // Jinja filters are after the pipe: {{ var|filter1|filter2 }}
+//        if (expr.contains("|")) {
+//            String[] parts = expr.split("\\|");
+//            for (int i = 1; i < parts.length; i++) {  // Skip first part (the variable)
+//                String filterName = parts[i].trim();
+//                // Remove any arguments: "default('N/A')" → "default"
+//                if (filterName.contains("(")) {
+//                    filterName = filterName.substring(0, filterName.indexOf("(")).trim();
+//                }
+//                String varName = parts[0].trim();
+//                if (!varName.isEmpty() && !JINJA_KEYWORDS.contains(varName)) {
+//
+//
+//                            symbol_table.JinjaFilterUsage usage =
+//                                    new symbol_table.JinjaFilterUsage(varName, filterName, "filter", line);
+//                    usage.setFileName(symbolTable.getCurrentFileName());
+//                    usage.setFilePath(symbolTable.getCurrentFilePath());
+//                    symbolTable.addJinjaFilterUsage(usage);
+//
+//                }
+//                if (!filterName.isEmpty() && !JINJA_BUILTIN_FILTERS.contains(filterName)
+//                        && !JINJA_KEYWORDS.contains(filterName)) {
+//                    // Count arguments if present: filter(arg1, arg2) → 2 args
+//                    int filterArgCount = 0;
+//                    if (parts[i].contains("(") && parts[i].contains(")")) {
+//                        String argsStr = parts[i].substring(
+//                                parts[i].indexOf("(") + 1,
+//                                parts[i].lastIndexOf(")")
+//                        ).trim();
+//                        if (!argsStr.isEmpty()) {
+//                            filterArgCount = argsStr.split(",").length;
+//                        }
+//                    }
+//                    FunctionCallInfo filterCall = new FunctionCallInfo(
+//                            filterName, filterArgCount, line, "template", false, true
+//                    );
+//                    filterCall.setFileName(symbolTable.getCurrentFileName());
+//                    filterCall.setFilePath(symbolTable.getCurrentFilePath());
+//                    symbolTable.addFunctionCallInfo(filterCall);
+//                }
+//            }
+//        }
+//    }
     /**
      * Count the number of arguments in a function call argument string.
      * Handles nested parentheses and quoted strings.

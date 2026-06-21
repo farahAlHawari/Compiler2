@@ -1,9 +1,6 @@
 package symbol_table;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a render_template() call from Flask (Python) code.
@@ -22,7 +19,8 @@ public class FlaskTemplateCall {
 
     private String templateName;
     private List<String> passedVariables;
-    private Map<String, String> passedVariableTypes = new HashMap<>();
+    private Map<String, Set<String>> passedVariableTypes = new HashMap<>();
+    private Map<String, String> passedVariableValues = new HashMap<>();
 
     private int line;
     private String filePath = "";
@@ -49,12 +47,27 @@ public class FlaskTemplateCall {
             passedVariables.add(varName);
         }
     }
-    public void addPassedVariableType(String varName, String type) {
-        passedVariableTypes.put(varName, type);
+    public void addPassedVariableValue(String varName, String value) {
+        passedVariableValues.put(varName, value);
+    }
+    public String getPassedVariableValue(String varName) {
+        return passedVariableValues.getOrDefault(varName, null);
     }
 
-    public String getPassedVariableType(String varName) {
-        return passedVariableTypes.getOrDefault(varName, null);
+    public void addPassedVariableType(String varName, String type) {
+        passedVariableTypes
+                .computeIfAbsent(varName, k -> new HashSet<>())
+                .add(type);
+    }
+
+    /** ترجع كل الأنواع المسجّلة للمتغير (من كل render_template calls) */
+    public Set<String> getPassedVariableTypes(String varName) {
+        return passedVariableTypes.getOrDefault(varName, Collections.emptySet());
+    }
+
+    /** ترجع true لو المتغير مُمرر من Flask */
+    public boolean hasPassedVariableType(String varName) {
+        return passedVariableTypes.containsKey(varName);
     }
     public String getFilePath() { return filePath; }
     public void setFilePath(String filePath) { this.filePath = filePath; }

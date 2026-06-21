@@ -7,6 +7,7 @@ import symbol_table.FlaskTemplateCall;
 import symbol_table.FunctionCallInfo;
 import symbol_table.ReturnInfo;
 import java.util.Stack;
+import symbol_table.DivisionInfo;
 
 /**
  * Visitor that walks the Python AST and populates the Symbol Table.
@@ -643,11 +644,35 @@ public class SymbolTableVisitor {
 
     // ==================== Binary Op ====================
 
-    private void visitBinaryOp(ASTNode node) {
-        for (ASTNode child : node.children) {
-            visit(child);
+//    private void visitBinaryOp(ASTNode node) {
+//        for (ASTNode child : node.children) {
+//            visit(child);
+//        }
+//    }
+private void visitBinaryOp(ASTNode node) {
+    for (ASTNode child : node.children) visit(child);
+
+    if (node instanceof BinaryOpNode && node.children.size() == 2) {
+        BinaryOpNode binOp = (BinaryOpNode) node;
+        if ("/".equals(binOp.operator) || "%".equals(binOp.operator)) {
+            ASTNode divisorNode = node.children.get(1);
+            DivisionInfo divInfo = null;
+
+            if (divisorNode instanceof LiteralNode) {
+                divInfo = new DivisionInfo(binOp.operator, true,
+                        ((LiteralNode) divisorNode).value, null, node.lineNumber);
+            } else if (divisorNode instanceof IdentifierNode) {
+                divInfo = new DivisionInfo(binOp.operator, false, null,
+                        ((IdentifierNode) divisorNode).name, node.lineNumber);
+            }
+            if (divInfo != null) {
+                divInfo.setFileName(symbolTable.getCurrentFileName());
+                divInfo.setFilePath(symbolTable.getCurrentFilePath());
+                symbolTable.addDivisionInfo(divInfo);
+            }
         }
     }
+}
 
     // ==================== Unary Op ====================
 
@@ -838,6 +863,7 @@ public class SymbolTableVisitor {
                             SymbolEntry varEntry = symbolTable.lookup(varName);
                             if (varEntry != null) {
                                 flaskCall.addPassedVariableType(varName, varEntry.getType());
+                                flaskCall.addPassedVariableValue(varName, varEntry.getValue());
                             }
                         }
                     }

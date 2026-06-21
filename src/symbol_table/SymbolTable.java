@@ -55,8 +55,7 @@ public class SymbolTable {
     // For Return Type Mismatch: track all return statements
     private List<ReturnInfo> returnInfos;
     private List<JinjaFilterUsage> jinjaFilterUsages;
-
-
+    private List<DivisionInfo> divisionInfos;
     // Track current scope context for qualified naming
     private String currentSource;                       // "python" or "template"
     private String currentFileName = "";
@@ -74,6 +73,7 @@ public class SymbolTable {
         this.functionCallInfos = new ArrayList<>();
         this.returnInfos = new ArrayList<>();
         this.jinjaFilterUsages = new ArrayList<>();
+        this.divisionInfos = new ArrayList<>();
         // Start with a global scope
         enterScope("global",  "global");
     }
@@ -107,6 +107,9 @@ public class SymbolTable {
     }
     public String getCurrentFilePath() { return currentFilePath; }
     public void setCurrentFilePath(String currentFilePath) { this.currentFilePath = currentFilePath; }
+
+    public List<DivisionInfo> getDivisionInfos() { return divisionInfos; }
+    public void addDivisionInfo(DivisionInfo info) { divisionInfos.add(info); }
     /**
      * Exit the current scope (pop from stack).
      * Called when exiting: function, class, block, style block, jinja block.
@@ -134,7 +137,6 @@ public class SymbolTable {
     public int currentScopeLevel() {
         return scopeStack.size() - 1;
     }
-
     // ==================== Symbol Operations ====================
 
     /**
@@ -361,6 +363,7 @@ public class SymbolTable {
         functionCallInfos.clear();
         returnInfos.clear();
         jinjaFilterUsages.clear();
+        divisionInfos.clear();
         enterScope("global",  "global");
     }
 
@@ -379,6 +382,7 @@ public class SymbolTable {
         functionCallInfos.clear();
         returnInfos.clear();
         jinjaFilterUsages.clear();
+        divisionInfos.clear();
     }
 
     // ==================== Printing ====================

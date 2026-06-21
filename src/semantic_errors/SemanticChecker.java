@@ -40,6 +40,9 @@ public class SemanticChecker {
         returnTypeMismatchChecker.check();
         TypeMismatchChecker typeMismatchChecker = new TypeMismatchChecker(symbolTable, errors);
         typeMismatchChecker.check();
+
+        DivisionByZeroChecker divisionByZeroChecker = new DivisionByZeroChecker(symbolTable, errors);
+        divisionByZeroChecker.check();
     }
     public List<SemanticError> getErrors() {
         return errors;
