@@ -3,6 +3,7 @@ package semantic_errors.error_types;
 import semantic_errors.SemanticError;
 import semantic_errors.SemanticErrorType;
 import symbol_table.FlaskTemplateCall;
+import symbol_table.SourceFileReader;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
 
@@ -87,11 +88,21 @@ public class MissingFlaskVarChecker {
 
             // Step 3: Check if this variable was passed from Flask
             if (!flaskPassedVars.contains(varName)) {
+//                errors.add(new SemanticError(
+//                        SemanticErrorType.MISSING_FLASK_VARIABLE,
+//                        "MISSING_FLASK_VARIABLE",
+//                        "Variable '" + varName + "' is used in Jinja but not passed from Flask via render_template",
+//                        entry.getLine()
+//                ));
                 errors.add(new SemanticError(
                         SemanticErrorType.MISSING_FLASK_VARIABLE,
-                        "MISSING_FLASK_VARIABLE",
+                        "NameError",
                         "Variable '" + varName + "' is used in Jinja but not passed from Flask via render_template",
-                        entry.getLine()
+                        entry.getLine(),
+                        entry.getFileName(),
+                        varName,
+                        "{{ " + varName + " }}",
+                        SourceFileReader.getLine(entry.getFilePath(), entry.getLine())   // ← مو symbolTable
                 ));
             }
         }

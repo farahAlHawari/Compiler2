@@ -21,8 +21,9 @@ stmt
 /*  Block-level Statements (can appear inside a block)  */
 
 blockStmt
-    : assignmentStmt                     #assignStmtNode
-    | augAssignStmt                      #augAssignStmtNode
+    : annotatedAssignStmt                #annotatedAssignStmtNode
+       | assignmentStmt                     #assignStmtNode
+       | augAssignStmt                      #augAssignStmtNode
     | globalStmt                         #globalStmtNode
     | returnStmt                         #returnStmtNode
     | ifStmt                             #ifStmtNode
@@ -72,6 +73,10 @@ assignmentStmt
     : IDENTIFIER ASSIGN expression NEWLINE
                                         #simpleAssignNode
     ;
+    annotatedAssignStmt
+        : IDENTIFIER COLON IDENTIFIER ASSIGN expression NEWLINE
+                                            #annotatedAssignNode
+        ;
 
 augAssignStmt
     : IDENTIFIER (PLUS_ASSIGN | MINUS_ASSIGN | MULT_ASSIGN | DIV_ASSIGN)

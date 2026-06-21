@@ -34,7 +34,8 @@ public class FunctionCallInfo {
     private String source;        // "python" or "template"
     private boolean isMethodCall;  // true if obj.method() call
     private boolean isJinjaFilter; // true if Jinja filter like {{ x|filter }}
-
+    private String fileName = "";
+    private String filePath = "";
     public FunctionCallInfo(String functionName, int argCount, int line,
                             String source, boolean isMethodCall, boolean isJinjaFilter) {
         this.functionName = functionName;
@@ -68,7 +69,10 @@ public class FunctionCallInfo {
     public boolean isJinjaFilter() {
         return isJinjaFilter;
     }
-
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+    public String getFilePath() { return filePath; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
     @Override
     public String toString() {
         return "FunctionCallInfo{" +

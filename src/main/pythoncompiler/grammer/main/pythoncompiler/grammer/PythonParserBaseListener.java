@@ -1,4 +1,4 @@
-// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from D:/compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -60,6 +60,18 @@ public class PythonParserBaseListener implements PythonParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnnotatedAssignStmtNode(PythonParser.AnnotatedAssignStmtNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnnotatedAssignStmtNode(PythonParser.AnnotatedAssignStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -288,6 +300,18 @@ public class PythonParserBaseListener implements PythonParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSimpleAssignNode(PythonParser.SimpleAssignNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

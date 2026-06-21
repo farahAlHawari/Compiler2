@@ -348,6 +348,41 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
         AssignNode assignNode = new AssignNode(varName, op);
         assignNode.lineNumber = ctx.start.getLine();
 
+        // ← التعديل: تحقق إذا في type hint بالسطر الأصلي (x: int = value)
+        // بما إن الـ grammar ما بيدعمها، نقرأ النص الأصلي للسطر ونستخرج النوع منه
+        String originalText = ctx.start.getInputStream()
+                .getText(new org.antlr.v4.runtime.misc.Interval(
+                        ctx.start.getStartIndex(),
+                        ctx.stop.getStopIndex()));
+        if (originalText.contains(":")) {
+            // الشكل: varName : type = value
+            String beforeAssign = originalText.substring(0, originalText.indexOf("=")).trim();
+            if (beforeAssign.contains(":")) {
+                String declaredType = beforeAssign.substring(
+                        beforeAssign.indexOf(":") + 1).trim();
+                if (!declaredType.isEmpty()) {
+                    assignNode.declaredType = declaredType;
+                }
+            }
+        }
+
+        ASTNode value = visit(ctx.expression());
+        if (value != null) {
+            assignNode.addChild(value);
+        }
+
+        return assignNode;
+    }
+    @Override
+    public ASTNode visitAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx) {
+        String varName = ctx.IDENTIFIER(0).getText();
+        String declaredType = ctx.IDENTIFIER(1).getText();
+        String op = ctx.ASSIGN().getText();
+
+        AssignNode assignNode = new AssignNode(varName, op);
+        assignNode.lineNumber = ctx.start.getLine();
+        assignNode.declaredType = declaredType;
+
         ASTNode value = visit(ctx.expression());
         if (value != null) {
             assignNode.addChild(value);

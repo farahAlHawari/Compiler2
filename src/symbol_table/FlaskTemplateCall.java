@@ -2,6 +2,8 @@ package symbol_table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a render_template() call from Flask (Python) code.
@@ -20,8 +22,10 @@ public class FlaskTemplateCall {
 
     private String templateName;
     private List<String> passedVariables;
-    private int line;
+    private Map<String, String> passedVariableTypes = new HashMap<>();
 
+    private int line;
+    private String filePath = "";
     public FlaskTemplateCall(String templateName, int line) {
         this.templateName = templateName;
         this.line = line;
@@ -45,7 +49,15 @@ public class FlaskTemplateCall {
             passedVariables.add(varName);
         }
     }
+    public void addPassedVariableType(String varName, String type) {
+        passedVariableTypes.put(varName, type);
+    }
 
+    public String getPassedVariableType(String varName) {
+        return passedVariableTypes.getOrDefault(varName, null);
+    }
+    public String getFilePath() { return filePath; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
     public int getLine() {
         return line;
     }

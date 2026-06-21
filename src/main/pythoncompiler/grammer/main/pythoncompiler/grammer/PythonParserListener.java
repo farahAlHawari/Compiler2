@@ -1,4 +1,4 @@
-// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from D:/compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -55,6 +55,18 @@ public interface PythonParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code annotatedAssignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnnotatedAssignStmtNode(PythonParser.AnnotatedAssignStmtNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code annotatedAssignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnnotatedAssignStmtNode(PythonParser.AnnotatedAssignStmtNodeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code assignStmtNode}
 	 * labeled alternative in {@link PythonParser#blockStmt}.
@@ -283,6 +295,18 @@ public interface PythonParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSimpleAssignNode(PythonParser.SimpleAssignNodeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code annotatedAssignNode}
+	 * labeled alternative in {@link PythonParser#annotatedAssignStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code annotatedAssignNode}
+	 * labeled alternative in {@link PythonParser#annotatedAssignStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code augAssignNode}
 	 * labeled alternative in {@link PythonParser#augAssignStmt}.

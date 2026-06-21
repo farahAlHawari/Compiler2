@@ -37,7 +37,7 @@ public class SymbolTable {
     private List<SymbolEntry> duplicateErrors;          // Entries that caused duplicate errors
     private List<String> errorMessages;
     private List<Scope> completedScopes; // Semantic error messages
-
+    private String currentFilePath = "";
     // For CSS: properties can repeat within different selectors,
     // so we store them in a list instead of a map
     private List<SymbolEntry> cssProperties;            // CSS properties (allows duplicates)
@@ -54,10 +54,12 @@ public class SymbolTable {
 
     // For Return Type Mismatch: track all return statements
     private List<ReturnInfo> returnInfos;
+    private List<JinjaFilterUsage> jinjaFilterUsages;
+
 
     // Track current scope context for qualified naming
     private String currentSource;                       // "python" or "template"
-
+    private String currentFileName = "";
     public SymbolTable() {
         this.scopeStack = new Stack<>();
         this.allEntries = new ArrayList<>();
@@ -71,6 +73,7 @@ public class SymbolTable {
         this.renderTemplateCalls = new ArrayList<>();
         this.functionCallInfos = new ArrayList<>();
         this.returnInfos = new ArrayList<>();
+        this.jinjaFilterUsages = new ArrayList<>();
         // Start with a global scope
         enterScope("global",  "global");
     }
@@ -87,6 +90,13 @@ public class SymbolTable {
 //        scopeStack.push(newScope);
 //        completedScopes.add(newScope);
 //    }
+    public String getCurrentFileName() {
+        return currentFileName;
+    }
+
+    public void setCurrentFileName(String currentFileName) {
+        this.currentFileName = currentFileName;
+    }
 
     public void enterScope(String scopeType, String contextName) {
         int level = scopeStack.size();
@@ -95,7 +105,8 @@ public class SymbolTable {
 
         // completedScopes.add(newScope);
     }
-
+    public String getCurrentFilePath() { return currentFilePath; }
+    public void setCurrentFilePath(String currentFilePath) { this.currentFilePath = currentFilePath; }
     /**
      * Exit the current scope (pop from stack).
      * Called when exiting: function, class, block, style block, jinja block.
@@ -325,7 +336,13 @@ public class SymbolTable {
     public void addReturnInfo(ReturnInfo info) {
         returnInfos.add(info);
     }
+    public List<JinjaFilterUsage> getJinjaFilterUsages() {
+        return jinjaFilterUsages;
+    }
 
+    public void addJinjaFilterUsage(JinjaFilterUsage usage) {
+        jinjaFilterUsages.add(usage);
+    }
     // ==================== Allocation / Free (as per lecture) ====================
 
     /**
@@ -343,6 +360,7 @@ public class SymbolTable {
         renderTemplateCalls.clear();
         functionCallInfos.clear();
         returnInfos.clear();
+        jinjaFilterUsages.clear();
         enterScope("global",  "global");
     }
 
@@ -360,6 +378,7 @@ public class SymbolTable {
         renderTemplateCalls.clear();
         functionCallInfos.clear();
         returnInfos.clear();
+        jinjaFilterUsages.clear();
     }
 
     // ==================== Printing ====================

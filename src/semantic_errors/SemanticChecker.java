@@ -1,9 +1,6 @@
 package semantic_errors;
 
-import semantic_errors.error_types.InvalidFuncCallChecker;
-import semantic_errors.error_types.MissingFlaskVarChecker;
-import semantic_errors.error_types.ReturnTypeMismatchChecker;
-import semantic_errors.error_types.WrongArgsCountChecker;
+import semantic_errors.error_types.*;
 import symbol_table.SymbolTable;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,6 +38,8 @@ public class SemanticChecker {
         // 4. Return Type Mismatch Checker
         ReturnTypeMismatchChecker returnTypeMismatchChecker = new ReturnTypeMismatchChecker(symbolTable, errors);
         returnTypeMismatchChecker.check();
+        TypeMismatchChecker typeMismatchChecker = new TypeMismatchChecker(symbolTable, errors);
+        typeMismatchChecker.check();
     }
     public List<SemanticError> getErrors() {
         return errors;
@@ -53,17 +52,36 @@ public class SemanticChecker {
     /**
      * Print all semantic errors to console.
      */
+//    public void printErrors() {
+//        System.out.println("\n" + "=".repeat(80));
+//        System.out.println("                    SEMANTIC ERROR CHECK RESULTS");
+//        System.out.println("=".repeat(80));
+//
+//        if (errors.isEmpty()) {
+//            System.out.println("No Semantic Errors found.");
+//        } else {
+//            System.out.println("Semantic Check :");
+//            for (SemanticError error : errors) {
+//                System.out.println(error.toString());
+//            }
+//        }
+//        System.out.println("=".repeat(80));
+//    }
     public void printErrors() {
         System.out.println("\n" + "=".repeat(80));
-        System.out.println("                    SEMANTIC ERROR CHECK RESULTS");
+        System.out.println("                         SEMANTIC ERROR REPORT");
         System.out.println("=".repeat(80));
 
         if (errors.isEmpty()) {
-            System.out.println("No Semantic Errors found.");
+            System.out.println("\nNo semantic errors found.\n");
         } else {
-            System.out.println("Semantic Check :");
-            for (SemanticError error : errors) {
-                System.out.println(error.toString());
+            System.out.println("\nFound " + errors.size() + " semantic error"
+                    + (errors.size() == 1 ? "" : "s") + "\n");
+            for (int i = 0; i < errors.size(); i++) {
+                System.out.println(errors.get(i).toReportString(i + 1));
+                if (i < errors.size() - 1) {
+                    System.out.println("-".repeat(79) + "\n");
+                }
             }
         }
         System.out.println("=".repeat(80));
@@ -71,16 +89,38 @@ public class SemanticChecker {
     /**
      * Write all semantic errors to a file.
      */
+//    public void writeErrorsToFile(String filePath) {
+//        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
+//            writer.println("Semantic Check :");
+//            if (errors.isEmpty()) {
+//                writer.println("No Semantic Errors found.");
+//            } else {
+//                for (SemanticError error : errors) {
+//                    writer.println(error.toString());
+//                }
+//            }
+//        } catch (IOException e) {
+//            System.err.println("Error writing semantic errors to file: " + e.getMessage());
+//        }
+//    }
     public void writeErrorsToFile(String filePath) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
-            writer.println("Semantic Check :");
+            writer.println("=".repeat(80));
+            writer.println("                         SEMANTIC ERROR REPORT");
+            writer.println("=".repeat(80));
             if (errors.isEmpty()) {
-                writer.println("No Semantic Errors found.");
+                writer.println("\nNo semantic errors found.\n");
             } else {
-                for (SemanticError error : errors) {
-                    writer.println(error.toString());
+                writer.println("\nFound " + errors.size() + " semantic error"
+                        + (errors.size() == 1 ? "" : "s") + "\n");
+                for (int i = 0; i < errors.size(); i++) {
+                    writer.println(errors.get(i).toReportString(i + 1));
+                    if (i < errors.size() - 1) {
+                        writer.println("-".repeat(79) + "\n");
+                    }
                 }
             }
+            writer.println("=".repeat(80));
         } catch (IOException e) {
             System.err.println("Error writing semantic errors to file: " + e.getMessage());
         }

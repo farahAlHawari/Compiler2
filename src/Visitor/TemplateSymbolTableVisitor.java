@@ -228,6 +228,8 @@ public class TemplateSymbolTableVisitor {
                 cleanName, "css_selector", "selector", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
 
         for (ASTNode child : node.children) {
@@ -248,6 +250,8 @@ public class TemplateSymbolTableVisitor {
                 selectorText.toString().trim(), "css_selector", "combined_selector",
                 scopeType, scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
 
         for (ASTNode child : node.children) {
@@ -264,6 +268,8 @@ public class TemplateSymbolTableVisitor {
                 cleanName, "css_selector", "type_selector", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
     }
 
@@ -276,6 +282,8 @@ public class TemplateSymbolTableVisitor {
                 cleanName, "css_selector", "class_selector", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
     }
 
@@ -288,6 +296,8 @@ public class TemplateSymbolTableVisitor {
                 cleanName, "css_selector", "id_selector", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
     }
 
@@ -299,6 +309,8 @@ public class TemplateSymbolTableVisitor {
                 "*", "css_selector", "universal_selector", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
     }
 
@@ -311,6 +323,8 @@ public class TemplateSymbolTableVisitor {
                 cleanName, "css_selector", "pseudo_class", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
     }
 
@@ -323,6 +337,8 @@ public class TemplateSymbolTableVisitor {
                 cleanName, "css_selector", "pseudo_element", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
     }
 
@@ -335,6 +351,8 @@ public class TemplateSymbolTableVisitor {
                 cleanName, "css_selector", "attribute_selector", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssSelector(entry);
     }
 
@@ -366,7 +384,8 @@ public class TemplateSymbolTableVisitor {
                 scopeLevel, node.getLine(), "template"
         );
         entry.setValue(propertyValue);
-
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insertCssProperty(entry);
 
         for (ASTNode child : node.children) {
@@ -456,6 +475,8 @@ public class TemplateSymbolTableVisitor {
                     scopeLevel, node.getLine(), "template"
             );
             entry.setValue(templateName);
+            entry.setFileName(symbolTable.getCurrentFileName());
+            entry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(entry);
 
         } else if (content.startsWith("with ")) {
@@ -471,6 +492,8 @@ public class TemplateSymbolTableVisitor {
                         node.getLine(), "template"
                 );
                 entry.setValue(valueExpr);
+                entry.setFileName(symbolTable.getCurrentFileName());
+                entry.setFilePath(symbolTable.getCurrentFilePath());
                 symbolTable.insert(entry);
                 extractVariablesFromExpression(valueExpr, node.getLine());
             }
@@ -500,13 +523,24 @@ public class TemplateSymbolTableVisitor {
         }
 
         if (!iteratorName.isEmpty()) {
+
+                    symbol_table.JinjaFilterUsage usage =
+                            new symbol_table.JinjaFilterUsage(iterableName, null, "for_loop", line);
+            usage.setFileName(symbolTable.getCurrentFileName());
+            usage.setFilePath(symbolTable.getCurrentFilePath());
+            symbolTable.addJinjaFilterUsage(usage);
+
+
             String scopeType = symbolTable.currentScope().getScopeType();
             int scopeLevel = symbolTable.currentScopeLevel();
             SymbolEntry iterEntry = new SymbolEntry(
                     iteratorName, "variable", "jinja_iterator",
                     scopeType, scopeLevel, line, "template"
             );
+            iterEntry.setFileName(symbolTable.getCurrentFileName());
+            iterEntry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(iterEntry);
+
         }
 
         // ✅ التعديل: lookupCurrentScope بدل lookup
@@ -517,6 +551,8 @@ public class TemplateSymbolTableVisitor {
                     iterableName, "variable", "jinja_iterable",
                     scopeType, scopeLevel, line, "template"
             );
+            iterableEntry.setFileName(symbolTable.getCurrentFileName());
+            iterableEntry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(iterableEntry);
         }
     }
@@ -542,6 +578,8 @@ public class TemplateSymbolTableVisitor {
                     scopeLevel, line, "template"
             );
             entry.setValue(valueExpr);
+            entry.setFileName(symbolTable.getCurrentFileName());
+            entry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(entry);
 
             extractVariablesFromExpression(valueExpr, line);
@@ -554,6 +592,8 @@ public class TemplateSymbolTableVisitor {
                     varName, "variable", "jinja_set_var", scopeType,
                     scopeLevel, line, "template"
             );
+            entry.setFileName(symbolTable.getCurrentFileName());
+            entry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(entry);
         }
     }
@@ -577,6 +617,8 @@ public class TemplateSymbolTableVisitor {
                 macroName, "function", "jinja_macro", scopeType,
                 scopeLevel, line, "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
 
         // ✅ فتح سكوب الماكرو وتخزين الباراميترات
@@ -593,6 +635,8 @@ public class TemplateSymbolTableVisitor {
                             symbolTable.currentScopeLevel(),
                             line, "template"
                     );
+                    paramEntry.setFileName(symbolTable.getCurrentFileName());
+                    paramEntry.setFilePath(symbolTable.getCurrentFilePath());
                     symbolTable.insert(paramEntry);
                 }
             }
@@ -799,12 +843,22 @@ public class TemplateSymbolTableVisitor {
         symbolTable.enterScope("jinja_block", "for:" + iteratorName);
 
         if (!iteratorName.isEmpty()) {
+
+
+                    symbol_table.JinjaFilterUsage usage =
+                            new symbol_table.JinjaFilterUsage(iterableName, null, "for_loop", node.getLine());
+            usage.setFileName(symbolTable.getCurrentFileName());
+            usage.setFilePath(symbolTable.getCurrentFilePath());
+            symbolTable.addJinjaFilterUsage(usage);
+
             SymbolEntry iterEntry = new SymbolEntry(
                     iteratorName, "variable", "jinja_iterator",
                     "jinja_block:for:" + iteratorName,
                     symbolTable.currentScopeLevel(),
                     node.getLine(), "template"
             );
+            iterEntry.setFileName(symbolTable.getCurrentFileName());
+            iterEntry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(iterEntry);
         }
 
@@ -816,6 +870,8 @@ public class TemplateSymbolTableVisitor {
                     symbolTable.currentScopeLevel(),
                     node.getLine(), "template"
             );
+            iterableEntry.setFileName(symbolTable.getCurrentFileName());
+            iterableEntry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(iterableEntry);
         }
 
@@ -836,6 +892,8 @@ public class TemplateSymbolTableVisitor {
                 "block:" + blockName, "jinja_block", "block", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
 
 
@@ -868,6 +926,8 @@ public class TemplateSymbolTableVisitor {
                 node.getLine(), "template"
         );
         entry.setValue(templateName);
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
     }
 
@@ -882,6 +942,8 @@ public class TemplateSymbolTableVisitor {
                 scopeLevel, node.getLine(), "template"
         );
         entry.setValue(templateName);
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
     }
 
@@ -896,6 +958,8 @@ public class TemplateSymbolTableVisitor {
                 scopeLevel, node.getLine(), "template"
         );
         entry.setValue(importText);
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
     }
 
@@ -913,6 +977,8 @@ public class TemplateSymbolTableVisitor {
                     scopeLevel, node.getLine(), "template"
             );
             entry.setValue(valueExpr);
+            entry.setFileName(symbolTable.getCurrentFileName());
+            entry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(entry);
 
             // ✅ أضيفي: استخراج المتغيرات من الـ value
@@ -934,6 +1000,8 @@ public class TemplateSymbolTableVisitor {
                     newLevel, node.getLine(), "template"
             );
             entry.setValue(valueExpr);
+            entry.setFileName(symbolTable.getCurrentFileName());
+            entry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(entry);
         }
 
@@ -949,6 +1017,8 @@ public class TemplateSymbolTableVisitor {
                 macroName, "function", "jinja_macro", scopeType,
                 scopeLevel, node.getLine(), "template"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
 
         symbolTable.enterScope("jinja_block", "macro:" + macroName);
@@ -961,6 +1031,8 @@ public class TemplateSymbolTableVisitor {
                     symbolTable.currentScopeLevel(),  // ← بعد enterScope
                     node.getLine(), "template"
             );
+            paramEntry.setFileName(symbolTable.getCurrentFileName());
+            paramEntry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(paramEntry);
         }
 
@@ -992,6 +1064,8 @@ public class TemplateSymbolTableVisitor {
                             entry.getLine(), entry.getSource()
                     );
                     promotedEntry.setValue(entry.getValue());
+                    promotedEntry.setFileName(symbolTable.getCurrentFileName());
+                    promotedEntry.setFilePath(symbolTable.getCurrentFilePath());
                     parentScope.insert(promotedEntry);
                     symbolTable.getAllEntries().add(promotedEntry);
                 }
@@ -1082,6 +1156,8 @@ public class TemplateSymbolTableVisitor {
                         token, "jinja_var", "context_var", scopeType,
                         scopeLevel, line, "template"
                 );
+                entry.setFileName(symbolTable.getCurrentFileName());
+                entry.setFilePath(symbolTable.getCurrentFilePath());
                 symbolTable.insert(entry);
             }
         }
@@ -1108,6 +1184,8 @@ public class TemplateSymbolTableVisitor {
             FunctionCallInfo macroCall = new FunctionCallInfo(
                     calledFuncName, macroArgCount, line, "template", false, false
             );
+            macroCall.setFileName(symbolTable.getCurrentFileName());
+            macroCall.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.addFunctionCallInfo(macroCall);
         }
         // NEW: Track Jinja filters for Invalid Function Call checking
@@ -1119,6 +1197,17 @@ public class TemplateSymbolTableVisitor {
                 // Remove any arguments: "default('N/A')" → "default"
                 if (filterName.contains("(")) {
                     filterName = filterName.substring(0, filterName.indexOf("(")).trim();
+                }
+                String varName = parts[0].trim();
+                if (!varName.isEmpty() && !JINJA_KEYWORDS.contains(varName)) {
+
+
+                            symbol_table.JinjaFilterUsage usage =
+                                    new symbol_table.JinjaFilterUsage(varName, filterName, "filter", line);
+                    usage.setFileName(symbolTable.getCurrentFileName());
+                    usage.setFilePath(symbolTable.getCurrentFilePath());
+                    symbolTable.addJinjaFilterUsage(usage);
+
                 }
                 if (!filterName.isEmpty() && !JINJA_BUILTIN_FILTERS.contains(filterName)
                         && !JINJA_KEYWORDS.contains(filterName)) {
@@ -1136,6 +1225,8 @@ public class TemplateSymbolTableVisitor {
                     FunctionCallInfo filterCall = new FunctionCallInfo(
                             filterName, filterArgCount, line, "template", false, true
                     );
+                    filterCall.setFileName(symbolTable.getCurrentFileName());
+                    filterCall.setFilePath(symbolTable.getCurrentFilePath());
                     symbolTable.addFunctionCallInfo(filterCall);
                 }
             }

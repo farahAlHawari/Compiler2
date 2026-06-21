@@ -19,7 +19,8 @@ public class ReturnInfo {
     private String enclosingFunctionName;
     private String returnExprType;
     private int line;
-
+    private String fileName = "";
+    private String filePath = "";
     public ReturnInfo(String enclosingFunctionName, String returnExprType, int line) {
         this.enclosingFunctionName = enclosingFunctionName;
         this.returnExprType = returnExprType;
@@ -49,7 +50,10 @@ public class ReturnInfo {
     public void setLine(int line) {
         this.line = line;
     }
-
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+    public String getFilePath() { return filePath; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
     @Override
     public String toString() {
         return "ReturnInfo{" +

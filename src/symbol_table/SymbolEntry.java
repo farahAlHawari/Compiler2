@@ -20,13 +20,13 @@ public class SymbolEntry {
     private int line;              // Line number where the symbol was declared
     private String value;          // Initial/assigned value (as string representation)
     private String source;         // Source of the symbol: "python" or "template"
-
+    private String fileName = "";
     private String returnType;     // For functions: declared return type from type hint (e.g., "int", "string")
     // Empty/null if no type hint declared
     private int paramCount;        // For functions: number of parameters in the definition
     // -1 if unknown
-
-
+    private String declaredType = "";
+    private String filePath = "";
     public SymbolEntry(String name, String kind, String type, String scopeType,
                        int scopeLevel, int line, String source) {
         this.name = name;
@@ -36,9 +36,12 @@ public class SymbolEntry {
         this.scopeLevel = scopeLevel;
         this.line = line;
         this.source = source;
+
         this.value = "";
         this.returnType = "";     // NEW: default empty (no type hint)
-        this.paramCount = -1;     // NEW: default -1 (unknown)
+        this.paramCount = -1;
+        // NEW: default -1 (unknown)
+        this.declaredType = null;
     }
 
     // ==================== Getters and Setters ====================
@@ -106,7 +109,15 @@ public class SymbolEntry {
     public void setSource(String source) {
         this.source = source;
     }
+    public String getFileName() {
+        return fileName;
+    }
 
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+    public String getFilePath() { return filePath; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
     public String getReturnType() {
         return returnType;
     }
@@ -123,6 +134,13 @@ public class SymbolEntry {
         this.paramCount = paramCount;
     }
 
+    public String getDeclaredType() {
+        return declaredType;
+    }
+
+    public void setDeclaredType(String declaredType) {
+        this.declaredType = declaredType;
+    }
     /**
      * Returns a scope-qualified name like "global::x" or "function(index)::products"
      * This helps distinguish symbols with the same name in different scopes.

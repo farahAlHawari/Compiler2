@@ -3,6 +3,7 @@ package semantic_errors.error_types;
 import semantic_errors.SemanticError;
 import semantic_errors.SemanticErrorType;
 import symbol_table.ReturnInfo;
+import symbol_table.SourceFileReader;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
 
@@ -62,12 +63,23 @@ public class ReturnTypeMismatchChecker {
 
             // Check for mismatch
             if (!isTypeCompatible(normalizedDeclared, normalizedActual)) {
+//                errors.add(new SemanticError(
+//                        SemanticErrorType.RETURN_TYPE_MISMATCH,
+//                        "RETURN_TYPE_MISMATCH",
+//                        "Function '" + funcName + "' declares return type '"
+//                                + declaredReturnType + "' but returns '" + actualReturnType + "'",
+//                        line
+//                ));
                 errors.add(new SemanticError(
                         SemanticErrorType.RETURN_TYPE_MISMATCH,
-                        "RETURN_TYPE_MISMATCH",
+                        "TypeError",
                         "Function '" + funcName + "' declares return type '"
                                 + declaredReturnType + "' but returns '" + actualReturnType + "'",
-                        line
+                        line,
+                        returnInfo.getFileName(),
+                        funcName,
+                        "return ...",
+                        SourceFileReader.getLine(returnInfo.getFilePath(), line)   // ← مو symbolTable
                 ));
             }
         }

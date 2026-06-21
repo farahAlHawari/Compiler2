@@ -1,4 +1,4 @@
-// Generated from D:/My_Projects/Forth year/Compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from D:/compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -38,6 +38,13 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code annotatedAssignStmtNode}
+	 * labeled alternative in {@link PythonParser#blockStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAnnotatedAssignStmtNode(PythonParser.AnnotatedAssignStmtNodeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code assignStmtNode}
 	 * labeled alternative in {@link PythonParser#blockStmt}.
@@ -171,6 +178,13 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSimpleAssignNode(PythonParser.SimpleAssignNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code annotatedAssignNode}
+	 * labeled alternative in {@link PythonParser#annotatedAssignStmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code augAssignNode}
 	 * labeled alternative in {@link PythonParser#augAssignStmt}.

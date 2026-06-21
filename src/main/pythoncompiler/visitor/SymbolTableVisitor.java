@@ -162,7 +162,10 @@ public class SymbolTableVisitor {
                     symbolTable.currentScopeLevel(),
                     node.lineNumber, "python"
             );
+            entry.setFileName(symbolTable.getCurrentFileName());
+            entry.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.insert(entry);
+
         }
         // ثم زوري أبناء الـ block
         for (ASTNode child : node.children) {
@@ -211,6 +214,11 @@ public class SymbolTableVisitor {
                         0, node.lineNumber, "python"
                 );
                 entry.setValue(value);
+                entry.setFileName(symbolTable.getCurrentFileName());
+                entry.setFilePath(symbolTable.getCurrentFilePath());
+                if (assignNode.declaredType != null) {
+                    entry.setDeclaredType(assignNode.declaredType);
+                }
                 // Navigate to global scope and insert
                 insertInGlobalScope(entry);
             }
@@ -236,6 +244,11 @@ public class SymbolTableVisitor {
                             symbolTable.currentScopeLevel(), node.lineNumber, "python"
                     );
                     entry.setValue(value);
+                    entry.setFileName(symbolTable.getCurrentFileName());
+                    entry.setFilePath(symbolTable.getCurrentFilePath());
+                    if (assignNode.declaredType != null) {
+                        entry.setDeclaredType(assignNode.declaredType);
+                    }
                     symbolTable.insert(entry);
                 } else {
                     // في global scope: عدّلي المتغير لو موجود
@@ -249,6 +262,12 @@ public class SymbolTableVisitor {
                                 symbolTable.currentScopeLevel(), node.lineNumber, "python"
                         );
                         entry.setValue(value);
+                        entry.setFileName(symbolTable.getCurrentFileName());
+                        entry.setFilePath(symbolTable.getCurrentFilePath());
+                        if (assignNode.declaredType != null) {
+                            entry.setDeclaredType(assignNode.declaredType);
+                        }
+                        symbolTable.insert(entry);
                         symbolTable.insert(entry);
                     }
                 }
@@ -267,6 +286,8 @@ public class SymbolTableVisitor {
                         scopeLevel, node.lineNumber, "python"
                 );
                 entry.setValue(value);
+                entry.setFileName(symbolTable.getCurrentFileName());
+                entry.setFilePath(symbolTable.getCurrentFilePath());
                 symbolTable.insert(entry);
                 errors.add(String.format(
                         "Warning [Line %d]: Variable '%s' used with %s before declaration",
@@ -295,7 +316,8 @@ public class SymbolTableVisitor {
                 funcName, "function", "function", scopeType,
                 scopeLevel, node.lineNumber, "python"
         );
-
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         // NEW: Store return type and parameter count in the SymbolEntry
         if (funcNode.returnType != null && !funcNode.returnType.isEmpty()) {
             entry.setReturnType(funcNode.returnType);
@@ -356,6 +378,8 @@ public class SymbolTableVisitor {
                 className, "class", "class", scopeType,
                 scopeLevel, node.lineNumber, "python"
         );
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
 
         // Enter class scope
@@ -414,6 +438,8 @@ public class SymbolTableVisitor {
         );
         // Don't flag as error if already exists (for loop can reassign)
         SymbolEntry existing = symbolTable.lookupCurrentScope(iteratorName);
+        entry.setFileName(symbolTable.getCurrentFileName());
+        entry.setFilePath(symbolTable.getCurrentFilePath());
         if (existing == null) {
             symbolTable.insert(entry);
         } else {
@@ -446,6 +472,8 @@ public class SymbolTableVisitor {
         // Add ReturnInfo to symbol table for semantic checker
         if (!enclosingFuncName.isEmpty()) {
             ReturnInfo returnInfo = new ReturnInfo(enclosingFuncName, returnExprType, node.lineNumber);
+            returnInfo.setFileName(symbolTable.getCurrentFileName());
+            returnInfo.setFilePath(symbolTable.getCurrentFilePath());
             symbolTable.addReturnInfo(returnInfo);
         }
 
@@ -505,6 +533,8 @@ public class SymbolTableVisitor {
                         0, child.lineNumber, "python"
                 );
                 entry.setValue("imported");
+                entry.setFileName(symbolTable.getCurrentFileName());
+                entry.setFilePath(symbolTable.getCurrentFilePath());
                 insertInGlobalScope(entry);
             }
         }
@@ -521,6 +551,8 @@ public class SymbolTableVisitor {
                         symbolTable.currentScope().getScopeType(),
                         symbolTable.currentScopeLevel(), child.lineNumber, "python"
                 );
+                entry.setFileName(symbolTable.getCurrentFileName());
+                entry.setFilePath(symbolTable.getCurrentFilePath());
                 symbolTable.insert(entry);
             }
         }
@@ -549,6 +581,8 @@ public class SymbolTableVisitor {
                 isMethodCall,
                 false  // not a Jinja filter
         );
+        callInfo.setFileName(symbolTable.getCurrentFileName());
+        callInfo.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.addFunctionCallInfo(callInfo);
 
         // NEW: Special handling for render_template() — track passed variables
@@ -801,6 +835,10 @@ public class SymbolTableVisitor {
                                     details.indexOf("=")
                             ).trim();
                             flaskCall.addPassedVariable(varName);
+                            SymbolEntry varEntry = symbolTable.lookup(varName);
+                            if (varEntry != null) {
+                                flaskCall.addPassedVariableType(varName, varEntry.getType());
+                            }
                         }
                     }
                 }

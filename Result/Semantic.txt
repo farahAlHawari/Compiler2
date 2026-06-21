@@ -1,3 +1,80 @@
-Semantic Check :
-Error Name : MISSING_FLASK_VARIABLE , Error Description : Variable 'person' is used in Jinja but not passed from Flask via render_template , Error Location : 26
-Error Name : INVALID_FUNC_CALL , Error Description : Function 'greeting' is called but not defined , Error Location : 29
+================================================================================
+                         SEMANTIC ERROR REPORT
+================================================================================
+
+Found 8 semantic errors
+
+[1] TypeError
+File      : test_type_mismatch.py
+Line      : 7
+Variable  : c
+Code      : c: int = "hello"
+Message   : Type mismatch. Variable 'c' is declared as 'int' but assigned a value of type 'string'.
+
+-------------------------------------------------------------------------------
+
+[2] TypeError
+File      : test_type_mismatch.py
+Line      : 8
+Variable  : x
+Code      : x: str = 42
+Message   : Type mismatch. Variable 'x' is declared as 'str' but assigned a value of type 'int'.
+
+-------------------------------------------------------------------------------
+
+[3] TypeError
+File      : test_type_mismatch.py
+Line      : 9
+Variable  : y
+Code      : y: list = "wrong"
+Message   : Type mismatch. Variable 'y' is declared as 'list' but assigned a value of type 'string'.
+
+-------------------------------------------------------------------------------
+
+[4] TypeError
+File      : test_type_mismatch.py
+Line      : 10
+Variable  : z
+Code      : z: int = None
+Message   : Type mismatch. Variable 'z' is declared as 'int' but assigned a value of type 'NoneType'.
+
+-------------------------------------------------------------------------------
+
+[5] TypeError
+File      : test_type_mismatch.py
+Line      : 11
+Variable  : w
+Code      : w: float = "free"
+Message   : Type mismatch. Variable 'w' is declared as 'float' but assigned a value of type 'string'.
+
+-------------------------------------------------------------------------------
+
+[6] TypeError
+File      : test_type_mismatch.html
+Line      : 5
+Variable  : age
+Expression: {{ age|upper }}
+Code      : <p>{{ age|upper }}</p>
+Message   : Filter 'upper' expects 'string' but variable 'age' is of type 'int'.
+
+-------------------------------------------------------------------------------
+
+[7] TypeError
+File      : test_type_mismatch.html
+Line      : 6
+Variable  : age
+Expression: {{ age|join }}
+Code      : <p>{{ age|join }}</p>
+Message   : Filter 'join' expects iterable but variable 'age' is of type 'int'.
+
+-------------------------------------------------------------------------------
+
+[8] TypeError
+File      : test_type_mismatch.html
+Line      : 7
+Variable  : items
+Expression: {% for item in items %}
+Code      : {% for item in items %}
+Message   : Variable 'items' of type 'int' is not iterable.
+
+================================================================================

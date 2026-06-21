@@ -80,11 +80,19 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
 
         // ===== Python Compiler =====
+        String pythonFile = "src/tests/test_type_mismatch.py";
+        String pythonFileName = new java.io.File(pythonFile).getName();
+        symbolTable.setCurrentFileName(pythonFileName);
+        symbolTable.setCurrentFilePath(pythonFile);   // ← جديد: المسار الكامل
         PythonCompiler compiler = new PythonCompiler(symbolTable);
-        compiler.compile("src/tests/test_no_errors.py");
+        compiler.compile(pythonFile);
 
         // ===== HTML/CSS/Jinja Parser =====
-        String source = "tests/test_no_errors.html";
+        String source = "tests/test_type_mismatch.html";
+        String templateFileName = new java.io.File(source).getName();
+        symbolTable.setSource("template");
+        symbolTable.setCurrentFileName(templateFileName);
+        symbolTable.setCurrentFilePath(source);
 
         CharStream charStream = CharStreams.fromFileName(source);
 

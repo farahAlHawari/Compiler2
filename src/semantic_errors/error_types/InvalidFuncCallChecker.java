@@ -3,6 +3,7 @@ package semantic_errors.error_types;
 import semantic_errors.SemanticError;
 import semantic_errors.SemanticErrorType;
 import symbol_table.FunctionCallInfo;
+import symbol_table.SourceFileReader;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
 
@@ -81,11 +82,21 @@ public class InvalidFuncCallChecker {
                 // Check if it's a user-defined Jinja macro
                 SymbolEntry macroEntry = symbolTable.lookup(funcName);
                 if (macroEntry == null || !"jinja_macro".equals(macroEntry.getType())) {
+//                    errors.add(new SemanticError(
+//                            SemanticErrorType.INVALID_FUNC_CALL,
+//                            "INVALID_FUNC_CALL",
+//                            "Jinja filter '" + funcName + "' does not exist",
+//                            line
+//                    ));
                     errors.add(new SemanticError(
                             SemanticErrorType.INVALID_FUNC_CALL,
-                            "INVALID_FUNC_CALL",
+                            "NameError",
                             "Jinja filter '" + funcName + "' does not exist",
-                            line
+                            line,
+                            callInfo.getFileName(),
+                            "",
+                            "{{ ...|" + funcName + " }}",
+                            SourceFileReader.getLine(callInfo.getFilePath(), line)   // ← مو symbolTable
                     ));
                 }
                 continue;
@@ -102,11 +113,21 @@ public class InvalidFuncCallChecker {
 
             // Case 1: Function not defined at all
             if (funcEntry == null) {
+//                errors.add(new SemanticError(
+//                        SemanticErrorType.INVALID_FUNC_CALL,
+//                        "INVALID_FUNC_CALL",
+//                        "Function '" + funcName + "' is called but not defined",
+//                        line
+//                ));
                 errors.add(new SemanticError(
                         SemanticErrorType.INVALID_FUNC_CALL,
-                        "INVALID_FUNC_CALL",
+                        "NameError",
                         "Function '" + funcName + "' is called but not defined",
-                        line
+                        line,
+                        callInfo.getFileName(),
+                        funcName,
+                        funcName + "()",
+                        SourceFileReader.getLine(callInfo.getFilePath(), line)   // ← مو symbolTable
                 ));
                 continue;
             }
@@ -115,11 +136,21 @@ public class InvalidFuncCallChecker {
             String kind = funcEntry.getKind();
             if (!"function".equals(kind) && !"route_function".equals(kind)
                     && !"jinja_macro".equals(kind) && !"imported_name".equals(kind)) {
+//                errors.add(new SemanticError(
+//                        SemanticErrorType.INVALID_FUNC_CALL,
+//                        "INVALID_FUNC_CALL",
+//                        "Identifier '" + funcName + "' is used as a function but is declared as " + kind,
+//                        line
+//                ));
                 errors.add(new SemanticError(
                         SemanticErrorType.INVALID_FUNC_CALL,
-                        "INVALID_FUNC_CALL",
+                        "TypeError",
                         "Identifier '" + funcName + "' is used as a function but is declared as " + kind,
-                        line
+                        line,
+                        callInfo.getFileName(),
+                        funcName,
+                        funcName + "()",
+                        SourceFileReader.getLine(callInfo.getFilePath(), line)   // ← مو symbolTable
                 ));
             }
         }

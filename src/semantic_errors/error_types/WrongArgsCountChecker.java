@@ -3,6 +3,7 @@ package semantic_errors.error_types;
 import semantic_errors.SemanticError;
 import semantic_errors.SemanticErrorType;
 import symbol_table.FunctionCallInfo;
+import symbol_table.SourceFileReader;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
 
@@ -66,8 +67,12 @@ public class WrongArgsCountChecker {
             if (isMethodCall) continue;
 
             // Skip Jinja filters (handled separately if needed)
+//            if (isJinjaFilter) {
+//                checkJinjaFilterArgs(funcName, actualArgCount, line);
+//                continue;
+//            }
             if (isJinjaFilter) {
-                checkJinjaFilterArgs(funcName, actualArgCount, line);
+                checkJinjaFilterArgs(callInfo);
                 continue;
             }
 
@@ -100,14 +105,26 @@ public class WrongArgsCountChecker {
                 } else {
                     detail = (actualArgCount - expectedParamCount) + " extra argument(s)";
                 }
-
+//
+//                errors.add(new SemanticError(
+//                        SemanticErrorType.WRONG_ARGS_COUNT,
+//                        "WRONG_ARGS_COUNT",
+//                        "Function '" + funcName + "' expects " + expectedParamCount
+//                                + " argument(s) but called with " + actualArgCount
+//                                + " (" + detail + ")",
+//                        line
+//                ));
                 errors.add(new SemanticError(
                         SemanticErrorType.WRONG_ARGS_COUNT,
-                        "WRONG_ARGS_COUNT",
+                        "TypeError",
                         "Function '" + funcName + "' expects " + expectedParamCount
                                 + " argument(s) but called with " + actualArgCount
                                 + " (" + detail + ")",
-                        line
+                        line,
+                        callInfo.getFileName(),
+                        funcName,
+                        funcName + "(" + "...".repeat(actualArgCount > 0 ? 1 : 0) + ")",
+                        SourceFileReader.getLine(callInfo.getFilePath(), line)   // ← مو symbolTable
                 ));
             }
         }
@@ -116,21 +133,45 @@ public class WrongArgsCountChecker {
     /**
      * Check Jinja macro calls against macro parameter counts.
      */
-    private void checkJinjaFilterArgs(String filterName, int argCount, int line) {
-        // Check if it's a user-defined Jinja macro
+//    private void checkJinjaFilterArgs(String filterName, int argCount, int line) {
+//        // Check if it's a user-defined Jinja macro
+//        SymbolEntry macroEntry = symbolTable.lookup(filterName);
+//        if (macroEntry != null && "jinja_macro".equals(macroEntry.getType())) {
+//            int expectedParamCount = macroEntry.getParamCount();
+//            if (expectedParamCount >= 0 && argCount != expectedParamCount) {
+//                errors.add(new SemanticError(
+//                        SemanticErrorType.WRONG_ARGS_COUNT,
+//                        "WRONG_ARGS_COUNT",
+//                        "Jinja macro '" + filterName + "' expects " + expectedParamCount
+//                                + " argument(s) but called with " + argCount,
+//                        line
+//                ));
+//
+//            }
+//        }
+//        // Built-in filters have variable argument counts, so we skip them
+//    }
+    private void checkJinjaFilterArgs(FunctionCallInfo callInfo) {
+        String filterName = callInfo.getFunctionName();
+        int argCount = callInfo.getArgCount();
+        int line = callInfo.getLine();
+
         SymbolEntry macroEntry = symbolTable.lookup(filterName);
         if (macroEntry != null && "jinja_macro".equals(macroEntry.getType())) {
             int expectedParamCount = macroEntry.getParamCount();
             if (expectedParamCount >= 0 && argCount != expectedParamCount) {
                 errors.add(new SemanticError(
                         SemanticErrorType.WRONG_ARGS_COUNT,
-                        "WRONG_ARGS_COUNT",
+                        "TypeError",
                         "Jinja macro '" + filterName + "' expects " + expectedParamCount
                                 + " argument(s) but called with " + argCount,
-                        line
+                        line,
+                        callInfo.getFileName(),
+                        filterName,
+                        "{{ ...|" + filterName + " }}",
+                        SourceFileReader.getLine(callInfo.getFilePath(), line)   // ← مو symbolTable
                 ));
             }
         }
-        // Built-in filters have variable argument counts, so we skip them
     }
 }
