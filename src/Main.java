@@ -80,7 +80,7 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
 
         // ===== Python Compiler =====
-        String pythonFile = "src/tests/test_type_mismatch.py";
+        String pythonFile = "src/tests/test_unbound_local.py";
         String pythonFileName = new java.io.File(pythonFile).getName();
         symbolTable.setCurrentFileName(pythonFileName);
         symbolTable.setCurrentFilePath(pythonFile);   // ← جديد: المسار الكامل

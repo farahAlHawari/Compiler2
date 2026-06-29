@@ -6,5 +6,6 @@ public enum SemanticErrorType {
     WRONG_ARGS_COUNT,
     RETURN_TYPE_MISMATCH,
     TYPE_MISMATCH,
-    DIVISION_BY_ZERO
+    DIVISION_BY_ZERO,
+    UNBOUND_LOCAL
 }

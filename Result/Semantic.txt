@@ -2,79 +2,74 @@
                          SEMANTIC ERROR REPORT
 ================================================================================
 
-Found 8 semantic errors
+Found 7 semantic errors
 
-[1] TypeError
-File      : test_type_mismatch.py
-Line      : 13
-Variable  : c
-Code      : c: int = "hello"
-Message   : Type mismatch. Variable 'c' is declared as 'int' but assigned a value of type 'string'.
-
--------------------------------------------------------------------------------
-
-[2] TypeError
-File      : test_type_mismatch.py
-Line      : 16
-Variable  : x
-Code      : x: str = 42
-Message   : Type mismatch. Variable 'x' is declared as 'str' but assigned a value of type 'int'.
-
--------------------------------------------------------------------------------
-
-[3] TypeError
-File      : test_type_mismatch.py
-Line      : 19
-Variable  : y
-Code      : y: list = "not a list"
-Message   : Type mismatch. Variable 'y' is declared as 'list' but assigned a value of type 'string'.
-
--------------------------------------------------------------------------------
-
-[4] TypeError
-File      : test_type_mismatch.py
-Line      : 22
-Variable  : z
-Code      : z: int = None
-Message   : Type mismatch. Variable 'z' is declared as 'int' but assigned a value of type 'NoneType'.
-
--------------------------------------------------------------------------------
-
-[5] TypeError
-File      : test_type_mismatch.py
-Line      : 25
-Variable  : w
-Code      : w: float = "free"
-Message   : Type mismatch. Variable 'w' is declared as 'float' but assigned a value of type 'string'.
-
--------------------------------------------------------------------------------
-
-[6] TypeError
+[1] NameError
 File      : test_type_mismatch.html
 Line      : 13
 Variable  : age
-Expression: {{ age|upper }}
+Expression: {{ age }}
 Code      : <p>Age: {{ age|upper }}</p>
-Message   : Filter 'upper' expects 'string' but variable 'age' is of type 'int'.
+Message   : Variable 'age' is used in Jinja but not passed from Flask via render_template
 
 -------------------------------------------------------------------------------
 
-[7] TypeError
+[2] NameError
 File      : test_type_mismatch.html
 Line      : 17
 Variable  : items
-Expression: {% for item in items %}
+Expression: {{ items }}
 Code      : {% for x in items %}
-Message   : Variable 'items' of type 'int' is not iterable.
+Message   : Variable 'items' is used in Jinja but not passed from Flask via render_template
 
 -------------------------------------------------------------------------------
 
-[8] TypeError
+[3] NameError
+File      : test_type_mismatch.html
+Line      : 24
+Variable  : valid_list
+Expression: {{ valid_list }}
+Code      : {% for item in valid_list %}
+Message   : Variable 'valid_list' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[4] NameError
 File      : test_type_mismatch.html
 Line      : 31
 Variable  : age_str
-Expression: {{ age_str|join }}
+Expression: {{ age_str }}
 Code      : <p>{{ age_str|join(", ") }}</p>
-Message   : Filter 'join' expects iterable but variable 'age_str' is of type 'int'.
+Message   : Variable 'age_str' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[5] UnboundLocalError
+File      : test_unbound_local.py
+Line      : 13
+Variable  : x
+Expression: x +=
+Code      : x += 1
+Message   : cannot access local variable 'x' before assignment. Variable 'x' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+
+-------------------------------------------------------------------------------
+
+[6] UnboundLocalError
+File      : test_unbound_local.py
+Line      : 16
+Variable  : count
+Expression: count -=
+Code      : count -= 1
+Message   : cannot access local variable 'count' before assignment. Variable 'count' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+
+-------------------------------------------------------------------------------
+
+[7] UnboundLocalError
+File      : test_unbound_local.py
+Line      : 30
+Variable  : total
+Expression: total *=
+Code      : total *= 2
+Message   : cannot access local variable 'total' before assignment. Variable 'total' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
 
 ================================================================================

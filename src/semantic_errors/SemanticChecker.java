@@ -43,6 +43,10 @@ public class SemanticChecker {
 
         DivisionByZeroChecker divisionByZeroChecker = new DivisionByZeroChecker(symbolTable, errors);
         divisionByZeroChecker.check();
+
+        UnboundLocalErrorChecker unboundLocalErrorChecker = new UnboundLocalErrorChecker(symbolTable, errors);
+        unboundLocalErrorChecker.check();
+
     }
     public List<SemanticError> getErrors() {
         return errors;

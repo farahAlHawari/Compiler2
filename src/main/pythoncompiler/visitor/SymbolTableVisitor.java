@@ -8,6 +8,7 @@ import symbol_table.FunctionCallInfo;
 import symbol_table.ReturnInfo;
 import java.util.Stack;
 import symbol_table.DivisionInfo;
+import symbol_table.UnboundLocalInfo;
 
 /**
  * Visitor that walks the Python AST and populates the Symbol Table.
@@ -274,17 +275,53 @@ public class SymbolTableVisitor {
                 }
             }
         } else {
-            // Augmented assignment (+=, -=, etc.) - variable must already exist
-            SymbolEntry existing = symbolTable.lookup(varName);
-            if (existing != null) {
-                existing.setValue(value);
+            // Augmented assignment (+=, -=, *=, /=, %=, etc.)
+
+            // تحقق هل نحن داخل دالة
+            String currentScopeType = symbolTable.currentScope().getScopeType();
+            boolean isInsideFunction = currentScopeType.equals("function")
+                    || currentScopeType.equals("route_function");
+
+            // تحقق هل المتغير موجود في السكوب الحالي فقط
+            SymbolEntry inCurrentScope = symbolTable.lookupCurrentScope(varName);
+            boolean variableInCurrentScope = (inCurrentScope != null);
+
+            // تحقق هل المتغير موجود في أي سكوب خارجي
+            SymbolEntry inAnyScope = symbolTable.lookup(varName);
+            boolean variableInOuterScope = (inAnyScope != null && !variableInCurrentScope);
+
+            // تحقق هل المتغير معرّف بـ global
+            boolean declaredGlobal = globalDeclarations.contains(varName);
+
+            // سجّل المعلومات للفحص اللاحق
+            UnboundLocalInfo info = new UnboundLocalInfo(
+                    varName, operator, node.lineNumber,
+                    symbolTable.getCurrentFileName(),
+                    symbolTable.getCurrentFilePath(),
+                    currentScopeType,
+                    symbolTable.currentScope().getContextName(),
+                    isInsideFunction,
+                    variableInCurrentScope,
+                    variableInOuterScope,
+                    declaredGlobal
+            );
+            symbolTable.addUnboundLocalInfo(info);
+
+            if (variableInCurrentScope) {
+                // المتغير معرّف محلياً في نفس السكوب → لا مشكلة، عدّل قيمته
+                inCurrentScope.setValue(value);
+            } else if (inAnyScope != null) {
+                // المتغير موجود في سكوب خارجي
+                if (declaredGlobal) {
+                    // استُخدمت كلمة global → لا مشكلة، عدّل المتغير في مكانه
+                    inAnyScope.setValue(value);
+                }
+                // إذا لم تُستخدم global: يتم كشف الخطأ لاحقاً في UnboundLocalErrorChecker
             } else {
-                // Undeclared variable with augmented assignment
-                String scopeType = symbolTable.currentScope().getScopeType();
-                int scopeLevel = symbolTable.currentScopeLevel();
+                // المتغير غير موجود في أي سكوب
                 SymbolEntry entry = new SymbolEntry(
-                        varName, "variable", inferredType, scopeType,
-                        scopeLevel, node.lineNumber, "python"
+                        varName, "variable", inferredType, currentScopeType,
+                        symbolTable.currentScopeLevel(), node.lineNumber, "python"
                 );
                 entry.setValue(value);
                 entry.setFileName(symbolTable.getCurrentFileName());
@@ -296,6 +333,7 @@ public class SymbolTableVisitor {
                 ));
             }
         }
+
 
         // Visit the value expression (for nested references)
         for (ASTNode child : node.children) {
