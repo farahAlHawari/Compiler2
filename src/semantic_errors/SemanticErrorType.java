@@ -7,5 +7,7 @@ public enum SemanticErrorType {
     RETURN_TYPE_MISMATCH,
     TYPE_MISMATCH,
     DIVISION_BY_ZERO,
-    UNBOUND_LOCAL
+    UNBOUND_LOCAL,
+    USE_BEFORE_INIT,
+
 }

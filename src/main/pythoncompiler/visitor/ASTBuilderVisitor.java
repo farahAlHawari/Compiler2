@@ -377,15 +377,18 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
     public ASTNode visitAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx) {
         String varName = ctx.IDENTIFIER(0).getText();
         String declaredType = ctx.IDENTIFIER(1).getText();
-        String op = ctx.ASSIGN().getText();
+        String op = (ctx.ASSIGN() != null) ? ctx.ASSIGN().getText() : "";
 
         AssignNode assignNode = new AssignNode(varName, op);
         assignNode.lineNumber = ctx.start.getLine();
         assignNode.declaredType = declaredType;
 
-        ASTNode value = visit(ctx.expression());
-        if (value != null) {
-            assignNode.addChild(value);
+        // Only visit expression if there's an assignment (has =)
+        if (ctx.ASSIGN() != null && ctx.expression() != null) {
+            ASTNode value = visit(ctx.expression());
+            if (value != null) {
+                assignNode.addChild(value);
+            }
         }
 
         return assignNode;

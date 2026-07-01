@@ -9,6 +9,7 @@ import symbol_table.ReturnInfo;
 import java.util.Stack;
 import symbol_table.DivisionInfo;
 import symbol_table.UnboundLocalInfo;
+import symbol_table.UseBeforeInitInfo;
 
 /**
  * Visitor that walks the Python AST and populates the Symbol Table.
@@ -38,12 +39,20 @@ public class SymbolTableVisitor {
     private java.util.Set<String> globalDeclarations; // Track 'global' keyword declarations
     private Stack<String> currentFunctionStack;  // Track which function we're inside (for return type checking)
 
+    private int conditionalDepth;  // Track nesting inside conditional blocks (if/while/for)
+    private java.util.Set<String> conditionallyAssignedVars;  // Vars assigned only inside conditionals
+    private java.util.Set<String> unconditionallyAssignedVars;  // Vars assigned outside conditionals
+
     public SymbolTableVisitor(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
         this.errors = new java.util.ArrayList<>();
         this.globalDeclarations = new java.util.HashSet<>();
         this.symbolTable.setSource("python");
         this.currentFunctionStack = new Stack<>();
+
+        this.conditionalDepth = 0;
+        this.conditionallyAssignedVars = new java.util.HashSet<>();
+        this.unconditionallyAssignedVars = new java.util.HashSet<>();
     }
 
     public java.util.List<String> getErrors() {
@@ -149,7 +158,13 @@ public class SymbolTableVisitor {
 
     private void visitTryExcept(ASTNode node) {
         for (ASTNode child : node.children) {
-            visit(child);
+            if ("Block".equals(child.nodeName)) {
+                conditionalDepth++;
+                visit(child);
+                conditionalDepth--;
+            } else {
+                visit(child);
+            }
         }
     }
 
@@ -190,6 +205,21 @@ public class SymbolTableVisitor {
         AssignNode assignNode = (AssignNode) node;
         String varName = assignNode.variableName;
         String operator = assignNode.operator;
+
+        // Handle type annotation only (e.g., x: int) — no operator
+        if (operator.isEmpty()) {
+            String currentScopeType = symbolTable.currentScope().getScopeType();
+            SymbolEntry entry = new SymbolEntry(
+                    varName, "variable", "unknown", currentScopeType,
+                    symbolTable.currentScopeLevel(), node.lineNumber, "python"
+            );
+            entry.setDeclaredType(assignNode.declaredType);
+            entry.setFileName(symbolTable.getCurrentFileName());
+            entry.setFilePath(symbolTable.getCurrentFilePath());
+            symbolTable.insert(entry);
+            return;
+        }
+
 
         // Determine the type and value from the right-hand side expression
         String inferredType = "unknown";
@@ -334,6 +364,14 @@ public class SymbolTableVisitor {
             }
         }
 
+        // Track assignment for use-before-init detection
+        if (conditionalDepth > 0) {
+            conditionallyAssignedVars.add(varName);
+        } else {
+            unconditionallyAssignedVars.add(varName);
+            conditionallyAssignedVars.remove(varName);
+        }
+
 
         // Visit the value expression (for nested references)
         for (ASTNode child : node.children) {
@@ -379,6 +417,11 @@ public class SymbolTableVisitor {
         } else {
             symbolTable.enterScope("function",  funcName);
         }
+
+        // Clear conditional tracking for new function scope
+        conditionallyAssignedVars.clear();
+        unconditionallyAssignedVars.clear();
+        conditionalDepth = 0;
 
         // Visit parameters (they go into function scope)
         for (ASTNode child : node.children) {
@@ -448,8 +491,75 @@ public class SymbolTableVisitor {
     // ==================== If Statement ====================
 
     private void visitIfStatement(ASTNode node) {
+        // Save state BEFORE this if statement
+        java.util.Set<String> savedCond = new java.util.HashSet<>(conditionallyAssignedVars);
+        java.util.Set<String> savedUncond = new java.util.HashSet<>(unconditionallyAssignedVars);
+
+        java.util.List<java.util.Set<String>> branchVarsList = new java.util.ArrayList<>();
+
         for (ASTNode child : node.children) {
-            visit(child);
+            if (child.children == null || child.children.isEmpty()) continue;
+
+            boolean hasCondition = !child.nodeName.equals("ElseBlock");
+
+            // Reset to saved state before each branch (branches don't contaminate each other)
+            conditionallyAssignedVars = new java.util.HashSet<>(savedCond);
+            unconditionallyAssignedVars = new java.util.HashSet<>(savedUncond);
+
+            if (hasCondition) {
+                // First child = condition → visit at normal depth
+                visit(child.children.get(0));
+                // Remaining = body Block(s) → visit at conditional depth
+                for (int i = 1; i < child.children.size(); i++) {
+                    conditionalDepth++;
+                    visit(child.children.get(i));
+                    conditionalDepth--;
+                }
+            } else {
+                // ElseBlock: no condition, all children are body blocks
+                for (ASTNode bodyChild : child.children) {
+                    conditionalDepth++;
+                    visit(bodyChild);
+                    conditionalDepth--;
+                }
+            }
+
+            // Collect ALL variables assigned within this branch
+            // (direct assignments + resolutions from nested if/else)
+            java.util.Set<String> thisBranchVars = new java.util.HashSet<>();
+            java.util.Set<String> newCond = new java.util.HashSet<>(conditionallyAssignedVars);
+            newCond.removeAll(savedCond);
+            thisBranchVars.addAll(newCond);
+            java.util.Set<String> newUncond = new java.util.HashSet<>(unconditionallyAssignedVars);
+            newUncond.removeAll(savedUncond);
+            thisBranchVars.addAll(newUncond);
+
+            branchVarsList.add(thisBranchVars);
+        }
+
+        // Restore saved state
+        conditionallyAssignedVars = new java.util.HashSet<>(savedCond);
+        unconditionallyAssignedVars = new java.util.HashSet<>(savedUncond);
+
+        // Compute net effect
+        if (branchVarsList.size() >= 2) {
+            // Variables assigned in ALL branches → effectively unconditional
+            java.util.Set<String> allBranches = new java.util.HashSet<>(branchVarsList.get(0));
+            for (int i = 1; i < branchVarsList.size(); i++) {
+                allBranches.retainAll(branchVarsList.get(i));
+            }
+            unconditionallyAssignedVars.addAll(allBranches);
+
+            // Variables assigned in SOME but not ALL branches → conditional
+            java.util.Set<String> anyBranch = new java.util.HashSet<>();
+            for (java.util.Set<String> bv : branchVarsList) {
+                anyBranch.addAll(bv);
+            }
+            anyBranch.removeAll(allBranches);
+            conditionallyAssignedVars.addAll(anyBranch);
+        } else if (branchVarsList.size() == 1) {
+            // Single branch (if without else) → all conditional
+            conditionallyAssignedVars.addAll(branchVarsList.get(0));
         }
     }
 
@@ -457,7 +567,13 @@ public class SymbolTableVisitor {
 
     private void visitWhileLoop(ASTNode node) {
         for (ASTNode child : node.children) {
-            visit(child);
+            if ("Block".equals(child.nodeName)) {
+                conditionalDepth++;
+                visit(child);
+                conditionalDepth--;
+            } else {
+                visit(child);
+            }
         }
     }
 
@@ -487,7 +603,13 @@ public class SymbolTableVisitor {
 
         // Visit children (iterable expression and body)
         for (ASTNode child : node.children) {
-            visit(child);
+            if ("Block".equals(child.nodeName)) {
+                conditionalDepth++;
+                visit(child);
+                conditionalDepth--;
+            } else {
+                visit(child);
+            }
         }
     }
 
@@ -517,6 +639,9 @@ public class SymbolTableVisitor {
         }
 
         // Visit children (for nested references)
+
+
+        // Visit the value expression (for nested references)
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -653,15 +778,63 @@ public class SymbolTableVisitor {
     private void visitIdentifier(ASTNode node) {
         IdentifierNode idNode = (IdentifierNode) node;
         String name = idNode.name;
-        // لا تفحصي داخل تعريف دالة (لأن البارامتر ما تعرّف بعد)
-        if (!isBuiltinFunction(name) && !isCommonFlaskGlobal(name)) {
-            SymbolEntry entry = symbolTable.lookup(name);
-            if (entry == null) {
-                errors.add(String.format(
-                        "Warning [Line %d]: Identifier '%s' used but not declared",
-                        node.lineNumber, name
-                ));
+        if (isBuiltinFunction(name) || isCommonFlaskGlobal(name)) return;
+
+        SymbolEntry entry = symbolTable.lookup(name);
+        String currentScopeType = symbolTable.currentScope().getScopeType();
+        boolean isInsideFunction = currentScopeType.equals("function")
+                || currentScopeType.equals("route_function")
+                || currentScopeType.equals("class");
+
+        if (entry == null) {
+            // Case 1: Variable not found in symbol table
+            boolean declaredLater = false;
+            for (SymbolEntry e : symbolTable.getAllEntries()) {
+                if (e.getName().equals(name) && e.getLine() > node.lineNumber) {
+                    declaredLater = true;
+                    break;
+                }
             }
+            UseBeforeInitInfo info = new UseBeforeInitInfo();
+            info.setVariableName(name);
+            info.setUsageLine(node.lineNumber);
+            info.setFileName(symbolTable.getCurrentFileName());
+            info.setFilePath(symbolTable.getCurrentFilePath());
+            info.setScopeType(currentScopeType);
+            info.setScopeContextName(symbolTable.currentScope().getContextName());
+            info.setInsideFunction(isInsideFunction);
+            info.setDeclaredLater(declaredLater);
+            symbolTable.addUseBeforeInitInfo(info);
+
+        } else if (entry.getDeclaredType() != null
+                && !entry.getDeclaredType().isEmpty()
+                && (entry.getValue() == null || entry.getValue().isEmpty())) {
+            // Case 2: Has type annotation but no value (not initialized)
+            UseBeforeInitInfo info = new UseBeforeInitInfo();
+            info.setVariableName(name);
+            info.setUsageLine(node.lineNumber);
+            info.setFileName(symbolTable.getCurrentFileName());
+            info.setFilePath(symbolTable.getCurrentFilePath());
+            info.setScopeType(currentScopeType);
+            info.setScopeContextName(symbolTable.currentScope().getContextName());
+            info.setInsideFunction(isInsideFunction);
+            info.setTypeAnnotationOnly(true);
+            symbolTable.addUseBeforeInitInfo(info);
+
+        } else if (conditionalDepth == 0
+                && conditionallyAssignedVars.contains(name)
+                && !unconditionallyAssignedVars.contains(name)) {
+            // Case 3: Variable only assigned inside a conditional block
+            UseBeforeInitInfo info = new UseBeforeInitInfo();
+            info.setVariableName(name);
+            info.setUsageLine(node.lineNumber);
+            info.setFileName(symbolTable.getCurrentFileName());
+            info.setFilePath(symbolTable.getCurrentFilePath());
+            info.setScopeType(currentScopeType);
+            info.setScopeContextName(symbolTable.currentScope().getContextName());
+            info.setInsideFunction(isInsideFunction);
+            info.setConditionalAssignment(true);
+            symbolTable.addUseBeforeInitInfo(info);
         }
     }
 

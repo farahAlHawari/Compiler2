@@ -62,6 +62,7 @@ public class SymbolTable {
     private List<DivisionInfo> divisionInfos;
 
     private List<UnboundLocalInfo> unboundLocalInfos;
+    private List<UseBeforeInitInfo> useBeforeInitInfos;
 
     // Track current scope context for qualified naming
     private String currentSource;                       // "python" or "template"
@@ -82,6 +83,7 @@ public class SymbolTable {
         this.jinjaFilterUsages = new ArrayList<>();
         this.divisionInfos = new ArrayList<>();
         this.unboundLocalInfos = new ArrayList<>();
+        this.useBeforeInitInfos = new ArrayList<>();
 
         // Start with a global scope
         enterScope("global",  "global");
@@ -123,6 +125,9 @@ public class SymbolTable {
 
     public List<UnboundLocalInfo> getUnboundLocalInfos() { return unboundLocalInfos; }
     public void addUnboundLocalInfo(UnboundLocalInfo info) { unboundLocalInfos.add(info); }
+
+    public List<UseBeforeInitInfo> getUseBeforeInitInfos() { return useBeforeInitInfos; }
+    public void addUseBeforeInitInfo(UseBeforeInitInfo info) { useBeforeInitInfos.add(info); }
 
     /**
      * Exit the current scope (pop from stack).
@@ -379,6 +384,7 @@ public class SymbolTable {
         jinjaFilterUsages.clear();
         divisionInfos.clear();
         unboundLocalInfos.clear();
+      //  useBeforeInitInfos.clear();
 
         enterScope("global",  "global");
     }
@@ -399,6 +405,8 @@ public class SymbolTable {
         returnInfos.clear();
         jinjaFilterUsages.clear();
         divisionInfos.clear();
+        unboundLocalInfos.clear();
+        //useBeforeInitInfos.clear();
     }
 
     // ==================== Printing ====================

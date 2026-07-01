@@ -2,74 +2,31 @@
                          SEMANTIC ERROR REPORT
 ================================================================================
 
-Found 7 semantic errors
+Found 3 semantic errors
 
-[1] NameError
-File      : test_type_mismatch.html
-Line      : 13
-Variable  : age
-Expression: {{ age }}
-Code      : <p>Age: {{ age|upper }}</p>
-Message   : Variable 'age' is used in Jinja but not passed from Flask via render_template
-
--------------------------------------------------------------------------------
-
-[2] NameError
-File      : test_type_mismatch.html
-Line      : 17
-Variable  : items
-Expression: {{ items }}
-Code      : {% for x in items %}
-Message   : Variable 'items' is used in Jinja but not passed from Flask via render_template
-
--------------------------------------------------------------------------------
-
-[3] NameError
-File      : test_type_mismatch.html
-Line      : 24
-Variable  : valid_list
-Expression: {{ valid_list }}
-Code      : {% for item in valid_list %}
-Message   : Variable 'valid_list' is used in Jinja but not passed from Flask via render_template
-
--------------------------------------------------------------------------------
-
-[4] NameError
-File      : test_type_mismatch.html
-Line      : 31
-Variable  : age_str
-Expression: {{ age_str }}
-Code      : <p>{{ age_str|join(", ") }}</p>
-Message   : Variable 'age_str' is used in Jinja but not passed from Flask via render_template
-
--------------------------------------------------------------------------------
-
-[5] UnboundLocalError
-File      : test_unbound_local.py
-Line      : 13
+[1] ScopeError
+File      : test_use_before_init.py
+Line      : 9
 Variable  : x
-Expression: x +=
-Code      : x += 1
-Message   : cannot access local variable 'x' before assignment. Variable 'x' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+Code      : print(x)
+Message   : Variable 'x' is used before initialization (not declared in the current scope).
 
 -------------------------------------------------------------------------------
 
-[6] UnboundLocalError
-File      : test_unbound_local.py
-Line      : 16
-Variable  : count
-Expression: count -=
-Code      : count -= 1
-Message   : cannot access local variable 'count' before assignment. Variable 'count' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+[2] ScopeError
+File      : test_use_before_init.py
+Line      : 18
+Variable  : x
+Code      : print(x)
+Message   : Variable 'x' has a type annotation but is used before being assigned a value.
 
 -------------------------------------------------------------------------------
 
-[7] UnboundLocalError
-File      : test_unbound_local.py
-Line      : 30
-Variable  : total
-Expression: total *=
-Code      : total *= 2
-Message   : cannot access local variable 'total' before assignment. Variable 'total' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+[3] ScopeError
+File      : test_use_before_init.py
+Line      : 28
+Variable  : y
+Code      : print(y)
+Message   : Variable 'y' may be used before initialization. It is only assigned inside a conditional block.
 
 ================================================================================
