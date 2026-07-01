@@ -2,79 +2,31 @@
                          SEMANTIC ERROR REPORT
 ================================================================================
 
-Found 8 semantic errors
+Found 3 semantic errors
 
-[1] TypeError
-File      : test_type_mismatch.py
-Line      : 13
-Variable  : c
-Code      : c: int = "hello"
-Message   : Type mismatch. Variable 'c' is declared as 'int' but assigned a value of type 'string'.
-
--------------------------------------------------------------------------------
-
-[2] TypeError
-File      : test_type_mismatch.py
-Line      : 16
+[1] ScopeError
+File      : test_use_before_init.py
+Line      : 9
 Variable  : x
-Code      : x: str = 42
-Message   : Type mismatch. Variable 'x' is declared as 'str' but assigned a value of type 'int'.
+Code      : print(x)
+Message   : Variable 'x' is used before initialization (not declared in the current scope).
 
 -------------------------------------------------------------------------------
 
-[3] TypeError
-File      : test_type_mismatch.py
-Line      : 19
+[2] ScopeError
+File      : test_use_before_init.py
+Line      : 18
+Variable  : x
+Code      : print(x)
+Message   : Variable 'x' has a type annotation but is used before being assigned a value.
+
+-------------------------------------------------------------------------------
+
+[3] ScopeError
+File      : test_use_before_init.py
+Line      : 28
 Variable  : y
-Code      : y: list = "not a list"
-Message   : Type mismatch. Variable 'y' is declared as 'list' but assigned a value of type 'string'.
-
--------------------------------------------------------------------------------
-
-[4] TypeError
-File      : test_type_mismatch.py
-Line      : 22
-Variable  : z
-Code      : z: int = None
-Message   : Type mismatch. Variable 'z' is declared as 'int' but assigned a value of type 'NoneType'.
-
--------------------------------------------------------------------------------
-
-[5] TypeError
-File      : test_type_mismatch.py
-Line      : 25
-Variable  : w
-Code      : w: float = "free"
-Message   : Type mismatch. Variable 'w' is declared as 'float' but assigned a value of type 'string'.
-
--------------------------------------------------------------------------------
-
-[6] TypeError
-File      : test_type_mismatch.html
-Line      : 13
-Variable  : age
-Expression: {{ age|upper }}
-Code      : <p>Age: {{ age|upper }}</p>
-Message   : Filter 'upper' expects 'string' but variable 'age' is of type 'int'.
-
--------------------------------------------------------------------------------
-
-[7] TypeError
-File      : test_type_mismatch.html
-Line      : 17
-Variable  : items
-Expression: {% for item in items %}
-Code      : {% for x in items %}
-Message   : Variable 'items' of type 'int' is not iterable.
-
--------------------------------------------------------------------------------
-
-[8] TypeError
-File      : test_type_mismatch.html
-Line      : 31
-Variable  : age_str
-Expression: {{ age_str|join }}
-Code      : <p>{{ age_str|join(", ") }}</p>
-Message   : Filter 'join' expects iterable but variable 'age_str' is of type 'int'.
+Code      : print(y)
+Message   : Variable 'y' may be used before initialization. It is only assigned inside a conditional block.
 
 ================================================================================

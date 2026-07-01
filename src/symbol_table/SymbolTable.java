@@ -1,6 +1,10 @@
 package symbol_table;
 
 import java.util.*;
+import java.util.List;
+
+
+import java.util.ArrayList;
 
 /**
  * Unified Symbol Table for both Python (Flask) and Template (HTML/CSS/Jinja) parsing.
@@ -56,6 +60,10 @@ public class SymbolTable {
     private List<ReturnInfo> returnInfos;
     private List<JinjaFilterUsage> jinjaFilterUsages;
     private List<DivisionInfo> divisionInfos;
+
+    private List<UnboundLocalInfo> unboundLocalInfos;
+    private List<UseBeforeInitInfo> useBeforeInitInfos;
+
     // Track current scope context for qualified naming
     private String currentSource;                       // "python" or "template"
     private String currentFileName = "";
@@ -74,6 +82,9 @@ public class SymbolTable {
         this.returnInfos = new ArrayList<>();
         this.jinjaFilterUsages = new ArrayList<>();
         this.divisionInfos = new ArrayList<>();
+        this.unboundLocalInfos = new ArrayList<>();
+        this.useBeforeInitInfos = new ArrayList<>();
+
         // Start with a global scope
         enterScope("global",  "global");
     }
@@ -110,6 +121,14 @@ public class SymbolTable {
 
     public List<DivisionInfo> getDivisionInfos() { return divisionInfos; }
     public void addDivisionInfo(DivisionInfo info) { divisionInfos.add(info); }
+
+
+    public List<UnboundLocalInfo> getUnboundLocalInfos() { return unboundLocalInfos; }
+    public void addUnboundLocalInfo(UnboundLocalInfo info) { unboundLocalInfos.add(info); }
+
+    public List<UseBeforeInitInfo> getUseBeforeInitInfos() { return useBeforeInitInfos; }
+    public void addUseBeforeInitInfo(UseBeforeInitInfo info) { useBeforeInitInfos.add(info); }
+
     /**
      * Exit the current scope (pop from stack).
      * Called when exiting: function, class, block, style block, jinja block.
@@ -364,6 +383,9 @@ public class SymbolTable {
         returnInfos.clear();
         jinjaFilterUsages.clear();
         divisionInfos.clear();
+        unboundLocalInfos.clear();
+      //  useBeforeInitInfos.clear();
+
         enterScope("global",  "global");
     }
 
@@ -383,6 +405,8 @@ public class SymbolTable {
         returnInfos.clear();
         jinjaFilterUsages.clear();
         divisionInfos.clear();
+        unboundLocalInfos.clear();
+        //useBeforeInitInfos.clear();
     }
 
     // ==================== Printing ====================

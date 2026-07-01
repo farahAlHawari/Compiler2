@@ -80,7 +80,7 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
 
         // ===== Python Compiler =====
-        String pythonFile = "src/tests/test_type_mismatch.py";
+        String pythonFile = "src/tests/test_use_before_init.py";
         String pythonFileName = new java.io.File(pythonFile).getName();
         symbolTable.setCurrentFileName(pythonFileName);
         symbolTable.setCurrentFilePath(pythonFile);   // ← جديد: المسار الكامل
@@ -88,7 +88,7 @@ public class Main {
         compiler.compile(pythonFile);
 
         // ===== HTML/CSS/Jinja Parser =====
-        String source = "tests/test_type_mismatch.html";
+        String source = "tests/test_use_before_init.html";
         String templateFileName = new java.io.File(source).getName();
         symbolTable.setSource("template");
         symbolTable.setCurrentFileName(templateFileName);
