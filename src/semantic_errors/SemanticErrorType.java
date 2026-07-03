@@ -9,5 +9,6 @@ public enum SemanticErrorType {
     DIVISION_BY_ZERO,
     UNBOUND_LOCAL,
     USE_BEFORE_INIT,
-
+    INVALID_ATTRIBUTE_ACCESS,
+    OPERATION_ON_NONE,
 }

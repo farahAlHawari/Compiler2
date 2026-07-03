@@ -64,6 +64,11 @@ public class SymbolTable {
     private List<UnboundLocalInfo> unboundLocalInfos;
     private List<UseBeforeInitInfo> useBeforeInitInfos;
 
+    // For  attributes accecc
+    private List<AttributeAccessInfo> attributeAccessInfos;
+    // Operation on none
+    private List<OperationOnNoneInfo> operationOnNoneInfos;
+
     // Track current scope context for qualified naming
     private String currentSource;                       // "python" or "template"
     private String currentFileName = "";
@@ -84,7 +89,8 @@ public class SymbolTable {
         this.divisionInfos = new ArrayList<>();
         this.unboundLocalInfos = new ArrayList<>();
         this.useBeforeInitInfos = new ArrayList<>();
-
+        this.attributeAccessInfos = new ArrayList<>();
+        this.operationOnNoneInfos = new ArrayList<>();
         // Start with a global scope
         enterScope("global",  "global");
     }
@@ -129,6 +135,11 @@ public class SymbolTable {
     public List<UseBeforeInitInfo> getUseBeforeInitInfos() { return useBeforeInitInfos; }
     public void addUseBeforeInitInfo(UseBeforeInitInfo info) { useBeforeInitInfos.add(info); }
 
+    public List<AttributeAccessInfo> getAttributeAccessInfos() { return attributeAccessInfos; }
+    public void addAttributeAccessInfo(AttributeAccessInfo info) { attributeAccessInfos.add(info); }
+
+    public List<OperationOnNoneInfo> getOperationOnNoneInfos() { return operationOnNoneInfos; }
+    public void addOperationOnNoneInfo(OperationOnNoneInfo info) { operationOnNoneInfos.add(info); }
     /**
      * Exit the current scope (pop from stack).
      * Called when exiting: function, class, block, style block, jinja block.
@@ -384,8 +395,9 @@ public class SymbolTable {
         jinjaFilterUsages.clear();
         divisionInfos.clear();
         unboundLocalInfos.clear();
-      //  useBeforeInitInfos.clear();
-
+        useBeforeInitInfos.clear();
+        attributeAccessInfos.clear();
+        operationOnNoneInfos.clear();
         enterScope("global",  "global");
     }
 
@@ -406,7 +418,9 @@ public class SymbolTable {
         jinjaFilterUsages.clear();
         divisionInfos.clear();
         unboundLocalInfos.clear();
-        //useBeforeInitInfos.clear();
+        useBeforeInitInfos.clear();
+        attributeAccessInfos.clear();
+        operationOnNoneInfos.clear();
     }
 
     // ==================== Printing ====================

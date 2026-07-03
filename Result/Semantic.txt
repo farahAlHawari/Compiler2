@@ -4,12 +4,12 @@
 
 Found 3 semantic errors
 
-[1] ScopeError
+[1] NameError
 File      : test_use_before_init.py
 Line      : 9
 Variable  : x
 Code      : print(x)
-Message   : Variable 'x' is used before initialization (not declared in the current scope).
+Message   : name 'x' is not defined
 
 -------------------------------------------------------------------------------
 

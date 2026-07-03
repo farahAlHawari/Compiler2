@@ -1,5 +1,5 @@
-// Generated from D:/compiler2/src/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
-package main.pythoncompiler.grammer;
+// Generated from C:/Users/HP/Downloads/Compiler2/src/main/pythoncompiler/grammer/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+package main.pythoncompiler.grammer.main.pythoncompiler.grammer;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;

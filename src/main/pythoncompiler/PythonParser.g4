@@ -192,7 +192,7 @@ arithmeticExpr
     ;
 
 term
-    : factor ((MULT | DIV | MOD) factor)*
+    : factor ((MULT | DIV | MOD | POWER) factor)*
                                         #termNode
     ;
 

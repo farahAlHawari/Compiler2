@@ -51,6 +51,16 @@ public class SemanticChecker {
         UseBeforeInitChecker useBeforeInitChecker = new UseBeforeInitChecker(symbolTable, errors);
         useBeforeInitChecker.check();
 
+        // 8. Invalid Attribute Access Checker
+        InvalidAttributeAccessChecker invalidAttrChecker =
+                new InvalidAttributeAccessChecker(symbolTable, errors);
+        invalidAttrChecker.check();
+
+        // 9. Operation on None Checker
+        OperationOnNoneChecker operationOnNoneChecker =
+                new OperationOnNoneChecker(symbolTable, errors);
+        operationOnNoneChecker.check();
+
     }
     public List<SemanticError> getErrors() {
         return errors;
@@ -109,6 +119,7 @@ public class SemanticChecker {
 //                for (SemanticError error : errors) {
 //                    writer.println(error.toString());
 //                }
+//            }
 //            }
 //        } catch (IOException e) {
 //            System.err.println("Error writing semantic errors to file: " + e.getMessage());

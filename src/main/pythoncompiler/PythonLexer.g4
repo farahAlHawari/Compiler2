@@ -91,6 +91,7 @@ GE          : '>=';
 
 PLUS        : '+';
 MINUS       : '-';
+POWER       : '**';
 MULT        : '*';
 DIV         : '/';
 MOD         : '%';
@@ -123,9 +124,8 @@ STRING
     ;
 
 NUMBER
-    : [0-9]+
+    : [0-9]+ ('.' [0-9]+)?
     ;
-
 
 /* Identifier  */
 

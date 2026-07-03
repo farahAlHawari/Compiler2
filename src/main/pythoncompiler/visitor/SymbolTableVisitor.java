@@ -1,15 +1,8 @@
 package main.pythoncompiler.visitor;
 
 import main.pythoncompiler.ast.*;
-import symbol_table.SymbolTable;
-import symbol_table.SymbolEntry;
-import symbol_table.FlaskTemplateCall;
-import symbol_table.FunctionCallInfo;
-import symbol_table.ReturnInfo;
+import symbol_table.*;
 import java.util.Stack;
-import symbol_table.DivisionInfo;
-import symbol_table.UnboundLocalInfo;
-import symbol_table.UseBeforeInitInfo;
 
 /**
  * Visitor that walks the Python AST and populates the Symbol Table.
@@ -300,7 +293,7 @@ public class SymbolTableVisitor {
                             entry.setDeclaredType(assignNode.declaredType);
                         }
                         symbolTable.insert(entry);
-                        symbolTable.insert(entry);
+                        symbolTable.insert(entry); // شو سبب تكراره؟
                     }
                 }
             }
@@ -861,27 +854,37 @@ public class SymbolTableVisitor {
 //        }
 //    }
 private void visitBinaryOp(ASTNode node) {
-    for (ASTNode child : node.children) visit(child);
+    // Visit children first
+    for (ASTNode child : node.children) {
+        visit(child);
+    }
 
-    if (node instanceof BinaryOpNode && node.children.size() == 2) {
-        BinaryOpNode binOp = (BinaryOpNode) node;
-        if ("/".equals(binOp.operator) || "%".equals(binOp.operator)) {
-            ASTNode divisorNode = node.children.get(1);
-            DivisionInfo divInfo = null;
+    if (node.children.size() < 2) return;
 
-            if (divisorNode instanceof LiteralNode) {
-                divInfo = new DivisionInfo(binOp.operator, true,
-                        ((LiteralNode) divisorNode).value, null, node.lineNumber);
-            } else if (divisorNode instanceof IdentifierNode) {
-                divInfo = new DivisionInfo(binOp.operator, false, null,
-                        ((IdentifierNode) divisorNode).name, node.lineNumber);
-            }
-            if (divInfo != null) {
-                divInfo.setFileName(symbolTable.getCurrentFileName());
-                divInfo.setFilePath(symbolTable.getCurrentFilePath());
-                symbolTable.addDivisionInfo(divInfo);
-            }
-        }
+    // استخرج الـ operator من BinaryOpNode
+    String operator = null;
+    if (node instanceof BinaryOpNode) {
+        operator = ((BinaryOpNode) node).operator;
+    }
+    if (operator == null) return;
+
+    // ===== 1. Division by zero (الكود الأصلي) =====
+    if ("/".equals(operator) || "%".equals(operator)) {
+        DivisionInfo divInfo = new DivisionInfo(
+                operator,
+                node.children.get(0).nodeName,
+                node.children.get(1).nodeName,
+                node.lineNumber
+        );
+
+        divInfo.setFileName(symbolTable.getCurrentFileName());
+        divInfo.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.addDivisionInfo(divInfo);
+    }
+
+    // ===== 2. Operation on None (الجديد) =====
+    if (isArithmeticOperator(operator)) {
+        checkOperationOnNone(node, operator);
     }
 }
 
@@ -904,12 +907,60 @@ private void visitBinaryOp(ASTNode node) {
     // ==================== Attribute Access ====================
 
     private void visitAttributeAccess(ASTNode node) {
-        // Visit the object being accessed
-        for (ASTNode child : node.children) {
-            visit(child);
-        }
-    }
+        String objectName = null;
+        String attributeName = null;
+        int line = node.lineNumber;
 
+        // استخرج اسم الـ attribute من AttributeNode
+        if (node instanceof AttributeNode) {
+            attributeName = ((AttributeNode) node).attributeName;
+        }
+
+        // استخرج اسم الكائن من أول child (عادة IdentifierNode)
+        if (node.children != null && node.children.size() > 0) {
+            ASTNode objChild = node.children.get(0);
+            if (objChild instanceof IdentifierNode) {
+                objectName = ((IdentifierNode) objChild).name;
+            } else {
+                // expression معقد → زور الأبناء واطلع
+                for (ASTNode child : node.children) {
+                    visit(child);
+                }
+                return;
+            }
+        }
+
+        // زور الأبناء
+        if (node.children != null) {
+            for (ASTNode child : node.children) {
+                visit(child);
+            }
+        }
+
+        // التحقق
+        if (objectName == null || attributeName == null || attributeName.isEmpty()) {
+            return;
+        }
+
+        // ابحث عن الكائن في الـ SymbolTable
+        SymbolEntry entry = symbolTable.lookup(objectName);
+        String objectType = "unknown";
+        String objectValue = null;
+
+        if (entry != null) {
+            objectType = entry.getType() != null ? entry.getType() : "unknown";
+            objectValue = entry.getValue() != null ? entry.getValue() : null;
+        }
+
+        // أنشئ AttributeAccessInfo
+        AttributeAccessInfo info = new AttributeAccessInfo(objectName, attributeName, line);
+        info.setFileName(symbolTable.getCurrentFileName());
+        info.setFilePath(symbolTable.getCurrentFilePath());
+        info.setObjectType(objectType);
+        info.setObjectValue(objectValue);
+
+        symbolTable.addAttributeAccessInfo(info);
+    }
     // ==================== Container Literal ====================
 
     private void visitContainerLiteral(ASTNode node) {
@@ -1113,5 +1164,74 @@ private void visitBinaryOp(ASTNode node) {
             default:
                 return type;
         }
+    }
+    // ==================== Helper Methods for New Error Detection ====================
+    private boolean isArithmeticOperator(String operator) {
+        return "+".equals(operator)
+                || "-".equals(operator)
+                || "*".equals(operator)
+                || "/".equals(operator)
+                || "//".equals(operator)
+                || "%".equals(operator)
+                || "**".equals(operator);
+    }
+
+    private void checkOperationOnNone(ASTNode node, String operator) {
+        ASTNode left = node.children.get(0);
+        ASTNode right = node.children.get(1);
+
+        boolean leftIsNone = isNodeNone(left);
+        boolean rightIsNone = isNodeNone(right);
+
+        if (leftIsNone || rightIsNone) {
+            String leftName = getOperandName(left, "left");
+            String rightName = getOperandName(right, "right");
+
+            OperationOnNoneInfo info = new OperationOnNoneInfo(
+                    operator, leftName, rightName, leftIsNone, rightIsNone, node.lineNumber
+            );
+            info.setFileName(symbolTable.getCurrentFileName());
+            info.setFilePath(symbolTable.getCurrentFilePath());
+
+            String otherType;
+            if (leftIsNone) {
+                otherType = getOperandName(right, "right");
+            } else {
+                otherType = getOperandName(left, "left");
+            }
+            info.setOtherOperandType(otherType);
+            symbolTable.addOperationOnNoneInfo(info);
+        }
+    }
+
+    private boolean isNodeNone(ASTNode node) {
+        if (node instanceof LiteralNode) {
+            LiteralNode lit = (LiteralNode) node;
+            if ("None".equals(lit.value)) return true;
+            if ("NONE".equals(lit.type)) return true;
+        }
+
+        if (node instanceof IdentifierNode) {
+            String varName = ((IdentifierNode) node).name;
+            SymbolEntry entry = symbolTable.lookup(varName);
+            if (entry != null) {
+                String type = entry.getType();
+                String value = entry.getValue();
+                if ("none".equals(type)) return true;
+                if ("None".equals(value)) return true;
+                if ("NONE".equals(type)) return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String getOperandName(ASTNode node, String side) {
+        if (node instanceof IdentifierNode) {
+            return ((IdentifierNode) node).name;
+        } else if (node instanceof LiteralNode) {
+            return ((LiteralNode) node).type.toLowerCase();
+        }
+        return side;
     }
 }

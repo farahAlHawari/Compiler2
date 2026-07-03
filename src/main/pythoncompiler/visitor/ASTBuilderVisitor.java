@@ -1,8 +1,9 @@
 package main.pythoncompiler.visitor;
 
 import main.pythoncompiler.ast.*;
-import main.pythoncompiler.grammer.PythonParser;
-import main.pythoncompiler.grammer.PythonParserBaseVisitor;
+import main.pythoncompiler.grammer.main.pythoncompiler.grammer.PythonParser;
+import main.pythoncompiler.grammer.main.pythoncompiler.grammer.PythonParserBaseVisitor;
+
 
 public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
 
@@ -616,8 +617,10 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
 
     @Override
     public ASTNode visitNumberExpr(PythonParser.NumberExprContext ctx) {
+        String value = ctx.NUMBER().getText();
+        String type = value.contains(".") ? "FLOAT" : "INT";
         String val = ctx.NUMBER().getText();
-        LiteralNode lit = new LiteralNode(val, "INT");
+        LiteralNode lit = new LiteralNode(val, type);
         lit.lineNumber = ctx.start.getLine();
         return lit;
     }

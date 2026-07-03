@@ -71,8 +71,9 @@
 //}
 package main.pythoncompiler;
 
-import main.pythoncompiler.grammer.PythonLexer;
-import main.pythoncompiler.grammer.PythonParser;
+
+import main.pythoncompiler.grammer.main.pythoncompiler.grammer.PythonLexer;
+import main.pythoncompiler.grammer.main.pythoncompiler.grammer.PythonParser;
 import main.pythoncompiler.visitor.ASTBuilderVisitor;
 import main.pythoncompiler.visitor.SymbolTableVisitor;
 import symbol_table.SymbolTable;

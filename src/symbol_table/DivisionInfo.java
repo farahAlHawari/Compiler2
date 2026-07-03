@@ -40,7 +40,7 @@ public class DivisionInfo {
     private String fileName = "";
     private String filePath = "";
 
-    public DivisionInfo(String operator, boolean divisorIsLiteral, String divisorLiteralValue,
+    public DivisionInfo(String operator, String divisorLiteralValue,
                         String divisorVariableName, int line) {
         this.operator = operator;
         this.divisorIsLiteral = divisorIsLiteral;

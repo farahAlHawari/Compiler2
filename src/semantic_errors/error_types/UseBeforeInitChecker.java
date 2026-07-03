@@ -47,9 +47,9 @@ public class UseBeforeInitChecker {
     public void check() {
         for (UseBeforeInitInfo info : symbolTable.getUseBeforeInitInfos()) {
 
-            // Skip if this is a forward reference to a non-variable
-            // (functions, classes, imports can be referenced before their definition in Python)
-            if (!info.isConditionalAssignment() && !info.hasTypeAnnotationOnly() && info.isDeclaredLater()) {
+            // Skip forward references to non-variable symbols
+            if (!info.isConditionalAssignment() && !info.hasTypeAnnotationOnly()
+                    && info.isDeclaredLater()) {
                 boolean isLaterNonVariable = false;
                 for (SymbolEntry e : symbolTable.getAllEntries()) {
                     if (e.getName().equals(info.getVariableName())
@@ -62,25 +62,32 @@ public class UseBeforeInitChecker {
                 if (isLaterNonVariable) continue;
             }
 
+            // ✅ التعديل الأساسي: تحديد نوع الخطأ بدقة
+            String errorName;
             String message;
+
             if (info.isConditionalAssignment()) {
+                errorName = "ScopeError";
                 message = "Variable '" + info.getVariableName()
                         + "' may be used before initialization. "
                         + "It is only assigned inside a conditional block.";
             } else if (info.hasTypeAnnotationOnly()) {
+                errorName = "ScopeError";
                 message = "Variable '" + info.getVariableName()
                         + "' has a type annotation but is used before being assigned a value.";
             } else if (info.isDeclaredLater()) {
-                message = "Variable '" + info.getVariableName()
-                        + "' is used before initialization (declared at a later line).";
+                errorName = "NameError";                    // ✅ تعديل
+                message = "name '" + info.getVariableName() // ✅ صيغة بايثون الحقيقية
+                        + "' is not defined. It is declared at a later line.";
             } else {
-                message = "Variable '" + info.getVariableName()
-                        + "' is used before initialization (not declared in the current scope).";
+                errorName = "NameError";                    // ✅ تعديل
+                message = "name '" + info.getVariableName() // ✅ صيغة بايثون الحقيقية
+                        + "' is not defined";
             }
 
             errors.add(new SemanticError(
                     SemanticErrorType.USE_BEFORE_INIT,
-                    "ScopeError",
+                    errorName,     // ✅ NameError أو ScopeError حسب الحالة
                     message,
                     info.getUsageLine(),
                     info.getFileName(),
