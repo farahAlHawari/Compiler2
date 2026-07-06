@@ -211,5 +211,25 @@ public class Main {
                 "src/tests/test_none_attr.py",
                 "TEST 4: AttributeError on NoneType"
         );
+
+        // ==============================================================
+        //  TEST: Type Error
+        //  يتوقع: TypeError لكل الحالات الـ 24
+        // ==============================================================
+        compilePythonOnly(
+                "src/tests/test_type_error.py",
+                "TEST: Type Error"
+        );
+
+        // ==============================================================
+        //  TEST 5: Error Type — عملية بين نوعين غير متوافقين
+        //  يتوقع: 12 TypeError (عمليات حسابية/مقارنة/فهرسة/len)
+        //  + 3 حالات صحيحة ما لازم تنكشف كأخطاء
+        // ==============================================================
+        compilePythonOnly(
+                "src/tests/test_operation_type_error.py",
+                "TEST 5: Error Type (incompatible operand types)"
+        );
+
     }
 }

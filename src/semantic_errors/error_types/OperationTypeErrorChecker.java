@@ -169,6 +169,7 @@ public class OperationTypeErrorChecker {
 
             case "/":
             case "%":
+            case "**":
                 return isNumeric(leftType) && isNumeric(rightType);
 
             case "<":
@@ -221,6 +222,6 @@ public class OperationTypeErrorChecker {
 
     private boolean isArithmeticOperator(String operator) {
         return "+".equals(operator) || "-".equals(operator) || "*".equals(operator)
-                || "/".equals(operator) || "%".equals(operator);
+                || "/".equals(operator) || "%".equals(operator) || "**".equals(operator);
     }
 }
