@@ -747,6 +747,11 @@ public class SymbolTableVisitor {
             trackRenderTemplateCall(node);
         }
 
+        // NEW: Track argument type for len() calls (Error Type checking)
+        if ("len".equals(funcName) && !isMethodCall) {
+            checkLenArgumentType(node);
+        }
+
         // Existing warning for undefined functions
         if (!isMethodCall) {
             SymbolEntry funcEntry = symbolTable.lookup(funcName);
@@ -886,6 +891,11 @@ private void visitBinaryOp(ASTNode node) {
     if (isArithmeticOperator(operator)) {
         checkOperationOnNone(node, operator);
     }
+
+    // ===== 3. Operand type compatibility (قسمي - Error Type) =====
+    if (isArithmeticOperator(operator) || isComparisonOperator(operator)) {
+        recordOperationTypeInfo(node, operator);
+        }
 }
 
     // ==================== Unary Op ====================
@@ -899,6 +909,23 @@ private void visitBinaryOp(ASTNode node) {
     // ==================== Index Access ====================
 
     private void visitIndexAccess(ASTNode node) {
+        if (node.children.size() >= 2) {
+            ASTNode container = node.children.get(0);
+            ASTNode index = node.children.get(1);
+
+            String containerType = inferType(container);
+            String indexType = inferType(index);
+            String containerDisplay = extractValue(container);
+            String indexDisplay = extractValue(index);
+
+            IndexTypeInfo info = new IndexTypeInfo(
+                    containerType, indexType, containerDisplay, indexDisplay, node.lineNumber
+            );
+            info.setFileName(symbolTable.getCurrentFileName());
+            info.setFilePath(symbolTable.getCurrentFilePath());
+            symbolTable.addIndexTypeInfo(info);
+        }
+
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -1166,6 +1193,67 @@ private void visitBinaryOp(ASTNode node) {
         }
     }
     // ==================== Helper Methods for New Error Detection ====================
+    /**
+     * Comparison operators that can raise TypeError with incompatible types.
+     * Note: == and != are intentionally EXCLUDED — in real Python they never
+     * raise TypeError; they just return False for incompatible types
+     * (e.g. "5" == 5 is valid Python, evaluates to False).
+     */
+    private boolean isComparisonOperator(String operator) {
+        return "<".equals(operator)
+                || ">".equals(operator)
+                || "<=".equals(operator)
+                || ">=".equals(operator);
+    }
+
+    /**
+     * Records operand type info for any arithmetic/comparison BinaryOp node,
+     * to be checked later by OperationTypeErrorChecker.
+     */
+    private void recordOperationTypeInfo(ASTNode node, String operator) {
+        ASTNode left = node.children.get(0);
+        ASTNode right = node.children.get(1);
+
+        String leftType = inferType(left);
+        String rightType = inferType(right);
+        String leftDisplay = extractValue(left);
+        String rightDisplay = extractValue(right);
+
+        OperationTypeInfo info = new OperationTypeInfo(
+                operator, leftType, rightType, leftDisplay, rightDisplay, node.lineNumber
+        );
+        info.setFileName(symbolTable.getCurrentFileName());
+        info.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.addOperationTypeInfo(info);
+    }
+
+    /**
+     * Extracts the argument type passed to len() so OperationTypeErrorChecker
+     * can verify it's a sized/iterable type.
+     */
+    private void checkLenArgumentType(ASTNode node) {
+        ASTNode argsNode = null;
+        for (ASTNode child : node.children) {
+            if ("Arguments".equals(child.nodeName)) {
+                argsNode = child;
+                break;
+            }
+        }
+        if (argsNode == null || argsNode.children.isEmpty()) return;
+
+        ASTNode firstArgWrapper = argsNode.children.get(0);
+        if (firstArgWrapper.children.isEmpty()) return;
+        ASTNode argExpr = firstArgWrapper.children.get(0);
+
+        String argType = inferType(argExpr);
+        String argDisplay = extractValue(argExpr);
+
+        FunctionArgTypeInfo info = new FunctionArgTypeInfo("len", argType, argDisplay, node.lineNumber);
+        info.setFileName(symbolTable.getCurrentFileName());
+        info.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.addFunctionArgTypeInfo(info);
+    }
+
     private boolean isArithmeticOperator(String operator) {
         return "+".equals(operator)
                 || "-".equals(operator)

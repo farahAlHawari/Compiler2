@@ -11,4 +11,5 @@ public enum SemanticErrorType {
     USE_BEFORE_INIT,
     INVALID_ATTRIBUTE_ACCESS,
     OPERATION_ON_NONE,
+    OPERATION_TYPE_ERROR,
 }

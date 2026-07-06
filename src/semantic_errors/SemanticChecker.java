@@ -61,6 +61,11 @@ public class SemanticChecker {
                 new OperationOnNoneChecker(symbolTable, errors);
         operationOnNoneChecker.check();
 
+        // 10. Operation Type Error Checker (Error Type — عملية بين نوعين غير متوافقين)
+        OperationTypeErrorChecker operationTypeErrorChecker =
+                new OperationTypeErrorChecker(symbolTable, errors);
+        operationTypeErrorChecker.check();
+
     }
     public List<SemanticError> getErrors() {
         return errors;

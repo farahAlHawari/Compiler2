@@ -61,6 +61,10 @@ public class SymbolTable {
     private List<JinjaFilterUsage> jinjaFilterUsages;
     private List<DivisionInfo> divisionInfos;
 
+    private List<OperationTypeInfo> operationTypeInfos;
+    private List<IndexTypeInfo> indexTypeInfos;
+    private List<FunctionArgTypeInfo> functionArgTypeInfos;
+
     private List<UnboundLocalInfo> unboundLocalInfos;
     private List<UseBeforeInitInfo> useBeforeInitInfos;
 
@@ -87,6 +91,9 @@ public class SymbolTable {
         this.returnInfos = new ArrayList<>();
         this.jinjaFilterUsages = new ArrayList<>();
         this.divisionInfos = new ArrayList<>();
+        this.operationTypeInfos = new ArrayList<>();
+        this.indexTypeInfos = new ArrayList<>();
+        this.functionArgTypeInfos = new ArrayList<>();
         this.unboundLocalInfos = new ArrayList<>();
         this.useBeforeInitInfos = new ArrayList<>();
         this.attributeAccessInfos = new ArrayList<>();
@@ -128,6 +135,14 @@ public class SymbolTable {
     public List<DivisionInfo> getDivisionInfos() { return divisionInfos; }
     public void addDivisionInfo(DivisionInfo info) { divisionInfos.add(info); }
 
+    public List<OperationTypeInfo> getOperationTypeInfos() { return operationTypeInfos; }
+    public void addOperationTypeInfo(OperationTypeInfo info) { operationTypeInfos.add(info); }
+
+    public List<IndexTypeInfo> getIndexTypeInfos() { return indexTypeInfos; }
+    public void addIndexTypeInfo(IndexTypeInfo info) { indexTypeInfos.add(info); }
+
+    public List<FunctionArgTypeInfo> getFunctionArgTypeInfos() { return functionArgTypeInfos; }
+    public void addFunctionArgTypeInfo(FunctionArgTypeInfo info) { functionArgTypeInfos.add(info); }
 
     public List<UnboundLocalInfo> getUnboundLocalInfos() { return unboundLocalInfos; }
     public void addUnboundLocalInfo(UnboundLocalInfo info) { unboundLocalInfos.add(info); }
