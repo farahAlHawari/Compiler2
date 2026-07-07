@@ -10,6 +10,7 @@ import symbol_table.Scope;
 import symbol_table.SymbolTable;
 import symbol_table.SymbolEntry;
 import symbol_table.FunctionCallInfo;
+import symbol_table.OperationTypeInfo;
 
 /**
  * Visitor that walks the Template AST (HTML/CSS/Jinja) and populates
@@ -1050,6 +1051,9 @@ private void handleSimpleSet(String content, int line) {
 
         // بس نستخرج المتغيرات - ما نخزن function calls
         extractVariablesFromExpression(expr, node.getLine());
+
+        // NEW: كشف العمليات الحسابية/المقارنة بـ Jinja عشان TypeError
+        detectJinjaOperationTypes(expr, node.getLine());
     }
 
     private void visitJinjaExtends(JinjaNode node) {
@@ -1595,6 +1599,94 @@ private void visitJinjaWith(JinjaNode node) {
         }
 
         return count;
+    }
+    // ==================== Jinja Operation Type Detection (TypeError) ====================
+
+    /**
+     * يفحص تعبير Jinja ويسجّل OperationTypeInfo لأي عملية ثنائية
+     * (حسابية أو مقارنة) عشان OperationTypeErrorChecker يفحص توافق الأنواع.
+     */
+    private void detectJinjaOperationTypes(String expr, int line) {
+        if (expr == null || expr.isEmpty()) return;
+
+        // Regex: left_operand operator right_operand
+        // نحط // و ** و <= و >= قبل الأحادية عشان ما يتقطعوا
+        java.util.regex.Pattern opPattern = java.util.regex.Pattern.compile(
+                "([a-zA-Z_][a-zA-Z0-9_.]*|\"[^\"]*\"|'[^']*'|\\d+(?:\\.\\d+)?)"
+                        + "\\s*(//|\\*\\*|<=|>=|[+\\-*/%<>])"
+                        + "\\s*([a-zA-Z_][a-zA-Z0-9_.]*|\"[^\"]*\"|'[^']*'|\\d+(?:\\.\\d+)?)"
+        );
+        java.util.regex.Matcher matcher = opPattern.matcher(expr);
+
+        while (matcher.find()) {
+            String leftStr = matcher.group(1).trim();
+            String operator = matcher.group(2).trim();
+            String rightStr = matcher.group(3).trim();
+
+            String leftType = inferJinjaOperandType(leftStr);
+            String rightType = inferJinjaOperandType(rightStr);
+
+            // نتخطى الـ unknown — ما فينا نحكم
+            if ("unknown".equals(leftType) || "unknown".equals(rightType)) continue;
+
+            // == و != ما بيرموا TypeError ببايثون أبداً
+            if ("==".equals(operator) || "!=".equals(operator)) continue;
+
+            // العمليات الحسابية مع None — مسؤولية OperationOnNoneChecker
+            if (isJinjaArithmeticOp(operator)
+                    && ("NoneType".equals(leftType) || "NoneType".equals(rightType))) {
+                continue;
+            }
+
+            OperationTypeInfo info = new OperationTypeInfo(
+                    operator, leftType, rightType, leftStr, rightStr, line
+            );
+            info.setFileName(symbolTable.getCurrentFileName());
+            info.setFilePath(symbolTable.getCurrentFilePath());
+            symbolTable.addOperationTypeInfo(info);
+        }
+    }
+
+    /**
+     * يحدد نوع operand بتعبير Jinja:
+     *   - نص حرفي "hello" → "string"
+     *   - رقم حرفي 5 → "int", 3.5 → "float"
+     *   - متغير → يبحث عن نوعه بالـ symbol table
+     */
+    private String inferJinjaOperandType(String operand) {
+        operand = operand.trim();
+
+        // نص حرفي
+        if ((operand.startsWith("\"") && operand.endsWith("\""))
+                || (operand.startsWith("'") && operand.endsWith("'"))) {
+            return "string";
+        }
+
+        // رقم حرفي
+        if (operand.matches("\\d+")) return "int";
+        if (operand.matches("\\d+\\.\\d+")) return "float";
+
+        // متغير — ناخذ أول جزء (قبل النقطة) وبنبحث عنه
+        String varName = operand.split("\\.")[0];
+        if (JINJA_BUILTINS.contains(varName) || JINJA_KEYWORDS.contains(varName)) {
+            return "unknown";
+        }
+
+        SymbolEntry entry = symbolTable.lookup(varName);
+        if (entry != null && entry.getType() != null) {
+            String type = entry.getType();
+            if ("str".equals(type)) return "string";
+            if ("none".equals(type)) return "NoneType";
+            return type;
+        }
+
+        return "unknown";
+    }
+
+    private boolean isJinjaArithmeticOp(String operator) {
+        return "+".equals(operator) || "-".equals(operator) || "*".equals(operator)
+                || "/".equals(operator) || "//".equals(operator)
+                || "%".equals(operator) || "**".equals(operator);
     }
 
 }

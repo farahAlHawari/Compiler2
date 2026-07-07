@@ -774,11 +774,12 @@ public class SymbolTableVisitor {
         // NEW: Track argument type for len() calls (Error Type checking)
         if ("len".equals(funcName) && !isMethodCall) {
             checkLenArgumentType(node);
-
-            // ===== جمع FunctionArgTypeInfo لدوال أخرى غير len() =====
-            checkBuiltinFunctionArgTypes(node);
         }
 
+        // Track argument type for other built-in functions (sum, sorted, abs, max, min, round)
+        if (!isMethodCall) {
+            checkBuiltinFunctionArgTypes(node);
+        }
         // Existing warning for undefined functions
         if (!isMethodCall) {
             SymbolEntry funcEntry = symbolTable.lookup(funcName);

@@ -216,8 +216,9 @@ public class Main {
         //  TEST: Type Error
         //  يتوقع: TypeError لكل الحالات الـ 24
         // ==============================================================
-        compilePythonOnly(
+        compileAndCheck(
                 "src/tests/test_type_error.py",
+                "tests/test_type_error.html",
                 "TEST: Type Error"
         );
 

@@ -90,3 +90,28 @@ r27 = abs(s)
 r28 = max(x)
 # حالة 29: round(str) — no __round__
 r29 = round(s)
+
+# ===== 8. Augmented Assignment (إضافية) =====
+
+# حالة 30: int %= str
+a30 = 10
+a30 %= s
+# حالة 31: str //= int
+a31 = "hello"
+a31 //= x
+# حالة 32: str **= int
+a32 = "hello"
+a32 **= x
+# حالة 33: str /= int
+a33 = "hello"
+a33 /= x
+
+# ===== 9. Jinja Arithmetic =====
+
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/test')
+def test_route():
+    return render_template("test_type_error.html", s=s, x=x)
