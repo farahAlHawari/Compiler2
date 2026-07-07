@@ -65,6 +65,8 @@ public class SymbolTable {
     private List<IndexTypeInfo> indexTypeInfos;
     private List<FunctionArgTypeInfo> functionArgTypeInfos;
 
+    private List<UnaryOpTypeInfo> unaryOpTypeInfos;
+
     private List<UnboundLocalInfo> unboundLocalInfos;
     private List<UseBeforeInitInfo> useBeforeInitInfos;
 
@@ -94,6 +96,7 @@ public class SymbolTable {
         this.operationTypeInfos = new ArrayList<>();
         this.indexTypeInfos = new ArrayList<>();
         this.functionArgTypeInfos = new ArrayList<>();
+        this.unaryOpTypeInfos = new ArrayList<>();
         this.unboundLocalInfos = new ArrayList<>();
         this.useBeforeInitInfos = new ArrayList<>();
         this.attributeAccessInfos = new ArrayList<>();
@@ -143,6 +146,9 @@ public class SymbolTable {
 
     public List<FunctionArgTypeInfo> getFunctionArgTypeInfos() { return functionArgTypeInfos; }
     public void addFunctionArgTypeInfo(FunctionArgTypeInfo info) { functionArgTypeInfos.add(info); }
+
+    public List<UnaryOpTypeInfo> getUnaryOpTypeInfos() { return unaryOpTypeInfos; }
+    public void addUnaryOpTypeInfo(UnaryOpTypeInfo info) { unaryOpTypeInfos.add(info); }
 
     public List<UnboundLocalInfo> getUnboundLocalInfos() { return unboundLocalInfos; }
     public void addUnboundLocalInfo(UnboundLocalInfo info) { unboundLocalInfos.add(info); }
@@ -413,6 +419,7 @@ public class SymbolTable {
         useBeforeInitInfos.clear();
         attributeAccessInfos.clear();
         operationOnNoneInfos.clear();
+        unaryOpTypeInfos.clear();
         enterScope("global",  "global");
     }
 
@@ -436,6 +443,7 @@ public class SymbolTable {
         useBeforeInitInfos.clear();
         attributeAccessInfos.clear();
         operationOnNoneInfos.clear();
+        unaryOpTypeInfos.clear();
     }
 
     // ==================== Printing ====================

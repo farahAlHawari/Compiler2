@@ -79,7 +79,8 @@ assignmentStmt
         ;
 
 augAssignStmt
-    : IDENTIFIER (PLUS_ASSIGN | MINUS_ASSIGN | MULT_ASSIGN | DIV_ASSIGN)
+    : IDENTIFIER (PLUS_ASSIGN | MINUS_ASSIGN | MULT_ASSIGN | DIV_ASSIGN
+                 | MOD_ASSIGN | POWER_ASSIGN | FLOOR_DIV_ASSIGN)
       expression NEWLINE
                                         #augAssignNode
     ;
@@ -192,12 +193,13 @@ arithmeticExpr
     ;
 
 term
-    : factor ((MULT | DIV | MOD | POWER) factor)*
+    : factor ((MULT | DIV | MOD | POWER | FLOOR_DIV) factor)*
                                         #termNode
     ;
 
 factor
-    : NOT factor                         #notExpr
+    : (PLUS | MINUS) factor              #unaryExpr
+    | NOT factor                         #notExpr
     | primary                            #factorPrimary
     ;
 

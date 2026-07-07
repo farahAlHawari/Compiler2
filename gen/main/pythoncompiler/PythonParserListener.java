@@ -560,6 +560,18 @@ public interface PythonParserListener extends ParseTreeListener {
 	 */
 	void exitTermNode(PythonParser.TermNodeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code unaryExpr}
+	 * labeled alternative in {@link PythonParser#factor}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnaryExpr(PythonParser.UnaryExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code unaryExpr}
+	 * labeled alternative in {@link PythonParser#factor}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnaryExpr(PythonParser.UnaryExprContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code notExpr}
 	 * labeled alternative in {@link PythonParser#factor}.
 	 * @param ctx the parse tree

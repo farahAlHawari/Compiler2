@@ -333,6 +333,13 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTermNode(PythonParser.TermNodeContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code unaryExpr}
+	 * labeled alternative in {@link PythonParser#factor}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryExpr(PythonParser.UnaryExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code notExpr}
 	 * labeled alternative in {@link PythonParser#factor}.
 	 * @param ctx the parse tree

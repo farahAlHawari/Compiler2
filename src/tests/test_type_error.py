@@ -1,9 +1,6 @@
-# ============================================================
-# Test File: Type Error Cases (OperationTypeErrorChecker)
-# Covers all testable type error scenarios
-# ============================================================
+# Type Error Test — كل الحالات
 
-# ===== تعريف متغيرات بأنواع واضحة =====
+# تعريف متغيرات
 x = 5
 y = 3
 s = "hello"
@@ -12,94 +9,84 @@ d = {"key": "value"}
 b = True
 n = None
 
-# ===== الحالة 1: str + int =====
-# بايثون: TypeError: can only concatenate str (not "int") to str
+# ===== 1. العمليات الثنائية =====
+
+# حالة 1: str + int
 r1 = s + x
-
-# ===== الحالة 2: int + str =====
-# بايثون: TypeError: unsupported operand type(s) for +: 'int' and 'str'
+# حالة 2: int + str
 r2 = x + s
+# حالة 3: list + int
+r3 = lst + x
+# حالة 4: str - int
+r4 = s - x
+# حالة 5: str / int
+r5 = s / x
+# حالة 6: str % int (formatting message)
+r6 = s % x
+# حالة 7: str * list (sequence * non-int)
+r7 = s * lst
+# حالة 8: list * str (sequence * non-int)
+r8 = lst * s
+# حالة 9: str * 2.5 (sequence * non-int)
+r9 = s * 2.5
+# حالة 10: str // int
+r10 = s // x
+# حالة 11: str ** int
+r11 = s ** x
 
-# ===== الحالة 3: str - int =====
-# بايثون: TypeError: unsupported operand type(s) for -: 'str' and 'int'
-r3 = s - x
+# ===== 2. المقارنات =====
 
-# ===== الحالة 4a: str / int =====
-# بايثون: TypeError: unsupported operand type(s) for /: 'str' and 'int'
-r4a = s / x
+# حالة 12: int < str
+r12 = x < s
+# حالة 13: str > int
+r13 = s > x
 
-# ===== الحالة 4b: str % int =====
-# بايثون: TypeError: unsupported operand type(s) for %: 'str' and 'int'
-r4b = s % x
+# ===== 3. الفهرسة =====
 
-# ===== الحالة 5: str * list (تكرار بتوع مختلفين) =====
-# بايثون: TypeError: can't multiply sequence by non-int of type 'list'
-r5 = s * lst
+# حالة 14: int[0] — not subscriptable
+r14 = x[0]
+# حالة 15: bool[0] — not subscriptable
+r15 = b[0]
+# حالة 16: None[0] — not subscriptable
+r16 = n[0]
+# حالة 17: list[str] — wrong index type
+r17 = lst[s]
 
-# ===== الحالة 6: list + int =====
-# بايثون: TypeError: can only concatenate list (not "int") to list
-r6 = lst + x
+# ===== 4. len() =====
 
-# ===== الحالة 7: list * str =====
-# بايثون: TypeError: can't multiply sequence by non-int of type 'str'
-r7 = lst * s
-
-# ===== الحالة 8: int < str =====
-# بايثون: TypeError: '<' not supported between instances of 'int' and 'str'
-r8 = x < s
-
-# ===== الحالة 9: int > str =====
-# بايثون: TypeError: '>' not supported between instances of 'int' and 'str'
-r9 = x > s
-
-# ===== الحالة 10: int <= str =====
-# بايثون: TypeError: '<=' not supported between instances of 'int' and 'str'
-r10 = x <= s
-
-# ===== الحالة 11: int >= str =====
-# بايثون: TypeError: '>=' not supported between instances of 'int' and 'str'
-r11 = x >= s
-
-# ===== الحالة 12: فهرسة على int (مش subscriptable) =====
-# بايثون: TypeError: 'int' object is not subscriptable
-r12 = x[0]
-
-# ===== الحالة 13: فهرسة على bool (مش subscriptable) =====
-# بايثون: TypeError: 'bool' object is not subscriptable
-r13 = b[0]
-
-# ===== الحالة 14: فهرسة على None =====
-# بايثون: TypeError: 'NoneType' object is not subscriptable
-r14 = n[0]
-
-# ===== الحالة 15: فهرسة list بـ string (index غلط) =====
-# بايثون: TypeError: list indices must be integers or slices, not 'str'
-r15 = lst[s]
-
-# ===== الحالة 16: فهرسة string بـ string =====
-# بايثون: TypeError: string indices must be integers, not 'str'
-r16 = s[s]
-
-# ===== الحالة 17: len() على int =====
-# بايثون: TypeError: object of type 'int' has no len()
-r17 = len(x)
-
-# ===== الحالة 18: len() على bool =====
-# بايثون: TypeError: object of type 'bool' has no len()
-r18 = len(b)
-
-# ===== الحالة 19: len() على None =====
-# بايثون: TypeError: object of type 'NoneType' has no len()
+# حالة 18: len(int)
+r18 = len(x)
+# حالة 19: len(None)
 r19 = len(n)
 
-# ===== الحالة 20: Augmented: int += str (لازم يتكشف بعد الاصلاح) =====
+# ===== 5. Unary =====
+
+# حالة 20: -"hello"
+r20 = -s
+# حالة 21: +"hello"
+r21 = +s
+
+# ===== 6. Augmented Assignment =====
+
+# حالة 22: int += str
 z = 10
 z += s
-
-# ===== الحالة 21: Augmented: str -= int (لازم يتكشف بعد الاصلاح) =====
+# حالة 23: str -= int
 w = "hello"
 w -= x
-
-# ===== الحالة 22: Augmented: list *= str (لازم يتكشف بعد الاصلاح) =====
+# حالة 24: list *= str
 m = [1, 2]
 m *= s
+
+# ===== 7. Built-in Functions =====
+
+# حالة 25: sum(int) — not iterable
+r25 = sum(x)
+# حالة 26: sorted(int) — not iterable
+r26 = sorted(x)
+# حالة 27: abs(str) — bad operand
+r27 = abs(s)
+# حالة 28: max(int) — not iterable
+r28 = max(x)
+# حالة 29: round(str) — no __round__
+r29 = round(s)

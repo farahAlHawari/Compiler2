@@ -3,6 +3,7 @@ package main.pythoncompiler.visitor;
 import main.pythoncompiler.ast.*;
 import main.pythoncompiler.grammer.main.pythoncompiler.grammer.PythonParser;
 import main.pythoncompiler.grammer.main.pythoncompiler.grammer.PythonParserBaseVisitor;
+import org.antlr.v4.runtime.misc.Interval;
 
 
 public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
@@ -352,7 +353,7 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
         // ← التعديل: تحقق إذا في type hint بالسطر الأصلي (x: int = value)
         // بما إن الـ grammar ما بيدعمها، نقرأ النص الأصلي للسطر ونستخرج النوع منه
         String originalText = ctx.start.getInputStream()
-                .getText(new org.antlr.v4.runtime.misc.Interval(
+                .getText(new Interval(
                         ctx.start.getStartIndex(),
                         ctx.stop.getStopIndex()));
         if (originalText.contains(":")) {
@@ -543,6 +544,15 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
         notNode.lineNumber = ctx.start.getLine();
         notNode.addChild(visit(ctx.factor()));
         return notNode;
+    }
+
+    @Override
+    public ASTNode visitUnaryExpr(PythonParser.UnaryExprContext ctx) {
+        String op = ctx.getChild(0).getText(); // "+" أو "-"
+        UnaryOpNode unaryNode = new UnaryOpNode(op);
+        unaryNode.lineNumber = ctx.start.getLine();
+        unaryNode.addChild(visit(ctx.factor()));
+        return unaryNode;
     }
 
 

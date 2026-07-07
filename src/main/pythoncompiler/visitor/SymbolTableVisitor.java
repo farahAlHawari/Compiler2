@@ -329,7 +329,31 @@ public class SymbolTableVisitor {
                     declaredGlobal
             );
             symbolTable.addUnboundLocalInfo(info);
+            // ===== جمع OperationTypeInfo للـ augmented assignment (Error Type) =====
+            // augmented: varName <op>= expr  ←  مكافئ لـ varName = varName <op> expr
+            String baseOp = operator.length() > 1
+                    ? operator.substring(0, operator.length() - 1) : operator;
 
+            String leftType = "unknown";
+            SymbolEntry existingForType = symbolTable.lookup(varName);
+            if (existingForType != null) {
+                leftType = existingForType.getType();
+            }
+
+            String rightDisplay = "";
+            if (!node.children.isEmpty()) {
+                rightDisplay = extractValue(node.children.get(0));
+            }
+
+            if (isArithmeticOperator(baseOp) || isComparisonOperator(baseOp)) {
+                OperationTypeInfo opInfo = new OperationTypeInfo(
+                        baseOp, leftType, inferredType,
+                        varName, rightDisplay, node.lineNumber
+                );
+                opInfo.setFileName(symbolTable.getCurrentFileName());
+                opInfo.setFilePath(symbolTable.getCurrentFilePath());
+                symbolTable.addOperationTypeInfo(opInfo);
+            }
             if (variableInCurrentScope) {
                 // المتغير معرّف محلياً في نفس السكوب → لا مشكلة، عدّل قيمته
                 inCurrentScope.setValue(value);
@@ -750,6 +774,9 @@ public class SymbolTableVisitor {
         // NEW: Track argument type for len() calls (Error Type checking)
         if ("len".equals(funcName) && !isMethodCall) {
             checkLenArgumentType(node);
+
+            // ===== جمع FunctionArgTypeInfo لدوال أخرى غير len() =====
+            checkBuiltinFunctionArgTypes(node);
         }
 
         // Existing warning for undefined functions
@@ -764,7 +791,6 @@ public class SymbolTableVisitor {
                 }
             }
         }
-
         // Visit children (arguments)
         for (ASTNode child : node.children) {
             visit(child);
@@ -901,8 +927,32 @@ private void visitBinaryOp(ASTNode node) {
     // ==================== Unary Op ====================
 
     private void visitUnaryOp(ASTNode node) {
+        // زور الأبناء الأول (عشان يسجلوا أي متغيرات)
         for (ASTNode child : node.children) {
             visit(child);
+        }
+
+        if (node instanceof UnaryOpNode) {
+            UnaryOpNode unOp = (UnaryOpNode) node;
+            String op = unOp.operator;
+
+            // بس `+` و `-` بيعطوا TypeError. `not` ما بيعطي أبداً.
+            if (!"+".equals(op) && !"-".equals(op)) return;
+
+            if (!node.children.isEmpty()) {
+                ASTNode operand = node.children.get(0);
+                String operandType = inferType(operand);
+                String operandDisplay = extractValue(operand);
+
+                if (!"unknown".equals(operandType)) {
+                    UnaryOpTypeInfo info = new UnaryOpTypeInfo(
+                            op, operandType, operandDisplay, node.lineNumber
+                    );
+                    info.setFileName(symbolTable.getCurrentFileName());
+                    info.setFilePath(symbolTable.getCurrentFilePath());
+                    symbolTable.addUnaryOpTypeInfo(info);
+                }
+            }
         }
     }
 
@@ -1321,5 +1371,45 @@ private void visitBinaryOp(ASTNode node) {
             return ((LiteralNode) node).type.toLowerCase();
         }
         return side;
+    }
+
+    /**
+     * يجمع FunctionArgTypeInfo للدوال يلي ممكن ترمي TypeError:
+     * sum, sorted, abs, max, min, round
+     */
+    private void checkBuiltinFunctionArgTypes(ASTNode node) {
+        if (!(node instanceof CallNode)) return;
+        CallNode call = (CallNode) node;
+        String funcName = call.functionName;
+
+        // الدوال يلي بنفحصها
+        java.util.Set<String> typeSensitiveBuiltins = java.util.Set.of(
+                "sum", "sorted", "abs", "max", "min", "round"
+        );
+        if (!typeSensitiveBuiltins.contains(funcName)) return;
+
+        // نفس منطق checkLenArgumentType: نلاقي أول argument
+        ASTNode argsNode = null;
+        for (ASTNode child : node.children) {
+            if ("Arguments".equals(child.nodeName)) {
+                argsNode = child;
+                break;
+            }
+        }
+        if (argsNode == null || argsNode.children.isEmpty()) return;
+
+        ASTNode firstArgWrapper = argsNode.children.get(0);
+        if (firstArgWrapper.children.isEmpty()) return;
+        ASTNode argExpr = firstArgWrapper.children.get(0);
+
+        String argType = inferType(argExpr);
+        String argDisplay = extractValue(argExpr);
+
+        FunctionArgTypeInfo info = new FunctionArgTypeInfo(
+                funcName, argType, argDisplay, node.lineNumber
+        );
+        info.setFileName(symbolTable.getCurrentFileName());
+        info.setFilePath(symbolTable.getCurrentFilePath());
+        symbolTable.addFunctionArgTypeInfo(info);
     }
 }

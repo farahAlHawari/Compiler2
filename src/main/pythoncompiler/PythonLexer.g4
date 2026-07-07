@@ -81,6 +81,9 @@ PLUS_ASSIGN : '+=';
 MINUS_ASSIGN: '-=';
 MULT_ASSIGN : '*=';
 DIV_ASSIGN  : '/=';
+MOD_ASSIGN  : '%=';
+POWER_ASSIGN: '**=';
+FLOOR_DIV_ASSIGN: '//=';
 
 EQ          : '==';
 NEQ         : '!=';
@@ -94,6 +97,7 @@ MINUS       : '-';
 POWER       : '**';
 MULT        : '*';
 DIV         : '/';
+FLOOR_DIV   : '//';
 MOD         : '%';
 
 AND         : 'and';

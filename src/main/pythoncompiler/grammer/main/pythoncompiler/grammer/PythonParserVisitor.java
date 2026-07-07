@@ -1,4 +1,4 @@
-// Generated from C:/Users/HP/Downloads/Compiler2/src/main/pythoncompiler/grammer/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from src/main/pythoncompiler/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer.main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -332,6 +332,13 @@ public interface PythonParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitTermNode(PythonParser.TermNodeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code unaryExpr}
+	 * labeled alternative in {@link PythonParser#factor}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryExpr(PythonParser.UnaryExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code notExpr}
 	 * labeled alternative in {@link PythonParser#factor}.

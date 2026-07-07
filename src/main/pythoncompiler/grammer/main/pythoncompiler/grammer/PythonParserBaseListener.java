@@ -1,6 +1,8 @@
-// Generated from C:/Users/HP/Downloads/Compiler2/src/main/pythoncompiler/grammer/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from C:/Users/maria/IdeaProjects/Compiler2/src/main/pythoncompiler/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer.main.pythoncompiler.grammer;
 
+import main.pythoncompiler.PythonParser;
+import main.pythoncompiler.PythonParserListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -17,787 +19,799 @@ public class PythonParserBaseListener implements PythonParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProgramRoot(PythonParser.ProgramRootContext ctx) { }
+	@Override public void enterProgramRoot(main.pythoncompiler.PythonParser.ProgramRootContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitProgramRoot(PythonParser.ProgramRootContext ctx) { }
+	@Override public void exitProgramRoot(main.pythoncompiler.PythonParser.ProgramRootContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterImportStmtNode(PythonParser.ImportStmtNodeContext ctx) { }
+	@Override public void enterImportStmtNode(main.pythoncompiler.PythonParser.ImportStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitImportStmtNode(PythonParser.ImportStmtNodeContext ctx) { }
+	@Override public void exitImportStmtNode(main.pythoncompiler.PythonParser.ImportStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRouteDefNode(PythonParser.RouteDefNodeContext ctx) { }
+	@Override public void enterRouteDefNode(main.pythoncompiler.PythonParser.RouteDefNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRouteDefNode(PythonParser.RouteDefNodeContext ctx) { }
+	@Override public void exitRouteDefNode(main.pythoncompiler.PythonParser.RouteDefNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx) { }
+	@Override public void enterBlockStmtWrapper(main.pythoncompiler.PythonParser.BlockStmtWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBlockStmtWrapper(PythonParser.BlockStmtWrapperContext ctx) { }
+	@Override public void exitBlockStmtWrapper(main.pythoncompiler.PythonParser.BlockStmtWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAnnotatedAssignStmtNode(PythonParser.AnnotatedAssignStmtNodeContext ctx) { }
+	@Override public void enterAnnotatedAssignStmtNode(main.pythoncompiler.PythonParser.AnnotatedAssignStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAnnotatedAssignStmtNode(PythonParser.AnnotatedAssignStmtNodeContext ctx) { }
+	@Override public void exitAnnotatedAssignStmtNode(main.pythoncompiler.PythonParser.AnnotatedAssignStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAssignStmtNode(PythonParser.AssignStmtNodeContext ctx) { }
+	@Override public void enterAssignStmtNode(main.pythoncompiler.PythonParser.AssignStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAssignStmtNode(PythonParser.AssignStmtNodeContext ctx) { }
+	@Override public void exitAssignStmtNode(main.pythoncompiler.PythonParser.AssignStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx) { }
+	@Override public void enterAugAssignStmtNode(main.pythoncompiler.PythonParser.AugAssignStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAugAssignStmtNode(PythonParser.AugAssignStmtNodeContext ctx) { }
+	@Override public void exitAugAssignStmtNode(main.pythoncompiler.PythonParser.AugAssignStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx) { }
+	@Override public void enterGlobalStmtNode(main.pythoncompiler.PythonParser.GlobalStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitGlobalStmtNode(PythonParser.GlobalStmtNodeContext ctx) { }
+	@Override public void exitGlobalStmtNode(main.pythoncompiler.PythonParser.GlobalStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx) { }
+	@Override public void enterReturnStmtNode(main.pythoncompiler.PythonParser.ReturnStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReturnStmtNode(PythonParser.ReturnStmtNodeContext ctx) { }
+	@Override public void exitReturnStmtNode(main.pythoncompiler.PythonParser.ReturnStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfStmtNode(PythonParser.IfStmtNodeContext ctx) { }
+	@Override public void enterIfStmtNode(main.pythoncompiler.PythonParser.IfStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfStmtNode(PythonParser.IfStmtNodeContext ctx) { }
+	@Override public void exitIfStmtNode(main.pythoncompiler.PythonParser.IfStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhileStmtNode(PythonParser.WhileStmtNodeContext ctx) { }
+	@Override public void enterWhileStmtNode(main.pythoncompiler.PythonParser.WhileStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWhileStmtNode(PythonParser.WhileStmtNodeContext ctx) { }
+	@Override public void exitWhileStmtNode(main.pythoncompiler.PythonParser.WhileStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterForStmtNode(PythonParser.ForStmtNodeContext ctx) { }
+	@Override public void enterForStmtNode(main.pythoncompiler.PythonParser.ForStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitForStmtNode(PythonParser.ForStmtNodeContext ctx) { }
+	@Override public void exitForStmtNode(main.pythoncompiler.PythonParser.ForStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTryStmtNode(PythonParser.TryStmtNodeContext ctx) { }
+	@Override public void enterTryStmtNode(main.pythoncompiler.PythonParser.TryStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTryStmtNode(PythonParser.TryStmtNodeContext ctx) { }
+	@Override public void exitTryStmtNode(main.pythoncompiler.PythonParser.TryStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWithStmtWrapper(PythonParser.WithStmtWrapperContext ctx) { }
+	@Override public void enterWithStmtWrapper(main.pythoncompiler.PythonParser.WithStmtWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWithStmtWrapper(PythonParser.WithStmtWrapperContext ctx) { }
+	@Override public void exitWithStmtWrapper(main.pythoncompiler.PythonParser.WithStmtWrapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunctionDefNode(PythonParser.FunctionDefNodeContext ctx) { }
+	@Override public void enterFunctionDefNode(main.pythoncompiler.PythonParser.FunctionDefNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunctionDefNode(PythonParser.FunctionDefNodeContext ctx) { }
+	@Override public void exitFunctionDefNode(main.pythoncompiler.PythonParser.FunctionDefNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterClassDefNode(PythonParser.ClassDefNodeContext ctx) { }
+	@Override public void enterClassDefNode(main.pythoncompiler.PythonParser.ClassDefNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitClassDefNode(PythonParser.ClassDefNodeContext ctx) { }
+	@Override public void exitClassDefNode(main.pythoncompiler.PythonParser.ClassDefNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterControlStmtNode(PythonParser.ControlStmtNodeContext ctx) { }
+	@Override public void enterControlStmtNode(main.pythoncompiler.PythonParser.ControlStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitControlStmtNode(PythonParser.ControlStmtNodeContext ctx) { }
+	@Override public void exitControlStmtNode(main.pythoncompiler.PythonParser.ControlStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprStmtNode(PythonParser.ExprStmtNodeContext ctx) { }
+	@Override public void enterExprStmtNode(main.pythoncompiler.PythonParser.ExprStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprStmtNode(PythonParser.ExprStmtNodeContext ctx) { }
+	@Override public void exitExprStmtNode(main.pythoncompiler.PythonParser.ExprStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEmptyStmtNode(PythonParser.EmptyStmtNodeContext ctx) { }
+	@Override public void enterEmptyStmtNode(main.pythoncompiler.PythonParser.EmptyStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEmptyStmtNode(PythonParser.EmptyStmtNodeContext ctx) { }
+	@Override public void exitEmptyStmtNode(main.pythoncompiler.PythonParser.EmptyStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTryExceptNode(PythonParser.TryExceptNodeContext ctx) { }
+	@Override public void enterTryExceptNode(main.pythoncompiler.PythonParser.TryExceptNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTryExceptNode(PythonParser.TryExceptNodeContext ctx) { }
+	@Override public void exitTryExceptNode(main.pythoncompiler.PythonParser.TryExceptNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWithStmtNode(PythonParser.WithStmtNodeContext ctx) { }
+	@Override public void enterWithStmtNode(main.pythoncompiler.PythonParser.WithStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWithStmtNode(PythonParser.WithStmtNodeContext ctx) { }
+	@Override public void exitWithStmtNode(main.pythoncompiler.PythonParser.WithStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEmptyLine(PythonParser.EmptyLineContext ctx) { }
+	@Override public void enterEmptyLine(main.pythoncompiler.PythonParser.EmptyLineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEmptyLine(PythonParser.EmptyLineContext ctx) { }
+	@Override public void exitEmptyLine(main.pythoncompiler.PythonParser.EmptyLineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFromImportNode(PythonParser.FromImportNodeContext ctx) { }
+	@Override public void enterFromImportNode(main.pythoncompiler.PythonParser.FromImportNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFromImportNode(PythonParser.FromImportNodeContext ctx) { }
+	@Override public void exitFromImportNode(main.pythoncompiler.PythonParser.FromImportNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSimpleAssignNode(PythonParser.SimpleAssignNodeContext ctx) { }
+	@Override public void enterSimpleAssignNode(main.pythoncompiler.PythonParser.SimpleAssignNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSimpleAssignNode(PythonParser.SimpleAssignNodeContext ctx) { }
+	@Override public void exitSimpleAssignNode(main.pythoncompiler.PythonParser.SimpleAssignNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx) { }
+	@Override public void enterAnnotatedAssignNode(main.pythoncompiler.PythonParser.AnnotatedAssignNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAnnotatedAssignNode(PythonParser.AnnotatedAssignNodeContext ctx) { }
+	@Override public void exitAnnotatedAssignNode(main.pythoncompiler.PythonParser.AnnotatedAssignNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAugAssignNode(PythonParser.AugAssignNodeContext ctx) { }
+	@Override public void enterAugAssignNode(main.pythoncompiler.PythonParser.AugAssignNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAugAssignNode(PythonParser.AugAssignNodeContext ctx) { }
+	@Override public void exitAugAssignNode(main.pythoncompiler.PythonParser.AugAssignNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterGlobalDeclNode(PythonParser.GlobalDeclNodeContext ctx) { }
+	@Override public void enterGlobalDeclNode(main.pythoncompiler.PythonParser.GlobalDeclNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitGlobalDeclNode(PythonParser.GlobalDeclNodeContext ctx) { }
+	@Override public void exitGlobalDeclNode(main.pythoncompiler.PythonParser.GlobalDeclNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDecoratedFunctionNode(PythonParser.DecoratedFunctionNodeContext ctx) { }
+	@Override public void enterDecoratedFunctionNode(main.pythoncompiler.PythonParser.DecoratedFunctionNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDecoratedFunctionNode(PythonParser.DecoratedFunctionNodeContext ctx) { }
+	@Override public void exitDecoratedFunctionNode(main.pythoncompiler.PythonParser.DecoratedFunctionNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDecoratorNode(PythonParser.DecoratorNodeContext ctx) { }
+	@Override public void enterDecoratorNode(main.pythoncompiler.PythonParser.DecoratorNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDecoratorNode(PythonParser.DecoratorNodeContext ctx) { }
+	@Override public void exitDecoratorNode(main.pythoncompiler.PythonParser.DecoratorNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunctionNode(PythonParser.FunctionNodeContext ctx) { }
+	@Override public void enterFunctionNode(main.pythoncompiler.PythonParser.FunctionNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunctionNode(PythonParser.FunctionNodeContext ctx) { }
+	@Override public void exitFunctionNode(main.pythoncompiler.PythonParser.FunctionNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParamListNode(PythonParser.ParamListNodeContext ctx) { }
+	@Override public void enterParamListNode(main.pythoncompiler.PythonParser.ParamListNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParamListNode(PythonParser.ParamListNodeContext ctx) { }
+	@Override public void exitParamListNode(main.pythoncompiler.PythonParser.ParamListNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterClassNode(PythonParser.ClassNodeContext ctx) { }
+	@Override public void enterClassNode(main.pythoncompiler.PythonParser.ClassNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitClassNode(PythonParser.ClassNodeContext ctx) { }
+	@Override public void exitClassNode(main.pythoncompiler.PythonParser.ClassNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlockNode(PythonParser.BlockNodeContext ctx) { }
+	@Override public void enterBlockNode(main.pythoncompiler.PythonParser.BlockNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBlockNode(PythonParser.BlockNodeContext ctx) { }
+	@Override public void exitBlockNode(main.pythoncompiler.PythonParser.BlockNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIfElseNode(PythonParser.IfElseNodeContext ctx) { }
+	@Override public void enterIfElseNode(main.pythoncompiler.PythonParser.IfElseNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIfElseNode(PythonParser.IfElseNodeContext ctx) { }
+	@Override public void exitIfElseNode(main.pythoncompiler.PythonParser.IfElseNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhileNode(PythonParser.WhileNodeContext ctx) { }
+	@Override public void enterWhileNode(main.pythoncompiler.PythonParser.WhileNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWhileNode(PythonParser.WhileNodeContext ctx) { }
+	@Override public void exitWhileNode(main.pythoncompiler.PythonParser.WhileNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterForNode(PythonParser.ForNodeContext ctx) { }
+	@Override public void enterForNode(main.pythoncompiler.PythonParser.ForNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitForNode(PythonParser.ForNodeContext ctx) { }
+	@Override public void exitForNode(main.pythoncompiler.PythonParser.ForNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPassNode(PythonParser.PassNodeContext ctx) { }
+	@Override public void enterPassNode(main.pythoncompiler.PythonParser.PassNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitPassNode(PythonParser.PassNodeContext ctx) { }
+	@Override public void exitPassNode(main.pythoncompiler.PythonParser.PassNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBreakNode(PythonParser.BreakNodeContext ctx) { }
+	@Override public void enterBreakNode(main.pythoncompiler.PythonParser.BreakNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBreakNode(PythonParser.BreakNodeContext ctx) { }
+	@Override public void exitBreakNode(main.pythoncompiler.PythonParser.BreakNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterContinueNode(PythonParser.ContinueNodeContext ctx) { }
+	@Override public void enterContinueNode(main.pythoncompiler.PythonParser.ContinueNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitContinueNode(PythonParser.ContinueNodeContext ctx) { }
+	@Override public void exitContinueNode(main.pythoncompiler.PythonParser.ContinueNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturnNode(PythonParser.ReturnNodeContext ctx) { }
+	@Override public void enterReturnNode(main.pythoncompiler.PythonParser.ReturnNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReturnNode(PythonParser.ReturnNodeContext ctx) { }
+	@Override public void exitReturnNode(main.pythoncompiler.PythonParser.ReturnNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpressionStmtNode(PythonParser.ExpressionStmtNodeContext ctx) { }
+	@Override public void enterExpressionStmtNode(main.pythoncompiler.PythonParser.ExpressionStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpressionStmtNode(PythonParser.ExpressionStmtNodeContext ctx) { }
+	@Override public void exitExpressionStmtNode(main.pythoncompiler.PythonParser.ExpressionStmtNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpressionRoot(PythonParser.ExpressionRootContext ctx) { }
+	@Override public void enterExpressionRoot(main.pythoncompiler.PythonParser.ExpressionRootContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpressionRoot(PythonParser.ExpressionRootContext ctx) { }
+	@Override public void exitExpressionRoot(main.pythoncompiler.PythonParser.ExpressionRootContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogicalExprNode(PythonParser.LogicalExprNodeContext ctx) { }
+	@Override public void enterLogicalExprNode(main.pythoncompiler.PythonParser.LogicalExprNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogicalExprNode(PythonParser.LogicalExprNodeContext ctx) { }
+	@Override public void exitLogicalExprNode(main.pythoncompiler.PythonParser.LogicalExprNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComparisonExprNode(PythonParser.ComparisonExprNodeContext ctx) { }
+	@Override public void enterComparisonExprNode(main.pythoncompiler.PythonParser.ComparisonExprNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparisonExprNode(PythonParser.ComparisonExprNodeContext ctx) { }
+	@Override public void exitComparisonExprNode(main.pythoncompiler.PythonParser.ComparisonExprNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExprNode(PythonParser.ArithmeticExprNodeContext ctx) { }
+	@Override public void enterArithmeticExprNode(main.pythoncompiler.PythonParser.ArithmeticExprNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExprNode(PythonParser.ArithmeticExprNodeContext ctx) { }
+	@Override public void exitArithmeticExprNode(main.pythoncompiler.PythonParser.ArithmeticExprNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTermNode(PythonParser.TermNodeContext ctx) { }
+	@Override public void enterTermNode(main.pythoncompiler.PythonParser.TermNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTermNode(PythonParser.TermNodeContext ctx) { }
+	@Override public void exitTermNode(main.pythoncompiler.PythonParser.TermNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNotExpr(PythonParser.NotExprContext ctx) { }
+	@Override public void enterUnaryExpr(main.pythoncompiler.PythonParser.UnaryExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNotExpr(PythonParser.NotExprContext ctx) { }
+	@Override public void exitUnaryExpr(main.pythoncompiler.PythonParser.UnaryExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFactorPrimary(PythonParser.FactorPrimaryContext ctx) { }
+	@Override public void enterNotExpr(main.pythoncompiler.PythonParser.NotExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFactorPrimary(PythonParser.FactorPrimaryContext ctx) { }
+	@Override public void exitNotExpr(main.pythoncompiler.PythonParser.NotExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStringExpr(PythonParser.StringExprContext ctx) { }
+	@Override public void enterFactorPrimary(main.pythoncompiler.PythonParser.FactorPrimaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStringExpr(PythonParser.StringExprContext ctx) { }
+	@Override public void exitFactorPrimary(main.pythoncompiler.PythonParser.FactorPrimaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIndexExpr(PythonParser.IndexExprContext ctx) { }
+	@Override public void enterStringExpr(main.pythoncompiler.PythonParser.StringExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIndexExpr(PythonParser.IndexExprContext ctx) { }
+	@Override public void exitStringExpr(main.pythoncompiler.PythonParser.StringExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTrueExpr(PythonParser.TrueExprContext ctx) { }
+	@Override public void enterIndexExpr(main.pythoncompiler.PythonParser.IndexExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTrueExpr(PythonParser.TrueExprContext ctx) { }
+	@Override public void exitIndexExpr(main.pythoncompiler.PythonParser.IndexExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNumberExpr(PythonParser.NumberExprContext ctx) { }
+	@Override public void enterTrueExpr(main.pythoncompiler.PythonParser.TrueExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumberExpr(PythonParser.NumberExprContext ctx) { }
+	@Override public void exitTrueExpr(main.pythoncompiler.PythonParser.TrueExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNoneExpr(PythonParser.NoneExprContext ctx) { }
+	@Override public void enterNumberExpr(main.pythoncompiler.PythonParser.NumberExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNoneExpr(PythonParser.NoneExprContext ctx) { }
+	@Override public void exitNumberExpr(main.pythoncompiler.PythonParser.NumberExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAttributeExpr(PythonParser.AttributeExprContext ctx) { }
+	@Override public void enterNoneExpr(main.pythoncompiler.PythonParser.NoneExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAttributeExpr(PythonParser.AttributeExprContext ctx) { }
+	@Override public void exitNoneExpr(main.pythoncompiler.PythonParser.NoneExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFalseExpr(PythonParser.FalseExprContext ctx) { }
+	@Override public void enterAttributeExpr(main.pythoncompiler.PythonParser.AttributeExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFalseExpr(PythonParser.FalseExprContext ctx) { }
+	@Override public void exitAttributeExpr(main.pythoncompiler.PythonParser.AttributeExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDictExpr(PythonParser.DictExprContext ctx) { }
+	@Override public void enterFalseExpr(main.pythoncompiler.PythonParser.FalseExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDictExpr(PythonParser.DictExprContext ctx) { }
+	@Override public void exitFalseExpr(main.pythoncompiler.PythonParser.FalseExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCallExpr(PythonParser.CallExprContext ctx) { }
+	@Override public void enterDictExpr(main.pythoncompiler.PythonParser.DictExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCallExpr(PythonParser.CallExprContext ctx) { }
+	@Override public void exitDictExpr(main.pythoncompiler.PythonParser.DictExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterListExpr(PythonParser.ListExprContext ctx) { }
+	@Override public void enterCallExpr(main.pythoncompiler.PythonParser.CallExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitListExpr(PythonParser.ListExprContext ctx) { }
+	@Override public void exitCallExpr(main.pythoncompiler.PythonParser.CallExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParenExpr(PythonParser.ParenExprContext ctx) { }
+	@Override public void enterListExpr(main.pythoncompiler.PythonParser.ListExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParenExpr(PythonParser.ParenExprContext ctx) { }
+	@Override public void exitListExpr(main.pythoncompiler.PythonParser.ListExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIdentifierExpr(PythonParser.IdentifierExprContext ctx) { }
+	@Override public void enterParenExpr(main.pythoncompiler.PythonParser.ParenExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIdentifierExpr(PythonParser.IdentifierExprContext ctx) { }
+	@Override public void exitParenExpr(main.pythoncompiler.PythonParser.ParenExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterListLiteralNode(PythonParser.ListLiteralNodeContext ctx) { }
+	@Override public void enterIdentifierExpr(main.pythoncompiler.PythonParser.IdentifierExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitListLiteralNode(PythonParser.ListLiteralNodeContext ctx) { }
+	@Override public void exitIdentifierExpr(main.pythoncompiler.PythonParser.IdentifierExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDictLiteralNode(PythonParser.DictLiteralNodeContext ctx) { }
+	@Override public void enterListLiteralNode(main.pythoncompiler.PythonParser.ListLiteralNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDictLiteralNode(PythonParser.DictLiteralNodeContext ctx) { }
+	@Override public void exitListLiteralNode(main.pythoncompiler.PythonParser.ListLiteralNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDictEntryNode(PythonParser.DictEntryNodeContext ctx) { }
+	@Override public void enterDictLiteralNode(main.pythoncompiler.PythonParser.DictLiteralNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDictEntryNode(PythonParser.DictEntryNodeContext ctx) { }
+	@Override public void exitDictLiteralNode(main.pythoncompiler.PythonParser.DictLiteralNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArgListNode(PythonParser.ArgListNodeContext ctx) { }
+	@Override public void enterDictEntryNode(main.pythoncompiler.PythonParser.DictEntryNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArgListNode(PythonParser.ArgListNodeContext ctx) { }
+	@Override public void exitDictEntryNode(main.pythoncompiler.PythonParser.DictEntryNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNamedArgNode(PythonParser.NamedArgNodeContext ctx) { }
+	@Override public void enterArgListNode(main.pythoncompiler.PythonParser.ArgListNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNamedArgNode(PythonParser.NamedArgNodeContext ctx) { }
+	@Override public void exitArgListNode(main.pythoncompiler.PythonParser.ArgListNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPositionalArgNode(PythonParser.PositionalArgNodeContext ctx) { }
+	@Override public void enterNamedArgNode(main.pythoncompiler.PythonParser.NamedArgNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNamedArgNode(main.pythoncompiler.PythonParser.NamedArgNodeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPositionalArgNode(main.pythoncompiler.PythonParser.PositionalArgNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -1,4 +1,4 @@
-// Generated from C:/Users/HP/Downloads/Compiler2/src/main/pythoncompiler/grammer/main/pythoncompiler/grammer/PythonParser.g4 by ANTLR 4.13.2
+// Generated from src/main/pythoncompiler/PythonParser.g4 by ANTLR 4.13.2
 package main.pythoncompiler.grammer.main.pythoncompiler.grammer;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -334,6 +334,13 @@ public class PythonParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> impl
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitTermNode(PythonParser.TermNodeContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitUnaryExpr(PythonParser.UnaryExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
