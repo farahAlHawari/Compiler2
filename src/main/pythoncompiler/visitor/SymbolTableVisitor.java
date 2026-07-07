@@ -347,7 +347,7 @@ public class SymbolTableVisitor {
 
             if (isArithmeticOperator(baseOp) || isComparisonOperator(baseOp)) {
                 OperationTypeInfo opInfo = new OperationTypeInfo(
-                        baseOp, leftType, inferredType,
+                        operator, leftType, inferredType,   // ← operator الكامل بدل baseOp
                         varName, rightDisplay, node.lineNumber
                 );
                 opInfo.setFileName(symbolTable.getCurrentFileName());

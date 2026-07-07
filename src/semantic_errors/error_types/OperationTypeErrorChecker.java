@@ -1,230 +1,3 @@
-//package semantic_errors.error_types;
-//
-//import semantic_errors.SemanticError;
-//import semantic_errors.SemanticErrorType;
-//import symbol_table.*;
-//
-//import java.util.List;
-//import java.util.Set;
-//
-///**
-// * Checks for "Error Type" semantic errors: operations performed between
-// * two incompatible types, mirroring Python's real TypeError behavior.
-// *
-// * Covers:
-// *   - Arithmetic operators (+, -, *, /, %) between incompatible types
-// *   - Comparison operators (<, >, <=, >=) between incompatible types
-// *     (== and != are intentionally excluded — they never raise TypeError in Python)
-// *   - Indexing a non-subscriptable object, or with the wrong index type
-// *   - len() called on a non-sized object
-// *
-// * Note: 'and'/'or'/'not' are NOT checked — Python evaluates them by
-// * truthiness, never raising TypeError regardless of operand types.
-// *
-// * Note: operands of type "none" are skipped — that's OperationOnNoneChecker's
-// * job. Operands of type "unknown" are skipped — not enough info to be sure.
-// */
-//public class OperationTypeErrorChecker {
-//
-//    private SymbolTable symbolTable;
-//    private List<SemanticError> errors;
-//
-//    private static final Set<String> NUMERIC_TYPES =
-//            Set.of("int", "float", "bool");
-//    private static final Set<String> SUBSCRIPTABLE_TYPES =
-//            Set.of("string", "list", "dict");
-//    private static final Set<String> SIZED_TYPES =
-//            Set.of("string", "list", "dict", "tuple", "set");
-//
-//    public OperationTypeErrorChecker(SymbolTable symbolTable, List<SemanticError> errors) {
-//        this.symbolTable = symbolTable;
-//        this.errors = errors;
-//    }
-//
-//    public void check() {
-//        checkOperationTypes();
-//        checkIndexTypes();
-//        checkLenCalls();
-//    }
-//
-//    // ===== حالات 1، 2، 3، 5، 6: عمليات حسابية ومقارنة =====
-//    private void checkOperationTypes() {
-//        for (OperationTypeInfo info : symbolTable.getOperationTypeInfos()) {
-//            String operator = info.getOperator();
-//            String leftType = normalize(info.getLeftType());
-//            String rightType = normalize(info.getRightType());
-//
-//            if ("unknown".equals(leftType) || "unknown".equals(rightType)) continue;
-//
-//            // العمليات الحسابية مع None هي مسؤولية OperationOnNoneChecker — نتجاهلها
-//            // هون لتفادي تكرار نفس الخطأ مرتين. المقارنة مع None مش مغطاة بأي مكان
-//            // تاني (checkOperationOnNone بتفحص العمليات الحسابية فقط)، فلازم نفحصها هون.
-//            if (isArithmeticOperator(operator)
-//                    && ("none".equals(leftType) || "none".equals(rightType))) {
-//                continue;
-//            }
-//
-//            if (!isCompatible(operator, leftType, rightType)) {
-//                String message = buildOperationErrorMessage(operator, leftType, rightType);
-//                String expr = info.getLeftOperand() + " " + operator + " " + info.getRightOperand();
-//
-//                errors.add(new SemanticError(
-//                        SemanticErrorType.OPERATION_TYPE_ERROR,
-//                        "TypeError",
-//                        message,
-//                        info.getLine(),
-//                        info.getFileName(),
-//                        expr,
-//                        expr,
-//                        SourceFileReader.getLine(info.getFilePath(), info.getLine())
-//                ));
-//            }
-//        }
-//    }
-//
-//    // ===== حالة 7: الفهرسة =====
-//    private void checkIndexTypes() {
-//        for (IndexTypeInfo info : symbolTable.getIndexTypeInfos()) {
-//            String containerType = normalize(info.getContainerType());
-//            String indexType = normalize(info.getIndexType());
-//
-//            // هون بس نتجاهل "unknown" — "none" لازم تنفحص لأنه مش مغطاة بأي checker تاني
-//            if ("unknown".equals(containerType)) continue;
-//
-//            String expr = info.getContainerDisplay() + "[" + info.getIndexDisplay() + "]";
-//
-//            if (!SUBSCRIPTABLE_TYPES.contains(containerType)) {
-//                errors.add(new SemanticError(
-//                        SemanticErrorType.OPERATION_TYPE_ERROR,
-//                        "TypeError",
-//                        "'" + containerType + "' object is not subscriptable",
-//                        info.getLine(),
-//                        info.getFileName(),
-//                        info.getContainerDisplay(),
-//                        expr,
-//                        SourceFileReader.getLine(info.getFilePath(), info.getLine())
-//                ));
-//                continue;
-//            }
-//
-//            boolean isDict = "dict".equals(containerType);
-//            if (!isDict && !"unknown".equals(indexType) && !"int".equals(indexType)) {
-//                errors.add(new SemanticError(
-//                        SemanticErrorType.OPERATION_TYPE_ERROR,
-//                        "TypeError",
-//                        containerType + " indices must be integers, not '" + indexType + "'",
-//                        info.getLine(),
-//                        info.getFileName(),
-//                        info.getContainerDisplay(),
-//                        expr,
-//                        SourceFileReader.getLine(info.getFilePath(), info.getLine())
-//                ));
-//            }
-//        }
-//    }
-//
-//    // ===== حالة 4: len() على نوع مش قابل للقياس =====
-//    private void checkLenCalls() {
-//        for (FunctionArgTypeInfo info : symbolTable.getFunctionArgTypeInfos()) {
-//            if (!"len".equals(info.getFunctionName())) continue;
-//
-//            String argType = normalize(info.getArgType());
-//            // هون بس "unknown" — len(None) فعلاً TypeError حقيقي ببايثون ولازم ينكشف
-//            if ("unknown".equals(argType)) continue;
-//
-//            if (!SIZED_TYPES.contains(argType)) {
-//                errors.add(new SemanticError(
-//                        SemanticErrorType.OPERATION_TYPE_ERROR,
-//                        "TypeError",
-//                        "object of type '" + argType + "' has no len()",
-//                        info.getLine(),
-//                        info.getFileName(),
-//                        info.getArgDisplay(),
-//                        "len(" + info.getArgDisplay() + ")",
-//                        SourceFileReader.getLine(info.getFilePath(), info.getLine())
-//                ));
-//            }
-//        }
-//    }
-//
-//    // ==================== Type Compatibility Table ====================
-//
-//    private boolean isCompatible(String operator, String leftType, String rightType) {
-//        switch (operator) {
-//            case "+":
-//                if (isNumeric(leftType) && isNumeric(rightType)) return true;
-//                if ("string".equals(leftType) && "string".equals(rightType)) return true;
-//                if ("list".equals(leftType) && "list".equals(rightType)) return true;
-//                return false;
-//
-//            case "-":
-//                return isNumeric(leftType) && isNumeric(rightType);
-//
-//            case "*":
-//                if (isNumeric(leftType) && isNumeric(rightType)) return true;
-//                // تكرار: (string أو list) * (int أو bool) بأي ترتيب
-//                if (isRepeatable(leftType) && isRepeatCount(rightType)) return true;
-//                if (isRepeatable(rightType) && isRepeatCount(leftType)) return true;
-//                return false;
-//
-//            case "/":
-//            case "%":
-//            case "**":
-//                return isNumeric(leftType) && isNumeric(rightType);
-//
-//            case "<":
-//            case ">":
-//            case "<=":
-//            case ">=":
-//                if (isNumeric(leftType) && isNumeric(rightType)) return true;
-//                if ("string".equals(leftType) && "string".equals(rightType)) return true;
-//                if ("list".equals(leftType) && "list".equals(rightType)) return true;
-//                return false;
-//
-//            default:
-//                return true;
-//        }
-//    }
-//
-//    private boolean isNumeric(String type) {
-//        return NUMERIC_TYPES.contains(type);
-//    }
-//
-//    private boolean isRepeatable(String type) {
-//        return "string".equals(type) || "list".equals(type);
-//    }
-//
-//    private boolean isRepeatCount(String type) {
-//        return "int".equals(type) || "bool".equals(type);
-//    }
-//
-//
-//    /** يوحّد "str" و"string" لنفس القيمة عشان الفحص يكون متسق */
-//    private String normalize(String type) {
-//        if (type == null) return "unknown";
-//        if ("str".equals(type)) return "string";
-//        return type;
-//    }
-//
-//    private String buildOperationErrorMessage(String operator, String leftType, String rightType) {
-//        if (isComparisonOperator(operator)) {
-//            return "'" + operator + "' not supported between instances of '"
-//                    + leftType + "' and '" + rightType + "'";
-//        }
-//        return "unsupported operand type(s) for " + operator + ": '"
-//                + leftType + "' and '" + rightType + "'";
-//    }
-//
-//    private boolean isComparisonOperator(String operator) {
-//        return "<".equals(operator) || ">".equals(operator)
-//                || "<=".equals(operator) || ">=".equals(operator);
-//    }
-//
-//    private boolean isArithmeticOperator(String operator) {
-//        return "+".equals(operator) || "-".equals(operator) || "*".equals(operator)
-//                || "/".equals(operator) || "%".equals(operator) || "**".equals(operator);
-//    }
-//}
 package semantic_errors.error_types;
 
 import semantic_errors.SemanticError;
@@ -246,6 +19,16 @@ public class OperationTypeErrorChecker {
     private static final Set<String> SIZED_TYPES =
             Set.of("string", "list", "dict", "tuple", "set");
 
+    // ===== جديد: تحويل عامل augmented (//=) لعامله الأساسي (//) =====
+    private static final java.util.Map<String, String> AUGMENTED_TO_BASE = java.util.Map.of(
+            "+=", "+", "-=", "-", "*=", "*", "/=", "/",
+            "%=", "%", "**=", "**", "//=", "//"
+    );
+
+    private String stripAugmented(String operator) {
+        return AUGMENTED_TO_BASE.getOrDefault(operator, operator);
+    }
+
     public OperationTypeErrorChecker(SymbolTable symbolTable, List<SemanticError> errors) {
         this.symbolTable = symbolTable;
         this.errors = errors;
@@ -263,18 +46,19 @@ public class OperationTypeErrorChecker {
     private void checkOperationTypes() {
         for (OperationTypeInfo info : symbolTable.getOperationTypeInfos()) {
             String operator = info.getOperator();
+            String baseOperator = stripAugmented(operator);
             String leftType = normalize(info.getLeftType());
             String rightType = normalize(info.getRightType());
 
             if ("unknown".equals(leftType) || "unknown".equals(rightType)) continue;
 
             // العمليات الحسابية مع NoneType مسؤولية OperationOnNoneChecker
-            if (isArithmeticOperator(operator)
+            if (isArithmeticOperator(baseOperator)
                     && ("NoneType".equals(leftType) || "NoneType".equals(rightType))) {
                 continue;
             }
 
-            if (!isCompatible(operator, leftType, rightType)) {
+            if (!isCompatible(baseOperator, leftType, rightType)) {
                 String message = buildOperationErrorMessage(operator, leftType, rightType);
                 String expr = info.getLeftOperand() + " " + operator + " " + info.getRightOperand();
 
@@ -394,7 +178,7 @@ public class OperationTypeErrorChecker {
                 case "max":
                 case "min":
                     // هالدول بتحتاج iterable (list, string, dict, tuple, set)
-                    if (!SIZED_TYPES.contains(argType) && !"NoneType".equals(argType)) {
+                    if (!SIZED_TYPES.contains(argType)) {
                         errors.add(new SemanticError(
                                 SemanticErrorType.OPERATION_TYPE_ERROR,
                                 "TypeError",
@@ -444,7 +228,8 @@ public class OperationTypeErrorChecker {
     // ==================== Type Compatibility ====================
 
     private boolean isCompatible(String operator, String leftType, String rightType) {
-        switch (operator) {
+        String op = stripAugmented(operator);
+        switch (op) {
             case "+":
                 if (isNumeric(leftType) && isNumeric(rightType)) return true;
                 if ("string".equals(leftType) && "string".equals(rightType)) return true;
@@ -498,13 +283,23 @@ public class OperationTypeErrorChecker {
     }
 
     private String buildOperationErrorMessage(String operator, String leftType, String rightType) {
+        String baseOperator = stripAugmented(operator);
+
         // خاص: str % anything → رسالة formatting
-        if ("%".equals(operator) && "string".equals(leftType)) {
+        if ("%".equals(baseOperator) && "string".equals(leftType)) {
             return "not all arguments converted during string formatting";
         }
 
+        // خاص جديد: + مع str/list بالطرف الأيسر → رسالة concatenate
+        if ("+".equals(baseOperator) && ("string".equals(leftType) || "list".equals(leftType))) {
+            String leftDisplayType = leftType.equals("string") ? "str" : leftType;
+            String rightDisplayType = rightType.equals("string") ? "str" : rightType;
+            return "can only concatenate " + leftDisplayType
+                    + " (not \"" + rightDisplayType + "\") to " + leftDisplayType;
+        }
+
         // خاص: * مع sequence و non-int
-        if ("*".equals(operator)) {
+        if ("*".equals(baseOperator)) {
             boolean leftSeq = isRepeatable(leftType);
             boolean rightSeq = isRepeatable(rightType);
             if (leftSeq && !isRepeatCount(rightType)) {
@@ -515,11 +310,14 @@ public class OperationTypeErrorChecker {
             }
         }
 
-        if (isComparisonOperator(operator)) {
+        if (isComparisonOperator(baseOperator)) {
             return "'" + operator + "' not supported between instances of '"
                     + leftType + "' and '" + rightType + "'";
         }
-        return "unsupported operand type(s) for " + operator + ": '"
+
+        // خاص جديد: ** بيحتاج "or pow()" زيادة عن العامل
+        String displayOperator = "**".equals(baseOperator) ? "** or pow()" : operator;
+        return "unsupported operand type(s) for " + displayOperator + ": '"
                 + leftType + "' and '" + rightType + "'";
     }
 
@@ -533,4 +331,6 @@ public class OperationTypeErrorChecker {
                 || "/".equals(operator) || "%".equals(operator)
                 || "**".equals(operator) || "//".equals(operator);
     }
+
+
 }

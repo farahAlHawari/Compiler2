@@ -10,7 +10,7 @@ Line      : 15
 Variable  : s + x
 Expression: s + x
 Code      : r1 = s + x
-Message   : unsupported operand type(s) for +: 'string' and 'int'
+Message   : can only concatenate str (not "int") to str
 
 -------------------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ Line      : 19
 Variable  : lst + x
 Expression: lst + x
 Code      : r3 = lst + x
-Message   : unsupported operand type(s) for +: 'list' and 'int'
+Message   : can only concatenate list (not "int") to list
 
 -------------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ Line      : 35
 Variable  : s ** x
 Expression: s ** x
 Code      : r11 = s ** x
-Message   : unsupported operand type(s) for **: 'string' and 'int'
+Message   : unsupported operand type(s) for ** or pow(): 'string' and 'int'
 
 -------------------------------------------------------------------------------
 
@@ -137,28 +137,28 @@ Message   : '>' not supported between instances of 'string' and 'int'
 [14] TypeError
 File      : test_type_error.py
 Line      : 73
-Variable  : z + s
-Expression: z + s
+Variable  : z += s
+Expression: z += s
 Code      : z += s
-Message   : unsupported operand type(s) for +: 'int' and 'string'
+Message   : unsupported operand type(s) for +=: 'int' and 'string'
 
 -------------------------------------------------------------------------------
 
 [15] TypeError
 File      : test_type_error.py
 Line      : 76
-Variable  : w - x
-Expression: w - x
+Variable  : w -= x
+Expression: w -= x
 Code      : w -= x
-Message   : unsupported operand type(s) for -: 'string' and 'int'
+Message   : unsupported operand type(s) for -=: 'string' and 'int'
 
 -------------------------------------------------------------------------------
 
 [16] TypeError
 File      : test_type_error.py
 Line      : 79
-Variable  : m * s
-Expression: m * s
+Variable  : m *= s
+Expression: m *= s
 Code      : m *= s
 Message   : can't multiply sequence by non-int of type 'string'
 
@@ -167,40 +167,40 @@ Message   : can't multiply sequence by non-int of type 'string'
 [17] TypeError
 File      : test_type_error.py
 Line      : 98
-Variable  : a30 % s
-Expression: a30 % s
+Variable  : a30 %= s
+Expression: a30 %= s
 Code      : a30 %= s
-Message   : unsupported operand type(s) for %: 'int' and 'string'
+Message   : unsupported operand type(s) for %=: 'int' and 'string'
 
 -------------------------------------------------------------------------------
 
 [18] TypeError
 File      : test_type_error.py
 Line      : 101
-Variable  : a31 // x
-Expression: a31 // x
+Variable  : a31 //= x
+Expression: a31 //= x
 Code      : a31 //= x
-Message   : unsupported operand type(s) for //: 'string' and 'int'
+Message   : unsupported operand type(s) for //=: 'string' and 'int'
 
 -------------------------------------------------------------------------------
 
 [19] TypeError
 File      : test_type_error.py
 Line      : 104
-Variable  : a32 ** x
-Expression: a32 ** x
+Variable  : a32 **= x
+Expression: a32 **= x
 Code      : a32 **= x
-Message   : unsupported operand type(s) for **: 'string' and 'int'
+Message   : unsupported operand type(s) for ** or pow(): 'string' and 'int'
 
 -------------------------------------------------------------------------------
 
 [20] TypeError
 File      : test_type_error.py
 Line      : 107
-Variable  : a33 / x
-Expression: a33 / x
+Variable  : a33 /= x
+Expression: a33 /= x
 Code      : a33 /= x
-Message   : unsupported operand type(s) for /: 'string' and 'int'
+Message   : unsupported operand type(s) for /=: 'string' and 'int'
 
 -------------------------------------------------------------------------------
 
@@ -210,7 +210,7 @@ Line      : 9
 Variable  : s + x
 Expression: s + x
 Code      : <p>{{ s + x }}</p>
-Message   : unsupported operand type(s) for +: 'string' and 'int'
+Message   : can only concatenate str (not "int") to str
 
 -------------------------------------------------------------------------------
 
