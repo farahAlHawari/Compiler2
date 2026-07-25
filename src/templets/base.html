@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Compiler Project</title>
+    <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #e0e0e0;
+           font-family: Tahoma, Verdana, sans-serif;
+        }
+
+
+        header {
+            background-color: #1f1f1f;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+              box-shadow: 0 2px 5px  #00000080;
+        }
+
+        h1 {
+            margin: 0;
+            color: #ff4081;
+            font-size: 24px;
+        }
+
+
+        a {
+            color: #ff80ab;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        :hover {
+            color: #fff;
+        }
+
+        main {
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+        }
+
+        .btn-danger {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .btn-primary {
+            background-color: #ff4081;
+            color: white;
+        }
+
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>My Shop</h1>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/add">Add Product</a>
+    </nav>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

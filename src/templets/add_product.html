@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto; background-color: #1e1e1e; padding: 30px; border-radius: 8px;">
+    <h2 style="text-align: center; color: #ff4081;">Add New Product</h2>
+
+    <form method="post">
+        <label style="display: block; margin-bottom: 5px; color: #ccc;">Image URL</label>
+        <input type="text" name="image" placeholder="https://example.com/image.jpg">
+
+        <label style="display: block; margin-bottom: 5px; color: #ccc;">Product Name</label>
+        <input type="text" name="name" placeholder="Enter product name" required>
+
+        <label style="display: block; margin-bottom: 5px; color: #ccc;">Price</label>
+        <input type="text" name="price" placeholder="0.00" required>
+
+        <label style="display: block; margin-bottom: 5px; color: #ccc;">Details</label>
+        <textarea name="details" rows="4" placeholder="Short description..."></textarea>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 16px; padding: 12px;">Add Product</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+============================================================
+ Generation Log: TEST 6: Code Generation (app1.py)
+============================================================
+
+[ContextBuilder] Starting source-based extraction...
+[ContextBuilder] extractProductsFromSource...
+[ContextBuilder] Products: 0
+[ContextBuilder] extractRoutesFromSource...
+[ContextBuilder] Decorator / @ line 9
+[ContextBuilder] Route: / → index
+[ContextBuilder] Decorator /about @ line 13
+[ContextBuilder] Route: /about → about
+[ContextBuilder] Multi-line decorator /contact
+[ContextBuilder] Route: /contact → contact
+[ContextBuilder] Decorator /item/<int:i> @ line 23
+[ContextBuilder] Route: /item/<int:i> → item
+[ContextBuilder] Routes: 4
+[ContextBuilder] extractTemplateVariablesFromSource...
+[ContextBuilder] render_template → index.html [products]
+[ContextBuilder] Route→Template: index() → index.html
+[ContextBuilder] render_template → index.html [products]
+[ContextBuilder] Route→Template: about() → index.html
+[ContextBuilder] render_template → add_product.html []
+[ContextBuilder] Route→Template: contact() → add_product.html
+[ContextBuilder] render_template → product_details.html [product]
+[ContextBuilder] Route→Template: item() → product_details.html
+[ContextBuilder] extractGlobalAssignmentsFromSource...
+[ContextBuilder] collectTemplateNames...
+[ContextBuilder] Templates: [add_product.html, base.html, index.html, product_details.html]
+[ContextBuilder] parseTemplateASTs...
+[ContextBuilder] Parsed: add_product.html
+[ContextBuilder] Parsed: base.html
+[ContextBuilder] Parsed: index.html
+[ContextBuilder] Parsed: product_details.html
+[ContextBuilder] ASTs: 4
+[ContextBuilder] discoverExtendsAndIncludes...
+[ContextBuilder] add_product.html extends base.html
+[ContextBuilder] index.html extends base.html
+[ContextBuilder] product_details.html extends base.html
+[ContextBuilder] Globals: [products]
+[GenerationContext] Frozen — core data is now read-only
+[ContextBuilder] Done. Products=0 Routes=4 Templates=4 ASTs=4 Route->Template=4
+
+============================================================
+ Total log entries: 38
+============================================================
