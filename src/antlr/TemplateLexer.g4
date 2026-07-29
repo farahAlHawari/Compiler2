@@ -149,7 +149,9 @@ UNIT    : 'px' | '%' | 'em' | 'rem' | 'vh' | 'vw' | 'vmin' | 'vmax' | 'deg' | 's
         | 'cm' | 'mm' | 'in' | 'pt' | 'pc' | 'ch' | 'ex'
         ;  // Removed duplicate vmin, vmax
 
-COLOR_HEX: '#' HEX_DIGIT HEX_DIGIT HEX_DIGIT (HEX_DIGIT HEX_DIGIT HEX_DIGIT)? ;
+COLOR_HEX: '#' HEX_DIGIT HEX_DIGIT HEX_DIGIT
+             (HEX_DIGIT HEX_DIGIT HEX_DIGIT (HEX_DIGIT HEX_DIGIT)?)?
+         ;
 STYLE_IDENT : [a-zA-Z_-][a-zA-Z0-9_-]* ;
 STYLE_STRING: '"' (~["\\] | '\\' .)* '"' ;
 

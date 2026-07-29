@@ -357,6 +357,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import generation.TemplateProcessor;
+import generation.StaticRenderer;
+
 public class Main {
 
     // ==================== compileAndCheck (Tests 1-5) ====================
@@ -634,6 +637,17 @@ public class Main {
         }
 
         generationContext.setSemanticPassed(true);
+        // ===== Person 2 Test: TemplateProcessor + StaticRenderer =====
+        TemplateProcessor tp = new TemplateProcessor();
+        StaticRenderer sr = new StaticRenderer(generationContext);
+        for (String tplName : generationContext.getTemplateNames()) {
+            AST.Core.PageNode original = generationContext.getTemplate(tplName);
+            AST.Core.PageNode merged = tp.process(original, generationContext);
+            StringBuilder html = new StringBuilder();
+            sr.renderStaticNode(merged, html);
+            System.out.println("\n  === HTML for " + tplName + " ===");
+            System.out.println(html.toString());
+        }
         generationContext.printContext();
 
         // طباعة اللوجز على الـ console فقط (الملف = شخص 4)

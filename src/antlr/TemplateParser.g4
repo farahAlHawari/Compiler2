@@ -110,9 +110,9 @@ styleRule
      : selector (COMMA STYLE_WS* selector)*
      ;
 
- selector
-     : selectorPart (STYLE_WS+ selectorPart)*
-     ;
+selector
+    : selectorPart (STYLE_WS* selectorPart)*
+    ;
 
  selectorPart
      : STAR #universalSelector
