@@ -166,13 +166,10 @@ public class TemplateProcessor {
                 return (s > 0 && e > s) ? name.substring(s, e) : name;
             }
 
-            case "DoctypeNode":
+            case "DoctypeNode", "AttributeSelectorNode", "JinjaSetNode", "JinjaImportNode", "StyleRuleNode":
                 return name.substring(name.indexOf(" ") + 1);
 
-            case "StyleRuleNode":
-                return name.substring(name.indexOf(" ") + 1);
-
-            case "TypeSelectorNode":
+            case "TypeSelectorNode", "StringCssValue", "IdentifierCssValue", "FunctionCallCssValue", "ColorCssValue":
                 return name.substring(name.indexOf(":") + 1).trim();
 
             case "ClassSelectorNode": {
@@ -195,16 +192,7 @@ public class TemplateProcessor {
                 return val.startsWith("::") ? val.substring(2) : val;
             }
 
-            case "AttributeSelectorNode":
-                return name.substring(name.indexOf(" ") + 1);
-
-            case "StringCssValue":
-            case "IdentifierCssValue":
-            case "FunctionCallCssValue":
-            case "ColorCssValue":
-                return name.substring(name.indexOf(":") + 1).trim();
-
-            case "JinjaExtendsNode": {
+            case "JinjaExtendsNode", "JinjaIncludeNode": {
                 String val = name.substring(name.indexOf(" ") + 1).trim();
                 if (val.startsWith("\"") && val.endsWith("\"") && val.length() > 1)
                     val = val.substring(1, val.length() - 1);
@@ -228,17 +216,6 @@ public class TemplateProcessor {
                 int s = name.indexOf("{{") + 2;
                 int e = name.indexOf("}}");
                 return (s > 1 && e > s) ? name.substring(s, e).trim() : name;
-            }
-
-            case "JinjaSetNode":
-            case "JinjaImportNode":
-                return name.substring(name.indexOf(" ") + 1);
-
-            case "JinjaIncludeNode": {
-                String val = name.substring(name.indexOf(" ") + 1).trim();
-                if (val.startsWith("\"") && val.endsWith("\"") && val.length() > 1)
-                    val = val.substring(1, val.length() - 1);
-                return val;
             }
 
             case "JinjaMacroNode":
