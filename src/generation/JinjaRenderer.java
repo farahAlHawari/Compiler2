@@ -151,7 +151,11 @@ public class JinjaRenderer {
         if (val.startsWith("\"") && val.endsWith("\"") && val.length() > 1)
             val = val.substring(1, val.length() - 1);
         val = resolveExpressionsInString(val);
-        if (!val.isEmpty()) html.append("=\"").append(val).append("\"");
+
+        val = convertRouteToStaticPage(node.getAttrName(), val);
+
+        if (!val.isEmpty())
+            html.append("=\"").append(val).append("\"");
     }
 
     private String resolveExpressionsInString(String str) {
@@ -169,6 +173,34 @@ public class JinjaRenderer {
             start = str.indexOf("{{", start + replacement.length());
         }
         return str;
+    }
+
+    private String convertRouteToStaticPage(String attrName, String value) {
+
+        if (!attrName.equals("href") && !attrName.equals("action"))
+            return value;
+
+        switch (value) {
+
+            case "/":
+                return "index.html";
+
+            case "/add":
+                return "add.html";
+
+            default:
+
+                if (value.startsWith("/details/")) {
+                    String id = value.substring("/details/".length());
+                    return "product_details_" + id + ".html";
+                }
+
+                if (value.startsWith("/delete/")) {
+                    return "#";
+                }
+
+                return value;
+        }
     }
 
     private boolean isVoidTag(String tagName) {
@@ -234,44 +266,47 @@ public class JinjaRenderer {
 
         boolean result = evaluateCondition(condition);
 
-        List<ASTNode> ifBody = new ArrayList<>();
-        List<ASTNode> elseBody = new ArrayList<>();
-        splitIfElse(node, ifBody, elseBody);
+        // phase: 0 = if-branch, 1 = else-branch, 2 = trailing (always render)
+        int phase = 0;
 
-        if (result) {
-            for (ASTNode n : ifBody) {
-                renderNode(n, html);
+        for (ASTNode child : node.children) {
+            if (child instanceof JinjaEndIfNode) {
+                phase = 2;
+                continue;
             }
-        } else if (!elseBody.isEmpty()) {
-            for (ASTNode n : elseBody) {
-                renderNode(n, html);
+
+            if (child instanceof JinjaElseNode) {
+                phase = 1;
+                // ارسم أولاد الـ ElseNode لما الشرط false
+                if (!result && child.children != null) {
+                    for (ASTNode c : child.children) {
+                        if (!(c instanceof JinjaEndIfNode)) {
+                            renderNode(c, html);
+                        }
+                    }
+                }
+                // ★ المفتاح: إذا ElseNode عنده أولاد → الـ else content منتهي
+                // أي sibling بعدو مش جزء من else → لازم يرسم دائماً
+                if (child.children != null && !child.children.isEmpty()) {
+                    phase = 2;
+                }
+                continue;
+            }
+
+            switch (phase) {
+                case 0: // if-branch: ارسم لما الشرط true
+                    if (result) renderNode(child, html);
+                    break;
+                case 1: // else-branch: ارسم لما الشرط false (ElseNode بدون أولاد)
+                    if (!result) renderNode(child, html);
+                    break;
+                case 2: // trailing: ارسم دائماً
+                    renderNode(child, html);
+                    break;
             }
         }
 
         context.addLog("[JinjaRenderer] Evaluated condition: " + condition + " → " + result);
-    }
-
-    // ==================== Helpers ====================
-
-    private void splitIfElse(JinjaIfNode node, List<ASTNode> ifBody, List<ASTNode> elseBody) {
-        boolean inElse = false;
-        for (ASTNode child : node.children) {
-            if (child instanceof JinjaElseNode) {
-                inElse = true;
-                // ★ التعديل: إذا الـ else عنده أولاد، أضفهم لـ elseBody ★
-                if (child.children != null && !child.children.isEmpty()) {
-                    for (ASTNode c : child.children) {
-                        if (!(c instanceof JinjaEndIfNode)) {
-                            elseBody.add(c);
-                        }
-                    }
-                }
-                continue;
-            }
-            if (child instanceof JinjaEndIfNode) break;
-            if (inElse) elseBody.add(child);
-            else ifBody.add(child);
-        }
     }
     private List<ASTNode> getForBody(JinjaForNode node) {
         List<ASTNode> body = new ArrayList<>();
