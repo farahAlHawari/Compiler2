@@ -2,7 +2,6 @@ package generation;
 
 import AST.Core.ASTNode;
 import AST.Core.PageNode;
-
 import java.util.*;
 
 /**
@@ -26,12 +25,7 @@ public class Generator {
         this.context = context;
     }
 
-    /**
-     * نقطة الدخول الرئيسية — ينفّذ كامل pipeline التوليد.
-     * يُفترض أن يُستدعى بعد ContextBuilder.build() + freeze().
-     */
     public void generate() {
-        // ★ Semantic gate ★
         if (!context.isSemanticPassed()) {
             System.out.println("Cannot start Generation — Semantic errors exist");
             return;
@@ -59,12 +53,6 @@ public class Generator {
                 continue;
             }
 
-            // تجاهل parent-only templates (مثل base.html لو ما حدا يستدعيها مباشرة)
-            // base.html ما عندها extends لكنها parent — ما بن renderها لوحدها
-            String parent = context.getTemplateParent(tplName);
-            // إذا الـ template ما عنده parent وما عنده extends → ممكن يكون base
-            // لكن إذا كان route يشير عليه، نrenderه عادي
-
             // ★ معالجة Parametric Routes ★
             if (path.contains("<int:")) {
                 String paramName = extractParamName(path);
@@ -80,35 +68,29 @@ public class Generator {
                     context.addLog("[Generator] Processing " + tplName
                             + " [" + funcName + " i=" + i + "]");
 
-                    // push scope: product + i
-                    Map<String, Object> scope = new LinkedHashMap<>();
-                    scope.put(paramName, i);
-                    scope.put("product", products.get(i));
-                    // Push كل متغير بالـ scope
-                    context.pushScope(paramName, i, i);
-                    context.pushScope("product", products.get(i), i);
+                    try {
+                        context.pushScope(paramName, i, i);
+                        context.pushScope("product", products.get(i), i);
 
-                    PageNode ast = context.getTemplate(tplName);
-                    if (ast == null) {
-                        context.addWarning("AST not found for template: " + tplName);
+                        PageNode ast = context.getTemplate(tplName);
+                        if (ast == null) {
+                            context.addWarning("AST not found for template: " + tplName);
+                            continue;
+                        }
+
+                        context.setCurrentTemplate(tplName);
+                        PageNode merged = templateProcessor.process(ast, context);
+                        String html = jinjaRenderer.render(merged, context, staticRenderer);
+
+                        String baseName = tplName.replace(".html", "");
+                        String fileName = baseName + "_" + i + ".html";
+                        context.addOutput(fileName, html);
+                        context.markGenerated(tplName);
+                        pageCount++;
+                    } finally {
                         context.popScope();
                         context.popScope();
-                        continue;
                     }
-
-                    context.setCurrentTemplate(tplName);
-                    PageNode merged = templateProcessor.process(ast, context);
-                    String html = jinjaRenderer.render(merged, context, staticRenderer);
-
-                    // اسم الملف: product_details_0.html
-                    String baseName = tplName.replace(".html", "");
-                    String fileName = baseName + "_" + i + ".html";
-                    context.addOutput(fileName, html);
-                    context.markGenerated(tplName);
-                    pageCount++;
-
-                    context.popScope();
-                    context.popScope();
                 }
             } else {
                 // ★ Normal (non-parametric) route ★
@@ -125,7 +107,6 @@ public class Generator {
                 PageNode merged = templateProcessor.process(ast, context);
                 String html = jinjaRenderer.render(merged, context, staticRenderer);
 
-                // اسم الملف من function name: index → index.html
                 String fileName = funcName + ".html";
                 context.addOutput(fileName, html);
                 context.markGenerated(tplName);
@@ -135,11 +116,9 @@ public class Generator {
 
         context.addLog("[Generator] Rendered " + pageCount + " page(s)");
 
-        // ③ Serialization AST → JSON
-        context.addLog("[Generator] Serializing ASTs to JSON");
+        // ③ Serialization AST → JSON (Jinja فقط — Python تم بالـ Main)
+        context.addLog("[Generator] Serializing template ASTs to JSON");
         String astJinjaJson = serializer.serializeJinjaASTs(context);
-        // Python AST — إذا متوفر من Compiler 1
-        // String astPythonJson = serializer.serializePythonAST(pythonAST);
 
         // ④ كتابة كل المخرجات
         context.addLog("[Generator] Writing output files");
@@ -151,16 +130,12 @@ public class Generator {
         context.addLog("[Generator] Finished — " + pageCount + " page(s) generated");
     }
 
-    /**
-     * يستخرج اسم الـ parameter من route.
-     * مثال: "/item/<int:i>" → "i"
-     */
     private String extractParamName(String routePath) {
         int start = routePath.indexOf("<int:") + 5;
         int end = routePath.indexOf(">", start);
         if (start > 4 && end > start) {
             return routePath.substring(start, end);
         }
-        return "i"; // fallback
+        return "i";
     }
 }

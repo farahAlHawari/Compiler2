@@ -151,18 +151,19 @@ public class OutputWriter {
             }
         }
 
-        // ast_python.json — placeholder (Python AST من Compiler 1)
-        // إذا كان متوفر، يمرر من Generator
-        String pythonJsonPath = compilerOutputDir + File.separator + "ast_python.json";
-        String placeholder = "{\n  \"note\": \"Python AST serialization requires Compiler 1 integration\",\n"
-                + "  \"source\": \"" + escapeForJson(context.getPythonFilePath()) + "\"\n}\n";
-        if (!writeToFile(pythonJsonPath, placeholder)) {
-            context.addWarning("Failed to write ast_python.json");
+        // ast_python.json — من Compiler 1 عبر ContextBuilder
+        String pythonJson = context.getPythonAstJson();
+        if (pythonJson != null && !pythonJson.isEmpty()) {
+            String path = compilerOutputDir + File.separator + "ast_python.json";
+            if (!writeToFile(path, pythonJson)) {
+                context.addWarning("Failed to write ast_python.json");
+            } else {
+                context.addLog("[OutputWriter] Written: " + path);
+            }
         } else {
-            context.addLog("[OutputWriter] Written: " + pythonJsonPath);
+            context.addLog("[OutputWriter] Skipped ast_python.json (not provided by Compiler 1)");
         }
     }
-
     // =====================================================================
     // Generation Log
     // =====================================================================
