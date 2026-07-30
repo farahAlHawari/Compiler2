@@ -1,0 +1,2002 @@
+[
+  {
+    "template": "add_product.html",
+    "ast": {
+      "type": "PageNode",
+      "nodeName": "Page",
+      "line": 1,
+      "children": [
+{
+        "type": "JinjaExtendsNode",
+        "nodeName": "JinjaExtends \"base.html\"",
+        "line": 1
+      },
+{
+        "type": "JinjaBlockNode",
+        "nodeName": "JinjaBlock content",
+        "line": 3,
+    "blockName": "content",
+        "children": [
+{
+          "type": "HtmlElementNode",
+          "nodeName": "HtmlElement",
+          "line": 4,
+    "tagName": "div",
+    "isVoid": false,
+          "children": [
+{
+            "type": "HtmlAttributeNode",
+            "nodeName": "Html Attribute style=\"max-width: 500px; margin: 0 auto; background-color: #1e1e1e; padding: 30px; border-radius: 8px;\"",
+            "line": 4,
+    "attrName": "style",
+    "attrValue": "\"max-width: 500px; margin: 0 auto; background-color: #1e1e1e; padding: 30px; border-radius: 8px;\""
+          },
+{
+            "type": "HtmlElementNode",
+            "nodeName": "HtmlElement",
+            "line": 5,
+    "tagName": "h2",
+    "isVoid": false,
+            "children": [
+{
+              "type": "HtmlAttributeNode",
+              "nodeName": "Html Attribute style=\"text-align: center; color: #ff4081;\"",
+              "line": 5,
+    "attrName": "style",
+    "attrValue": "\"text-align: center; color: #ff4081;\""
+            },
+{
+              "type": "TextNode",
+              "nodeName": "Text \"Add New Product\"",
+              "line": 5
+            }
+            ]
+          },
+{
+            "type": "HtmlElementNode",
+            "nodeName": "HtmlElement",
+            "line": 7,
+    "tagName": "form",
+    "isVoid": false,
+            "children": [
+{
+              "type": "HtmlAttributeNode",
+              "nodeName": "Html Attribute method=\"post\"",
+              "line": 7,
+    "attrName": "method",
+    "attrValue": "\"post\""
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 8,
+    "tagName": "label",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"display: block; margin-bottom: 5px; color: #ccc;\"",
+                "line": 8,
+    "attrName": "style",
+    "attrValue": "\"display: block; margin-bottom: 5px; color: #ccc;\""
+              },
+{
+                "type": "TextNode",
+                "nodeName": "Text \"Image URL\"",
+                "line": 8
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 9,
+    "tagName": "input",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute type=\"text\"",
+                "line": 9,
+    "attrName": "type",
+    "attrValue": "\"text\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute name=\"image\"",
+                "line": 9,
+    "attrName": "name",
+    "attrValue": "\"image\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute placeholder=\"https://example.com/image.jpg\"",
+                "line": 9,
+    "attrName": "placeholder",
+    "attrValue": "\"https://example.com/image.jpg\""
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 11,
+    "tagName": "label",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"display: block; margin-bottom: 5px; color: #ccc;\"",
+                "line": 11,
+    "attrName": "style",
+    "attrValue": "\"display: block; margin-bottom: 5px; color: #ccc;\""
+              },
+{
+                "type": "TextNode",
+                "nodeName": "Text \"Product Name\"",
+                "line": 11
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 12,
+    "tagName": "input",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute type=\"text\"",
+                "line": 12,
+    "attrName": "type",
+    "attrValue": "\"text\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute name=\"name\"",
+                "line": 12,
+    "attrName": "name",
+    "attrValue": "\"name\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute placeholder=\"Enter product name\"",
+                "line": 12,
+    "attrName": "placeholder",
+    "attrValue": "\"Enter product name\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute required=",
+                "line": 12,
+    "attrName": "required",
+    "attrValue": ""
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 14,
+    "tagName": "label",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"display: block; margin-bottom: 5px; color: #ccc;\"",
+                "line": 14,
+    "attrName": "style",
+    "attrValue": "\"display: block; margin-bottom: 5px; color: #ccc;\""
+              },
+{
+                "type": "TextNode",
+                "nodeName": "Text \"Price\"",
+                "line": 14
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 15,
+    "tagName": "input",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute type=\"text\"",
+                "line": 15,
+    "attrName": "type",
+    "attrValue": "\"text\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute name=\"price\"",
+                "line": 15,
+    "attrName": "name",
+    "attrValue": "\"price\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute placeholder=\"0.00\"",
+                "line": 15,
+    "attrName": "placeholder",
+    "attrValue": "\"0.00\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute required=",
+                "line": 15,
+    "attrName": "required",
+    "attrValue": ""
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 17,
+    "tagName": "label",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"display: block; margin-bottom: 5px; color: #ccc;\"",
+                "line": 17,
+    "attrName": "style",
+    "attrValue": "\"display: block; margin-bottom: 5px; color: #ccc;\""
+              },
+{
+                "type": "TextNode",
+                "nodeName": "Text \"Details\"",
+                "line": 17
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 18,
+    "tagName": "textarea",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute name=\"details\"",
+                "line": 18,
+    "attrName": "name",
+    "attrValue": "\"details\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute rows=\"4\"",
+                "line": 18,
+    "attrName": "rows",
+    "attrValue": "\"4\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute placeholder=\"Short description...\"",
+                "line": 18,
+    "attrName": "placeholder",
+    "attrValue": "\"Short description...\""
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 20,
+    "tagName": "button",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute type=\"submit\"",
+                "line": 20,
+    "attrName": "type",
+    "attrValue": "\"submit\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute class=\"btn btn-primary\"",
+                "line": 20,
+    "attrName": "class",
+    "attrValue": "\"btn btn-primary\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"width: 100%; font-size: 16px; padding: 12px;\"",
+                "line": 20,
+    "attrName": "style",
+    "attrValue": "\"width: 100%; font-size: 16px; padding: 12px;\""
+              },
+{
+                "type": "TextNode",
+                "nodeName": "Text \"Add Product\"",
+                "line": 20
+              }
+              ]
+            }
+            ]
+          }
+          ]
+        },
+{
+          "type": "JinjaEndBlockNode",
+          "nodeName": "JinjaEndBlock",
+          "line": 23
+        }
+        ]
+      }
+      ]
+    }
+  },
+  {
+    "template": "base.html",
+    "ast": {
+      "type": "PageNode",
+      "nodeName": "Page",
+      "line": 1,
+      "children": [
+{
+        "type": "DoctypeNode",
+        "nodeName": "Doctype <!DOCTYPE html>",
+        "line": 1
+      },
+{
+        "type": "HtmlElementNode",
+        "nodeName": "HtmlElement",
+        "line": 2,
+    "tagName": "html",
+    "isVoid": false,
+        "children": [
+{
+          "type": "HtmlElementNode",
+          "nodeName": "HtmlElement",
+          "line": 3,
+    "tagName": "head",
+    "isVoid": false,
+          "children": [
+{
+            "type": "HtmlElementNode",
+            "nodeName": "HtmlElement",
+            "line": 4,
+    "tagName": "meta",
+    "isVoid": false,
+            "children": [
+{
+              "type": "HtmlAttributeNode",
+              "nodeName": "Html Attribute charset=\"UTF-8\"",
+              "line": 4,
+    "attrName": "charset",
+    "attrValue": "\"UTF-8\""
+            }
+            ]
+          },
+{
+            "type": "HtmlElementNode",
+            "nodeName": "HtmlElement",
+            "line": 5,
+    "tagName": "title",
+    "isVoid": false,
+            "children": [
+{
+              "type": "TextNode",
+              "nodeName": "Text \"Compiler Project\"",
+              "line": 5
+            }
+            ]
+          },
+{
+            "type": "StyleBlockNode",
+            "nodeName": "StyleBlock",
+            "line": 6,
+            "children": [
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 8,
+              "children": [
+{
+                "type": "TypeSelectorNode",
+                "nodeName": "TypeSelector: body",
+                "line": 8
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 9,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration margin: 0",
+                  "line": 9,
+    "property": "margin",
+    "value": "0",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 0",
+                    "line": 9
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration padding: 0",
+                  "line": 10,
+    "property": "padding",
+    "value": "0",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 0",
+                    "line": 10
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration background-color: #121212",
+                  "line": 11,
+    "property": "background-color",
+    "value": "#121212",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #121212",
+                    "line": 11
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration color: #e0e0e0",
+                  "line": 12,
+    "property": "color",
+    "value": "#e0e0e0",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #e0e0e0",
+                    "line": 12
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration font-family: Tahoma , Verdana , sans-serif",
+                  "line": 13,
+    "property": "font-family",
+    "value": "Tahoma , Verdana , sans-serif",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: Tahoma",
+                    "line": 13
+                  },
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: Verdana",
+                    "line": 13
+                  },
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: sans-serif",
+                    "line": 13
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 17,
+              "children": [
+{
+                "type": "TypeSelectorNode",
+                "nodeName": "TypeSelector: header",
+                "line": 17
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 18,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration background-color: #1f1f1f",
+                  "line": 18,
+    "property": "background-color",
+    "value": "#1f1f1f",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #1f1f1f",
+                    "line": 18
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration padding: 20px",
+                  "line": 19,
+    "property": "padding",
+    "value": "20px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 20px",
+                    "line": 19
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration display: flex",
+                  "line": 20,
+    "property": "display",
+    "value": "flex",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: flex",
+                    "line": 20
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration justify-content: space-between",
+                  "line": 21,
+    "property": "justify-content",
+    "value": "space-between",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: space-between",
+                    "line": 21
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration align-items: center",
+                  "line": 22,
+    "property": "align-items",
+    "value": "center",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: center",
+                    "line": 22
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration box-shadow: 0 2px 5px #00000080",
+                  "line": 23,
+    "property": "box-shadow",
+    "value": "0 2px 5px #00000080",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 0",
+                    "line": 23
+                  },
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 2px",
+                    "line": 23
+                  },
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 5px",
+                    "line": 23
+                  },
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #00000080",
+                    "line": 23
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 26,
+              "children": [
+{
+                "type": "TypeSelectorNode",
+                "nodeName": "TypeSelector: h1",
+                "line": 26
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 27,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration margin: 0",
+                  "line": 27,
+    "property": "margin",
+    "value": "0",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 0",
+                    "line": 27
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration color: #ff4081",
+                  "line": 28,
+    "property": "color",
+    "value": "#ff4081",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #ff4081",
+                    "line": 28
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration font-size: 24px",
+                  "line": 29,
+    "property": "font-size",
+    "value": "24px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 24px",
+                    "line": 29
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 33,
+              "children": [
+{
+                "type": "TypeSelectorNode",
+                "nodeName": "TypeSelector: a",
+                "line": 33
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 34,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration color: #ff80ab",
+                  "line": 34,
+    "property": "color",
+    "value": "#ff80ab",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #ff80ab",
+                    "line": 34
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration text-decoration: none",
+                  "line": 35,
+    "property": "text-decoration",
+    "value": "none",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: none",
+                    "line": 35
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration margin-left: 20px",
+                  "line": 36,
+    "property": "margin-left",
+    "value": "20px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 20px",
+                    "line": 36
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration font-weight: bold",
+                  "line": 37,
+    "property": "font-weight",
+    "value": "bold",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: bold",
+                    "line": 37
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration transition: color 0.3s",
+                  "line": 38,
+    "property": "transition",
+    "value": "color 0.3s",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: color",
+                    "line": 38
+                  },
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 0.3s",
+                    "line": 38
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 41,
+              "children": [
+{
+                "type": "CombinedSelectorNode",
+                "nodeName": "CombinedSelector",
+                "line": 41,
+                "children": [
+{
+                  "type": "TypeSelectorNode",
+                  "nodeName": "TypeSelector: a",
+                  "line": 41
+                },
+{
+                  "type": "PseudoClassNode",
+                  "nodeName": "PseudoClassSelector :hover",
+                  "line": 41
+                }
+                ]
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 42,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration color: #fff",
+                  "line": 42,
+    "property": "color",
+    "value": "#fff",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #fff",
+                    "line": 42
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 45,
+              "children": [
+{
+                "type": "TypeSelectorNode",
+                "nodeName": "TypeSelector: main",
+                "line": 45
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 46,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration padding: 30px",
+                  "line": 46,
+    "property": "padding",
+    "value": "30px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 30px",
+                    "line": 46
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration max-width: 1000px",
+                  "line": 47,
+    "property": "max-width",
+    "value": "1000px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 1000px",
+                    "line": 47
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration margin: 0 auto",
+                  "line": 48,
+    "property": "margin",
+    "value": "0 auto",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 0",
+                    "line": 48
+                  },
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: auto",
+                    "line": 48
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 52,
+              "children": [
+{
+                "type": "ClassSelectorNode",
+                "nodeName": "ClassSelector: .btn",
+                "line": 52
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 53,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration display: inline-block",
+                  "line": 53,
+    "property": "display",
+    "value": "inline-block",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: inline-block",
+                    "line": 53
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration padding: 10px 20px",
+                  "line": 54,
+    "property": "padding",
+    "value": "10px 20px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 10px",
+                    "line": 54
+                  },
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 20px",
+                    "line": 54
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration border-radius: 5px",
+                  "line": 55,
+    "property": "border-radius",
+    "value": "5px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 5px",
+                    "line": 55
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration text-decoration: none",
+                  "line": 56,
+    "property": "text-decoration",
+    "value": "none",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: none",
+                    "line": 56
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration cursor: pointer",
+                  "line": 57,
+    "property": "cursor",
+    "value": "pointer",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: pointer",
+                    "line": 57
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration border: none",
+                  "line": 58,
+    "property": "border",
+    "value": "none",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: none",
+                    "line": 58
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration font-size: 14px",
+                  "line": 59,
+    "property": "font-size",
+    "value": "14px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 14px",
+                    "line": 59
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 62,
+              "children": [
+{
+                "type": "ClassSelectorNode",
+                "nodeName": "ClassSelector: .btn-danger",
+                "line": 62
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 63,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration background-color: #d32f2f",
+                  "line": 63,
+    "property": "background-color",
+    "value": "#d32f2f",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #d32f2f",
+                    "line": 63
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration color: white",
+                  "line": 64,
+    "property": "color",
+    "value": "white",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: white",
+                    "line": 64
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 67,
+              "children": [
+{
+                "type": "ClassSelectorNode",
+                "nodeName": "ClassSelector: .btn-primary",
+                "line": 67
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 68,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration background-color: #ff4081",
+                  "line": 68,
+    "property": "background-color",
+    "value": "#ff4081",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #ff4081",
+                    "line": 68
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration color: white",
+                  "line": 69,
+    "property": "color",
+    "value": "white",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: white",
+                    "line": 69
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "StyleRuleNode",
+              "nodeName": "StyleRule Rule",
+              "line": 73,
+              "children": [
+{
+                "type": "TypeSelectorNode",
+                "nodeName": "TypeSelector: input",
+                "line": 73
+              },
+{
+                "type": "TypeSelectorNode",
+                "nodeName": "TypeSelector: textarea",
+                "line": 73
+              },
+{
+                "type": "DeclarationListNode",
+                "nodeName": "DeclarationList",
+                "line": 74,
+                "children": [
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration width: 100%",
+                  "line": 74,
+    "property": "width",
+    "value": "100%",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 100%",
+                    "line": 74
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration padding: 10px",
+                  "line": 75,
+    "property": "padding",
+    "value": "10px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 10px",
+                    "line": 75
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration margin-bottom: 15px",
+                  "line": 76,
+    "property": "margin-bottom",
+    "value": "15px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 15px",
+                    "line": 76
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration background-color: #2c2c2c",
+                  "line": 77,
+    "property": "background-color",
+    "value": "#2c2c2c",
+                  "children": [
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #2c2c2c",
+                    "line": 77
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration border: 1px solid #444",
+                  "line": 78,
+    "property": "border",
+    "value": "1px solid #444",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 1px",
+                    "line": 78
+                  },
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: solid",
+                    "line": 78
+                  },
+{
+                    "type": "ColorCssValue",
+                    "nodeName": "ColorCssValue: #444",
+                    "line": 78
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration color: white",
+                  "line": 79,
+    "property": "color",
+    "value": "white",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: white",
+                    "line": 79
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration border-radius: 4px",
+                  "line": 80,
+    "property": "border-radius",
+    "value": "4px",
+                  "children": [
+{
+                    "type": "NumericCssValue",
+                    "nodeName": "NumericCssValue: 4px",
+                    "line": 80
+                  }
+                  ]
+                },
+{
+                  "type": "DeclarationNode",
+                  "nodeName": "Declaration box-sizing: border-box",
+                  "line": 81,
+    "property": "box-sizing",
+    "value": "border-box",
+                  "children": [
+{
+                    "type": "IdentifierCssValue",
+                    "nodeName": "IdentifierCssValue: border-box",
+                    "line": 81
+                  }
+                  ]
+                }
+                ]
+              }
+              ]
+            }
+            ]
+          }
+          ]
+        },
+{
+          "type": "HtmlElementNode",
+          "nodeName": "HtmlElement",
+          "line": 85,
+    "tagName": "body",
+    "isVoid": false,
+          "children": [
+{
+            "type": "HtmlElementNode",
+            "nodeName": "HtmlElement",
+            "line": 87,
+    "tagName": "header",
+    "isVoid": false,
+            "children": [
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 88,
+    "tagName": "h1",
+    "isVoid": false,
+              "children": [
+{
+                "type": "TextNode",
+                "nodeName": "Text \"My Shop\"",
+                "line": 88
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 89,
+    "tagName": "nav",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlElementNode",
+                "nodeName": "HtmlElement",
+                "line": 90,
+    "tagName": "a",
+    "isVoid": false,
+                "children": [
+{
+                  "type": "HtmlAttributeNode",
+                  "nodeName": "Html Attribute href=\"/\"",
+                  "line": 90,
+    "attrName": "href",
+    "attrValue": "\"/\""
+                },
+{
+                  "type": "TextNode",
+                  "nodeName": "Text \"Home\"",
+                  "line": 90
+                }
+                ]
+              },
+{
+                "type": "HtmlElementNode",
+                "nodeName": "HtmlElement",
+                "line": 91,
+    "tagName": "a",
+    "isVoid": false,
+                "children": [
+{
+                  "type": "HtmlAttributeNode",
+                  "nodeName": "Html Attribute href=\"/add\"",
+                  "line": 91,
+    "attrName": "href",
+    "attrValue": "\"/add\""
+                },
+{
+                  "type": "TextNode",
+                  "nodeName": "Text \"Add Product\"",
+                  "line": 91
+                }
+                ]
+              }
+              ]
+            }
+            ]
+          },
+{
+            "type": "HtmlElementNode",
+            "nodeName": "HtmlElement",
+            "line": 95,
+    "tagName": "main",
+    "isVoid": false,
+            "children": [
+{
+              "type": "JinjaBlockNode",
+              "nodeName": "JinjaBlock content",
+              "line": 96,
+    "blockName": "content",
+              "children": [
+{
+                "type": "JinjaEndBlockNode",
+                "nodeName": "JinjaEndBlock",
+                "line": 96
+              }
+              ]
+            }
+            ]
+          }
+          ]
+        }
+        ]
+      }
+      ]
+    }
+  },
+  {
+    "template": "index.html",
+    "ast": {
+      "type": "PageNode",
+      "nodeName": "Page",
+      "line": 1,
+      "children": [
+{
+        "type": "JinjaExtendsNode",
+        "nodeName": "JinjaExtends \"base.html\"",
+        "line": 1
+      },
+{
+        "type": "JinjaBlockNode",
+        "nodeName": "JinjaBlock content",
+        "line": 3,
+    "blockName": "content",
+        "children": [
+{
+          "type": "HtmlElementNode",
+          "nodeName": "HtmlElement",
+          "line": 4,
+    "tagName": "h2",
+    "isVoid": false,
+          "children": [
+{
+            "type": "HtmlAttributeNode",
+            "nodeName": "Html Attribute style=\"color: #ff80ab; border-bottom: 1px solid #333; padding-bottom: 10px;\"",
+            "line": 4,
+    "attrName": "style",
+    "attrValue": "\"color: #ff80ab; border-bottom: 1px solid #333; padding-bottom: 10px;\""
+          },
+{
+            "type": "TextNode",
+            "nodeName": "Text \"Product List\"",
+            "line": 4
+          }
+          ]
+        },
+{
+          "type": "HtmlElementNode",
+          "nodeName": "HtmlElement",
+          "line": 6,
+    "tagName": "div",
+    "isVoid": false,
+          "children": [
+{
+            "type": "HtmlAttributeNode",
+            "nodeName": "Html Attribute style=\"display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;\"",
+            "line": 6,
+    "attrName": "style",
+    "attrValue": "\"display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;\""
+          },
+{
+            "type": "JinjaIfNode",
+            "nodeName": "JinjaIf (products)",
+            "line": 7,
+    "condition": "products",
+            "children": [
+{
+              "type": "JinjaForNode",
+              "nodeName": "JinjaFor (p in products)",
+              "line": 8,
+    "forExpr": "p in products",
+              "children": [
+{
+                "type": "HtmlElementNode",
+                "nodeName": "HtmlElement",
+                "line": 10,
+    "tagName": "div",
+    "isVoid": false,
+                "children": [
+{
+                  "type": "HtmlAttributeNode",
+                  "nodeName": "Html Attribute style=\"background-color: #1e1e1e; border-radius: 8px; padding: 20px; width: 250px; box-shadow: 0 4px 6px  #00000030; display: flex; flex-direction: column;\"",
+                  "line": 10,
+    "attrName": "style",
+    "attrValue": "\"background-color: #1e1e1e; border-radius: 8px; padding: 20px; width: 250px; box-shadow: 0 4px 6px  #00000030; display: flex; flex-direction: column;\""
+                },
+{
+                  "type": "JinjaIfNode",
+                  "nodeName": "JinjaIf (p.image)",
+                  "line": 12,
+    "condition": "p.image",
+                  "children": [
+{
+                    "type": "HtmlElementNode",
+                    "nodeName": "HtmlElement",
+                    "line": 13,
+    "tagName": "img",
+    "isVoid": false,
+                    "children": [
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute src=\"{{ p.image }}\"",
+                      "line": 13,
+    "attrName": "src",
+    "attrValue": "\"{{ p.image }}\""
+                    },
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute alt=\"{{ p.name }}\"",
+                      "line": 13,
+    "attrName": "alt",
+    "attrValue": "\"{{ p.name }}\""
+                    },
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute style=\"width: 100%; height: 180px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;\"",
+                      "line": 13,
+    "attrName": "style",
+    "attrValue": "\"width: 100%; height: 180px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;\""
+                    }
+                    ]
+                  },
+{
+                    "type": "JinjaElseNode",
+                    "nodeName": "JinjaElse",
+                    "line": 14,
+                    "children": [
+{
+                      "type": "HtmlElementNode",
+                      "nodeName": "HtmlElement",
+                      "line": 15,
+    "tagName": "div",
+    "isVoid": false,
+                      "children": [
+{
+                        "type": "HtmlAttributeNode",
+                        "nodeName": "Html Attribute style=\"width: 100%; height: 180px; background-color: #333; border-radius: 5px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; color: #777;\"",
+                        "line": 15,
+    "attrName": "style",
+    "attrValue": "\"width: 100%; height: 180px; background-color: #333; border-radius: 5px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; color: #777;\""
+                      },
+{
+                        "type": "TextNode",
+                        "nodeName": "Text \"No Image\"",
+                        "line": 15
+                      }
+                      ]
+                    },
+{
+                      "type": "JinjaEndIfNode",
+                      "nodeName": "JinjaEndIf",
+                      "line": 16
+                    }
+                    ]
+                  },
+{
+                    "type": "HtmlElementNode",
+                    "nodeName": "HtmlElement",
+                    "line": 18,
+    "tagName": "h3",
+    "isVoid": false,
+                    "children": [
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute style=\"margin: 0 0 10px 0; color: #fff;\"",
+                      "line": 18,
+    "attrName": "style",
+    "attrValue": "\"margin: 0 0 10px 0; color: #fff;\""
+                    },
+{
+                      "type": "JinjaExpressionNode",
+                      "nodeName": "JinjaExpression {{ p.name }}",
+                      "line": 18
+                    }
+                    ]
+                  },
+{
+                    "type": "HtmlElementNode",
+                    "nodeName": "HtmlElement",
+                    "line": 19,
+    "tagName": "p",
+    "isVoid": false,
+                    "children": [
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute style=\"color: #ff4081; font-weight: bold; font-size: 18px; margin: 0 0 10px 0;\"",
+                      "line": 19,
+    "attrName": "style",
+    "attrValue": "\"color: #ff4081; font-weight: bold; font-size: 18px; margin: 0 0 10px 0;\""
+                    },
+{
+                      "type": "TextNode",
+                      "nodeName": "Text \"$\"",
+                      "line": 19
+                    },
+{
+                      "type": "JinjaExpressionNode",
+                      "nodeName": "JinjaExpression {{ p.price }}",
+                      "line": 19
+                    }
+                    ]
+                  },
+{
+                    "type": "JinjaIfNode",
+                    "nodeName": "JinjaIf (if p.details)",
+                    "line": 21,
+    "condition": "if p.details"
+                  },
+{
+                    "type": "HtmlElementNode",
+                    "nodeName": "HtmlElement",
+                    "line": 22,
+    "tagName": "p",
+    "isVoid": false,
+                    "children": [
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute style=\"color: #aaa; font-size: 14px; margin-bottom: 20px; flex-grow: 1;\"",
+                      "line": 22,
+    "attrName": "style",
+    "attrValue": "\"color: #aaa; font-size: 14px; margin-bottom: 20px; flex-grow: 1;\""
+                    },
+{
+                      "type": "JinjaExpressionNode",
+                      "nodeName": "JinjaExpression {{ p.details }}",
+                      "line": 22
+                    }
+                    ]
+                  },
+{
+                    "type": "JinjaEndIfNode",
+                    "nodeName": "JinjaEndIf",
+                    "line": 23
+                  }
+                  ]
+                },
+{
+                  "type": "HtmlElementNode",
+                  "nodeName": "HtmlElement",
+                  "line": 25,
+    "tagName": "div",
+    "isVoid": false,
+                  "children": [
+{
+                    "type": "HtmlAttributeNode",
+                    "nodeName": "Html Attribute style=\"margin-top: auto; display: flex; gap: 10px;\"",
+                    "line": 25,
+    "attrName": "style",
+    "attrValue": "\"margin-top: auto; display: flex; gap: 10px;\""
+                  },
+{
+                    "type": "HtmlElementNode",
+                    "nodeName": "HtmlElement",
+                    "line": 26,
+    "tagName": "a",
+    "isVoid": false,
+                    "children": [
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute href=\"/details/{{ loop.index0 }}\"",
+                      "line": 26,
+    "attrName": "href",
+    "attrValue": "\"/details/{{ loop.index0 }}\""
+                    },
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute style=\"flex: 1; text-align: center; background: #333; padding: 8px; border-radius: 4px; color: white;\"",
+                      "line": 26,
+    "attrName": "style",
+    "attrValue": "\"flex: 1; text-align: center; background: #333; padding: 8px; border-radius: 4px; color: white;\""
+                    },
+{
+                      "type": "TextNode",
+                      "nodeName": "Text \"Details\"",
+                      "line": 26
+                    }
+                    ]
+                  },
+{
+                    "type": "HtmlElementNode",
+                    "nodeName": "HtmlElement",
+                    "line": 28,
+    "tagName": "form",
+    "isVoid": false,
+                    "children": [
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute action=\"/delete/{{ loop.index0 }}\"",
+                      "line": 28,
+    "attrName": "action",
+    "attrValue": "\"/delete/{{ loop.index0 }}\""
+                    },
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute method=\"get\"",
+                      "line": 28,
+    "attrName": "method",
+    "attrValue": "\"get\""
+                    },
+{
+                      "type": "HtmlAttributeNode",
+                      "nodeName": "Html Attribute style=\"flex: 1;\"",
+                      "line": 28,
+    "attrName": "style",
+    "attrValue": "\"flex: 1;\""
+                    },
+{
+                      "type": "HtmlElementNode",
+                      "nodeName": "HtmlElement",
+                      "line": 29,
+    "tagName": "button",
+    "isVoid": false,
+                      "children": [
+{
+                        "type": "HtmlAttributeNode",
+                        "nodeName": "Html Attribute type=\"submit\"",
+                        "line": 29,
+    "attrName": "type",
+    "attrValue": "\"submit\""
+                      },
+{
+                        "type": "HtmlAttributeNode",
+                        "nodeName": "Html Attribute class=\"btn btn-danger\"",
+                        "line": 29,
+    "attrName": "class",
+    "attrValue": "\"btn btn-danger\""
+                      },
+{
+                        "type": "HtmlAttributeNode",
+                        "nodeName": "Html Attribute style=\"width: 100%;\"",
+                        "line": 29,
+    "attrName": "style",
+    "attrValue": "\"width: 100%;\""
+                      },
+{
+                        "type": "TextNode",
+                        "nodeName": "Text \"Delete\"",
+                        "line": 29
+                      }
+                      ]
+                    }
+                    ]
+                  }
+                  ]
+                }
+                ]
+              },
+{
+                "type": "JinjaEndForNode",
+                "nodeName": "JinjaEndFor",
+                "line": 33
+              }
+              ]
+            },
+{
+              "type": "JinjaElseNode",
+              "nodeName": "JinjaElse",
+              "line": 34
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 35,
+    "tagName": "p",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"text-align: center; width: 100%; color: #777;\"",
+                "line": 35,
+    "attrName": "style",
+    "attrValue": "\"text-align: center; width: 100%; color: #777;\""
+              },
+{
+                "type": "TextNode",
+                "nodeName": "Text \"No products found. Add one!\"",
+                "line": 35
+              }
+              ]
+            },
+{
+              "type": "JinjaEndIfNode",
+              "nodeName": "JinjaEndIf",
+              "line": 36
+            }
+            ]
+          }
+          ]
+        },
+{
+          "type": "JinjaEndBlockNode",
+          "nodeName": "JinjaEndBlock",
+          "line": 38
+        }
+        ]
+      }
+      ]
+    }
+  },
+  {
+    "template": "product_details.html",
+    "ast": {
+      "type": "PageNode",
+      "nodeName": "Page",
+      "line": 1,
+      "children": [
+{
+        "type": "JinjaExtendsNode",
+        "nodeName": "JinjaExtends \"base.html\"",
+        "line": 1
+      },
+{
+        "type": "JinjaBlockNode",
+        "nodeName": "JinjaBlock content",
+        "line": 3,
+    "blockName": "content",
+        "children": [
+{
+          "type": "HtmlElementNode",
+          "nodeName": "HtmlElement",
+          "line": 4,
+    "tagName": "div",
+    "isVoid": false,
+          "children": [
+{
+            "type": "HtmlAttributeNode",
+            "nodeName": "Html Attribute style=\"background-color: #1e1e1e; border-radius: 8px; overflow: hidden; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 15px #00000080;\"",
+            "line": 4,
+    "attrName": "style",
+    "attrValue": "\"background-color: #1e1e1e; border-radius: 8px; overflow: hidden; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 15px #00000080;\""
+          },
+{
+            "type": "JinjaIfNode",
+            "nodeName": "JinjaIf (product.image)",
+            "line": 6,
+    "condition": "product.image",
+            "children": [
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 7,
+    "tagName": "img",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute src=\"{{ product.image }}\"",
+                "line": 7,
+    "attrName": "src",
+    "attrValue": "\"{{ product.image }}\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute alt=\"{{ product.name }}\"",
+                "line": 7,
+    "attrName": "alt",
+    "attrValue": "\"{{ product.name }}\""
+              },
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"width: 100%; height: 300px; object-fit: cover; display: block;\"",
+                "line": 7,
+    "attrName": "style",
+    "attrValue": "\"width: 100%; height: 300px; object-fit: cover; display: block;\""
+              }
+              ]
+            },
+{
+              "type": "JinjaEndIfNode",
+              "nodeName": "JinjaEndIf",
+              "line": 8
+            }
+            ]
+          },
+{
+            "type": "HtmlElementNode",
+            "nodeName": "HtmlElement",
+            "line": 10,
+    "tagName": "div",
+    "isVoid": false,
+            "children": [
+{
+              "type": "HtmlAttributeNode",
+              "nodeName": "Html Attribute style=\"padding: 30px;\"",
+              "line": 10,
+    "attrName": "style",
+    "attrValue": "\"padding: 30px;\""
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 11,
+    "tagName": "h1",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"color: #ff4081; margin-top: 0;\"",
+                "line": 11,
+    "attrName": "style",
+    "attrValue": "\"color: #ff4081; margin-top: 0;\""
+              },
+{
+                "type": "JinjaExpressionNode",
+                "nodeName": "JinjaExpression {{ product.name }}",
+                "line": 11
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 12,
+    "tagName": "h3",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"color: #fff; background-color: #333; display: inline-block; padding: 5px 15px; border-radius: 20px;\"",
+                "line": 12,
+    "attrName": "style",
+    "attrValue": "\"color: #fff; background-color: #333; display: inline-block; padding: 5px 15px; border-radius: 20px;\""
+              },
+{
+                "type": "TextNode",
+                "nodeName": "Text \"$\"",
+                "line": 12
+              },
+{
+                "type": "JinjaExpressionNode",
+                "nodeName": "JinjaExpression {{ product.price }}",
+                "line": 12
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 14,
+    "tagName": "hr",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"border: 0; border-top: 1px solid #333; margin: 20px 0;\"",
+                "line": 14,
+    "attrName": "style",
+    "attrValue": "\"border: 0; border-top: 1px solid #333; margin: 20px 0;\""
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 16,
+    "tagName": "p",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"line-height: 1.6; color: #ccc; font-size: 18px;\"",
+                "line": 16,
+    "attrName": "style",
+    "attrValue": "\"line-height: 1.6; color: #ccc; font-size: 18px;\""
+              },
+{
+                "type": "JinjaIfNode",
+                "nodeName": "JinjaIf (product.details)",
+                "line": 17,
+    "condition": "product.details",
+                "children": [
+{
+                  "type": "JinjaExpressionNode",
+                  "nodeName": "JinjaExpression {{ product.details }}",
+                  "line": 18
+                },
+{
+                  "type": "JinjaElseNode",
+                  "nodeName": "JinjaElse",
+                  "line": 19
+                },
+{
+                  "type": "TextNode",
+                  "nodeName": "Text \"No details available for this product.\"",
+                  "line": 20
+                },
+{
+                  "type": "JinjaEndIfNode",
+                  "nodeName": "JinjaEndIf",
+                  "line": 21
+                }
+                ]
+              }
+              ]
+            },
+{
+              "type": "HtmlElementNode",
+              "nodeName": "HtmlElement",
+              "line": 24,
+    "tagName": "div",
+    "isVoid": false,
+              "children": [
+{
+                "type": "HtmlAttributeNode",
+                "nodeName": "Html Attribute style=\"margin-top: 30px; text-align: center;\"",
+                "line": 24,
+    "attrName": "style",
+    "attrValue": "\"margin-top: 30px; text-align: center;\""
+              },
+{
+                "type": "HtmlElementNode",
+                "nodeName": "HtmlElement",
+                "line": 25,
+    "tagName": "a",
+    "isVoid": false,
+                "children": [
+{
+                  "type": "HtmlAttributeNode",
+                  "nodeName": "Html Attribute href=\"/\"",
+                  "line": 25,
+    "attrName": "href",
+    "attrValue": "\"/\""
+                },
+{
+                  "type": "HtmlAttributeNode",
+                  "nodeName": "Html Attribute class=\"btn btn-primary\"",
+                  "line": 25,
+    "attrName": "class",
+    "attrValue": "\"btn btn-primary\""
+                },
+{
+                  "type": "TextNode",
+                  "nodeName": "Text \"Back to List\"",
+                  "line": 25
+                }
+                ]
+              }
+              ]
+            }
+            ]
+          }
+          ]
+        },
+{
+          "type": "JinjaEndBlockNode",
+          "nodeName": "JinjaEndBlock",
+          "line": 29
+        }
+        ]
+      }
+      ]
+    }
+  }
+]

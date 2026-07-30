@@ -145,11 +145,15 @@ public class StaticRenderer {
     }
 
     private void renderSelector(ASTNode node, StringBuilder html) {
+        // ★ CombinedSelector = أولادها هم النص الفعلي (a + :hover = a:hover)
+        if (node instanceof CombinedSelectorNode) {
+            for (ASTNode child : node.children) {
+                renderSelector(child, html);
+            }
+            return;
+        }
+
         String name = node.nodeName;
-        // "TypeSelector: body" → فصل بـ ": "
-        // "PseudoClassSelector :hover" → فصل بـ " " (القيمة تبدأ بـ :)
-        // "PseudoElementSelector ::before" → فصل بـ " " (القيمة تبدأ بـ ::)
-        // "UniversalSelector *" → فصل بـ " "
         int colonSpace = name.indexOf(": ");
         if (colonSpace >= 0) {
             html.append(name.substring(colonSpace + 2).trim());

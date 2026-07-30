@@ -332,16 +332,16 @@
 //
 //    }
 //}
+import AST.Core.ASTNode;
 import AST.Core.PageNode;
 import Visitor.HtmlCssJinjaVisitor;
 import Visitor.TemplateSymbolTableVisitor;
 import antlr.TemplateLexer;
 import antlr.TemplateParser;
+import generation.*;
 import main.pythoncompiler.PythonCompiler;
 import symbol_table.SymbolTable;
 import semantic_errors.SemanticChecker;
-import generation.GenerationContext;
-import generation.ContextBuilder;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -356,9 +356,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import generation.TemplateProcessor;
-import generation.StaticRenderer;
 
 public class Main {
 
@@ -637,25 +634,77 @@ public class Main {
         }
 
         generationContext.setSemanticPassed(true);
-        // ===== Person 2 Test: TemplateProcessor + StaticRenderer =====
+
+        // ===== 6. Generation =====
         TemplateProcessor tp = new TemplateProcessor();
         StaticRenderer sr = new StaticRenderer(generationContext);
-        for (String tplName : generationContext.getTemplateNames()) {
+        JinjaRenderer jinjaRenderer = new JinjaRenderer();
+
+        // getRoutes() = Map<URL, funcName>  مثلاً {"/"→"index", "/item/<int:i>"→"item"}
+        // getTemplateForRoute(funcName) = template name  مثلاً "index.html"
+        for (Map.Entry<String, String> entry
+                : generationContext.getRoutes().entrySet()) {
+            String path     = entry.getKey();                         // "/item/<int:i>"
+            String funcName = entry.getValue();                       // "item"
+            String tplName  = generationContext
+                    .getTemplateForRoute(funcName);                   // "product_details.html"
+
+            if (tplName == null) continue;
+
+            // ★ Skip parent templates (base.html — ما فيها extends) ★
             AST.Core.PageNode original = generationContext.getTemplate(tplName);
-            AST.Core.PageNode merged = tp.process(original, generationContext);
-            StringBuilder html = new StringBuilder();
-            sr.renderStaticNode(merged, html);
-            System.out.println("\n  === HTML for " + tplName + " ===");
-            System.out.println(html.toString());
+            if (original == null) continue;
+            boolean hasExtends = false;
+            for (ASTNode child : original.children) {
+                if (child.nodeName.startsWith("JinjaExtends")) {
+                    hasExtends = true; break;
+                }
+            }
+            if (!hasExtends) continue;
+
+            // ★ هل هذا route فيه path parameter مثل <int:i>؟ ★
+            if (path.contains("<int:")) {
+                String paramName =
+                        path.replaceAll(".*<int:(\\w+)>.*", "$1");
+
+                List<Map<String, Object>> productList =
+                        generationContext.getProducts();
+
+                for (int i = 0; i < productList.size(); i++) {
+                    generationContext.pushScope("product",
+                            productList.get(i), i);
+
+                    AST.Core.PageNode merged =
+                            tp.process(original, generationContext);
+                    String html = jinjaRenderer.render(
+                            merged, generationContext, sr);
+
+                    System.out.println("\n  === HTML for " + tplName
+                            + " [" + funcName + " "
+                            + paramName + "=" + i + "] ===");
+                    System.out.println(html);
+
+                    generationContext.popScope();
+                }
+            } else {
+                // ★ Route عادي بدون parameters ★
+                AST.Core.PageNode merged =
+                        tp.process(original, generationContext);
+                String html = jinjaRenderer.render(
+                        merged, generationContext, sr);
+
+                System.out.println("\n  === HTML for "
+                        + funcName + " → " + tplName + " ===");
+                System.out.println(html);
+            }
         }
+
         generationContext.printContext();
-
-        // طباعة اللوجز على الـ console فقط (الملف = شخص 4)
-        printGenerationLogs(generationContext);
-
+       printGenerationLogs(generationContext);
+       Generator generator = new Generator(generationContext);
+       generator.generate();
         System.out.println("\n  Generation phase setup completed.");
     }
-
     // ==================== printGenerationLogs ====================
 
     /**

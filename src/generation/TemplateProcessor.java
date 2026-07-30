@@ -52,12 +52,10 @@ public class TemplateProcessor {
     }
 
     private String extractTemplateName(JinjaExtendsNode node) {
-        // nodeName: "JinjaExtends base.html" → "base.html"
         String name = node.nodeName;
         int spaceIdx = name.indexOf(" ");
         if (spaceIdx < 0) return name;
         String template = name.substring(spaceIdx + 1).trim();
-        // Strip surrounding quotes if present
         if (template.startsWith("\"") && template.endsWith("\"") && template.length() > 1) {
             template = template.substring(1, template.length() - 1);
         }
@@ -77,13 +75,27 @@ public class TemplateProcessor {
                 JinjaBlockNode blockNode = (JinjaBlockNode) node;
                 String blockName = blockNode.getBlockName();
                 List<ASTNode> content = new ArrayList<>();
-                for (int j = i + 1; j < nodes.size(); j++) {
-                    ASTNode sibling = nodes.get(j);
-                    if (sibling instanceof JinjaEndBlockNode) {
-                        break;
+
+                // ★ Fix: الـ parser ممكن يخزّن المحتوى كأولاد لـ JinjaBlockNode ★
+                if (node.children != null && !node.children.isEmpty()) {
+                    for (ASTNode child : node.children) {
+                        if (!(child instanceof JinjaEndBlockNode)) {
+                            content.add(child);
+                        }
                     }
-                    content.add(sibling);
                 }
+
+                // Fallback: المحتوى كـ siblings بين block و endblock
+                if (content.isEmpty()) {
+                    for (int j = i + 1; j < nodes.size(); j++) {
+                        ASTNode sibling = nodes.get(j);
+                        if (sibling instanceof JinjaEndBlockNode) {
+                            break;
+                        }
+                        content.add(sibling);
+                    }
+                }
+
                 blocks.put(blockName, content);
             }
             if (node.children != null && !node.children.isEmpty()) {
@@ -115,20 +127,17 @@ public class TemplateProcessor {
         int line = node.getLine();
         String cls = node.getClass().getSimpleName();
 
-        // Strategy 1: (int) constructor
         try {
             Constructor<?> ctor = node.getClass().getConstructor(int.class);
             return (ASTNode) ctor.newInstance(line);
         } catch (Exception e) {}
 
-        // Strategy 2: (String, int) constructor
         String semantic = extractSemanticValue(node);
         try {
             Constructor<?> ctor = node.getClass().getConstructor(String.class, int.class);
             return (ASTNode) ctor.newInstance(semantic, line);
         } catch (Exception e) {}
 
-        // Strategy 3: (String, String, int) constructor
         String[] two = extractTwoStrings(node);
         if (two != null) {
             try {
@@ -147,7 +156,6 @@ public class TemplateProcessor {
 
         switch (cls) {
             case "HtmlElementNode":
-                // nodeName دائماً "HtmlElement" — لازم نستخدم getTagName()
                 try {
                     return (String) node.getClass().getMethod("getTagName").invoke(node);
                 } catch (Exception e) { return name; }
@@ -237,7 +245,6 @@ public class TemplateProcessor {
                 try { return (String) node.getClass().getMethod("getMacroName").invoke(node); }
                 catch (Exception e) { return name; }
 
-                // هذه الـ types تستخدم (int) constructor — ترجع null عشان Strategy 1 يتعامل معها
             case "PageNode":
             case "StyleBlockNode":
             case "DeclarationListNode":
@@ -304,17 +311,24 @@ public class TemplateProcessor {
                 JinjaBlockNode blockNode = (JinjaBlockNode) node;
                 String blockName = blockNode.getBlockName();
                 if (childBlocks.containsKey(blockName)) {
+                    // ★ نبحث عن JinjaEndBlockNode كـ sibling ★
                     int endIdx = -1;
                     for (int j = i + 1; j < nodes.size(); j++) {
                         if (nodes.get(j) instanceof JinjaEndBlockNode) { endIdx = j; break; }
                     }
+
                     if (endIdx > i) {
+                        // Sibling-based: أحذف من block لـ endblock (شامل) وأدخل المحتوى
                         for (int j = endIdx; j >= i; j--) nodes.remove(j);
-                        List<ASTNode> content = childBlocks.get(blockName);
-                        for (int j = 0; j < content.size(); j++) nodes.add(i + j, content.get(j));
-                        i += content.size();
-                        continue;
+                    } else {
+                        // ★ Child-based: أحذف block فقط (المحتوى جواه كأولاد) ★
+                        nodes.remove(i);
                     }
+
+                    List<ASTNode> content = childBlocks.get(blockName);
+                    for (int j = 0; j < content.size(); j++) nodes.add(i + j, content.get(j));
+                    i += content.size();
+                    continue;
                 } else {
                     context.addWarning("Block '" + blockName + "' not found in child template");
                 }

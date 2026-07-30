@@ -1,0 +1,4 @@
+{
+  "note": "Python AST serialization requires Compiler 1 integration",
+  "source": "src/tests/app1.py"
+}
