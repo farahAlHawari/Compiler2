@@ -7,6 +7,17 @@ import AST.Jinja.*;
 import AST.Css.Rules.*;
 import AST.Css.Selectors.*;
 import AST.Css.Values.*;
+import main.pythoncompiler.ast.AssignNode;
+import main.pythoncompiler.ast.FunctionDefNode;
+import main.pythoncompiler.ast.CallNode;
+import main.pythoncompiler.ast.LiteralNode;
+import main.pythoncompiler.ast.IdentifierNode;
+import main.pythoncompiler.ast.BinaryOpNode;
+import main.pythoncompiler.ast.AttributeNode;
+import main.pythoncompiler.ast.ReturnNode;
+import main.pythoncompiler.ast.ForNode;
+import main.pythoncompiler.ast.ClassDefNode;
+import main.pythoncompiler.ast.UnaryOpNode;
 
 import java.util.*;
 
@@ -18,9 +29,9 @@ import java.util.*;
  */
 public class ASTJsonSerializer {
 
-    // =====================================================================
-    // Public API
-    // =====================================================================
+    // =================================================================
+    // Public API — Jinja/HTML/CSS
+    // =================================================================
 
     /**
      * يُسلسل كل template ASTs الموجودة بالـ context إلى JSON array واحد.
@@ -48,14 +59,25 @@ public class ASTJsonSerializer {
         return sb.toString();
     }
 
-    // =====================================================================
-    // Recursive Serialization
-    // =====================================================================
+    // =================================================================
+    // Public API — Python AST
+    // =================================================================
 
     /**
-     * يُسلسل عقدة AST واحدة (وأولادها) إلى JSON.
-     * يكتب داخل الـ sb المُمرّر مع مسافات البداية.
+     * يُسلسل Python AST (Program root) إلى JSON string.
+     * ★ يستقبل main.pythoncompiler.ast.ASTNode (مش AST.Core.ASTNode) ★
      */
+    public String serializePythonAST(main.pythoncompiler.ast.ASTNode pythonRoot) {
+        if (pythonRoot == null) return null;
+        StringBuilder sb = new StringBuilder();
+        serializePyNode(pythonRoot, sb, 0);
+        return sb.toString();
+    }
+
+    // =================================================================
+    // Recursive Serialization — Jinja/HTML/CSS (AST.Core.ASTNode)
+    // =================================================================
+
     private void serializeNode(ASTNode node, StringBuilder sb, int indent) {
         if (node == null) {
             sb.append("null");
@@ -76,10 +98,9 @@ public class ASTJsonSerializer {
                 .append(escapeJson(node.nodeName)).append(",\n");
 
         // line
-
         sb.append(pad).append("  \"line\": ").append(node.getLine());
 
-        // ★ حقول خاصة بكل نوع ★
+        // ★ حقول خاصة بكل نوع (Jinja/HTML/CSS) ★
         String extraFields = extractExtraFields(node);
         if (extraFields != null && !extraFields.isEmpty()) {
             sb.append(",\n").append(extraFields);
@@ -103,15 +124,63 @@ public class ASTJsonSerializer {
         sb.append("\n").append(pad).append("}");
     }
 
-    // =====================================================================
-    // Extra Fields per Node Type
-    // =====================================================================
+    // =================================================================
+    // Recursive Serialization — Python (main.pythoncompiler.ast.ASTNode)
+    // =================================================================
 
     /**
-     * يرجع حقول JSON إضافية خاصة بنوع العقدة.
-     * يرجع null إذا ما في حقول إضافية.
-     * التنسيق: كل سطر يبدأ بالـ pad + "  " وينتهي بفاصلة.
+     * يُسلسل عقدة Python AST واحدة وأولادها.
+     * ★ نسخة موازية لـ serializeNode بس لـ main.pythoncompiler.ast.ASTNode ★
      */
+    private void serializePyNode(main.pythoncompiler.ast.ASTNode node, StringBuilder sb, int indent) {
+        if (node == null) {
+            sb.append("null");
+            return;
+        }
+
+        String pad = "  ".repeat(indent);
+
+        sb.append("{\n");
+
+        // type
+        sb.append(pad).append("  \"type\": ")
+                .append(escapeJson(node.getClass().getSimpleName())).append(",\n");
+
+        // nodeName
+        sb.append(pad).append("  \"nodeName\": ")
+                .append(escapeJson(node.nodeName)).append(",\n");
+
+        // line — Python AST يستخدم lineNumber (public field) مش getLine()
+        sb.append(pad).append("  \"line\": ").append(node.lineNumber);
+
+        // ★ حقول خاصة بكل نوع Python ★
+        String extraFields = extractPyExtraFields(node);
+        if (extraFields != null && !extraFields.isEmpty()) {
+            sb.append(",\n").append(extraFields);
+        }
+
+        // children
+        if (node.children != null && !node.children.isEmpty()) {
+            sb.append(",\n");
+            sb.append(pad).append("  \"children\": [\n");
+
+            for (int i = 0; i < node.children.size(); i++) {
+                main.pythoncompiler.ast.ASTNode child = node.children.get(i);
+                serializePyNode(child, sb, indent + 1);
+                if (i < node.children.size() - 1) sb.append(",");
+                sb.append("\n");
+            }
+
+            sb.append(pad).append("  ]");
+        }
+
+        sb.append("\n").append(pad).append("}");
+    }
+
+    // =================================================================
+    // Extra Fields — Jinja/HTML/CSS (AST.Core.ASTNode)
+    // =================================================================
+
     private String extractExtraFields(ASTNode node) {
         String pad = "  ";
 
@@ -150,15 +219,92 @@ public class ASTJsonSerializer {
             return pad + "  \"property\": " + escapeJson(decl.getProperty())
                     + ",\n" + pad + "  \"value\": " + escapeJson(decl.getValue());
         }
-        else if (node instanceof StyleBlockNode) {
-            // closingLine موجود لكن ما في getter — نتجاهله
-            return null;
-        }
-        // TextNode, DoctypeNode, JinjaElseNode, JinjaExpressionNode,
-        // Selectors, CSS Values — المحتوى كله بـ nodeName
         return null;
     }
-    // ✅ تعديل: أضفنا helper لأن isVoidTag private بال HtmlElementNode
+
+    // =================================================================
+    // Extra Fields — Python (main.pythoncompiler.ast.*)
+    // =================================================================
+
+    /**
+     * يرجع حقول JSON إضافية خاصة بنوع العقدة Python.
+     */
+    private String extractPyExtraFields(main.pythoncompiler.ast.ASTNode node) {
+        String pad = "  ";
+
+        if (node instanceof AssignNode) {
+            AssignNode n = (AssignNode) node;
+            StringBuilder sb = new StringBuilder();
+            sb.append(pad).append("  \"variableName\": ").append(escapeJson(n.variableName)).append(",\n");
+            sb.append(pad).append("  \"operator\": ").append(escapeJson(n.operator));
+            if (n.declaredType != null && !n.declaredType.isEmpty()) {
+                sb.append(",\n").append(pad).append("  \"declaredType\": ").append(escapeJson(n.declaredType));
+            }
+            return sb.toString();
+        }
+        else if (node instanceof FunctionDefNode) {
+            FunctionDefNode n = (FunctionDefNode) node;
+            StringBuilder sb = new StringBuilder();
+            sb.append(pad).append("  \"functionName\": ").append(escapeJson(n.functionName)).append(",\n");
+            sb.append(pad).append("  \"returnType\": ").append(escapeJson(n.returnType)).append(",\n");
+            sb.append(pad).append("  \"paramCount\": ").append(n.paramCount);
+            return sb.toString();
+        }
+        else if (node instanceof CallNode) {
+            CallNode n = (CallNode) node;
+            StringBuilder sb = new StringBuilder();
+            sb.append(pad).append("  \"functionName\": ").append(escapeJson(n.functionName)).append(",\n");
+            sb.append(pad).append("  \"argCount\": ").append(n.argCount);
+            return sb.toString();
+        }
+        else if (node instanceof LiteralNode) {
+            LiteralNode n = (LiteralNode) node;
+            StringBuilder sb = new StringBuilder();
+            sb.append(pad).append("  \"value\": ").append(escapeJson(n.value)).append(",\n");
+            sb.append(pad).append("  \"literalType\": ").append(escapeJson(n.type));
+            return sb.toString();
+        }
+        else if (node instanceof IdentifierNode) {
+            IdentifierNode n = (IdentifierNode) node;
+            return pad + "  \"name\": " + escapeJson(n.name);
+        }
+        else if (node instanceof BinaryOpNode) {
+            BinaryOpNode n = (BinaryOpNode) node;
+            return pad + "  \"operator\": " + escapeJson(n.operator);
+        }
+        else if (node instanceof UnaryOpNode) {
+            UnaryOpNode n = (UnaryOpNode) node;
+            return pad + "  \"operator\": " + escapeJson(n.operator);
+        }
+        else if (node instanceof AttributeNode) {
+            AttributeNode n = (AttributeNode) node;
+            return pad + "  \"attributeName\": " + escapeJson(n.attributeName);
+        }
+        else if (node instanceof ReturnNode) {
+            ReturnNode n = (ReturnNode) node;
+            StringBuilder sb = new StringBuilder();
+            sb.append(pad).append("  \"returnExprType\": ").append(escapeJson(n.returnExprType)).append(",\n");
+            sb.append(pad).append("  \"enclosingFunctionName\": ").append(escapeJson(n.enclosingFunctionName));
+            return sb.toString();
+        }
+        else if (node instanceof ForNode) {
+            ForNode n = (ForNode) node;
+            return pad + "  \"iteratorName\": " + escapeJson(n.iteratorName);
+        }
+        else if (node instanceof ClassDefNode) {
+            ClassDefNode n = (ClassDefNode) node;
+            return pad + "  \"className\": " + escapeJson(n.className);
+        }
+        // ProgramNode, BlockNode, IfNode, ElseNode, WhileNode,
+        // ListNode, DictNode, IndexNode, DecoratorNode, DecoratorListNode
+        // → ما في حقول إضافية، المحتوى كلو بـ nodeName + children
+        return null;
+    }
+
+    // =================================================================
+    // Helpers
+    // =================================================================
+
     private boolean isVoidTag(String tagName) {
         return tagName.equals("area") || tagName.equals("base") || tagName.equals("br")
                 || tagName.equals("col") || tagName.equals("embed") || tagName.equals("hr")
@@ -167,14 +313,6 @@ public class ASTJsonSerializer {
                 || tagName.equals("track") || tagName.equals("wbr");
     }
 
-    // =====================================================================
-    // JSON Helpers
-    // =====================================================================
-
-    /**
-     * يهرب نص ليكون صالح داخل JSON string (مع quotes).
-     * "hello" → "\"hello\""
-     */
     private String escapeJson(String value) {
         if (value == null) return "null";
         StringBuilder sb = new StringBuilder();

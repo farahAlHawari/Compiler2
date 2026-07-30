@@ -1,7 +1,7 @@
 package generation;
 
 import AST.Core.PageNode;
-
+import main.pythoncompiler.ast.*;
 import java.util.*;
 
 /**
@@ -53,6 +53,15 @@ public class GenerationContext {
     private boolean frozen = false;
     private final List<String> warnings = new ArrayList<>();
     private final List<String> logEntries = new ArrayList<>();
+
+    private ASTNode pythonASTRoot;   // ← نوعه ASTNode مش String
+    private String pythonAstJson;    // ← JSON بعد الـ serialization
+
+    public ASTNode getPythonASTRoot() { return pythonASTRoot; }
+    public void setPythonASTRoot(ASTNode root) { this.pythonASTRoot = root; }
+
+    public String getPythonAstJson() { return pythonAstJson; }
+    public void setPythonAstJson(String json) { this.pythonAstJson = json; }
 
     // =====================================================================
     // Lifecycle

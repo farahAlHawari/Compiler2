@@ -40,25 +40,6 @@
 [ContextBuilder] Globals: [products]
 [GenerationContext] Frozen — core data is now read-only
 [ContextBuilder] Done. Products=3 Routes=4 Templates=4 ASTs=4 Route->Template=3
-[TemplateProcessor] Merged base.html
-[JinjaRenderer] Evaluated condition: p.details → true
-[JinjaRenderer] Evaluated condition: p.image → true
-[JinjaRenderer] Evaluated condition: p.details → true
-[JinjaRenderer] Evaluated condition: p.image → true
-[JinjaRenderer] Evaluated condition: p.details → true
-[JinjaRenderer] Evaluated condition: p.image → false
-[JinjaRenderer] Expanded for loop: p in products (3 iterations)
-[JinjaRenderer] Evaluated condition: products → true
-[TemplateProcessor] Merged base.html
-[TemplateProcessor] Merged base.html
-[JinjaRenderer] Evaluated condition: product.image → true
-[JinjaRenderer] Evaluated condition: product.details → true
-[TemplateProcessor] Merged base.html
-[JinjaRenderer] Evaluated condition: product.image → true
-[JinjaRenderer] Evaluated condition: product.details → true
-[TemplateProcessor] Merged base.html
-[JinjaRenderer] Evaluated condition: product.image → false
-[JinjaRenderer] Evaluated condition: product.details → true
 [Generator] Started
 [Generator] Processing index.html [index → /]
 [TemplateProcessor] Merged base.html
@@ -85,7 +66,7 @@
 [JinjaRenderer] Evaluated condition: product.image → false
 [JinjaRenderer] Evaluated condition: product.details → true
 [Generator] Rendered 5 page(s)
-[Generator] Serializing ASTs to JSON
+[Generator] Serializing template ASTs to JSON
 [Generator] Writing output files
 [OutputWriter] Written: output\index.html
 [OutputWriter] Written: output\add.html

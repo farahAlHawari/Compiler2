@@ -356,6 +356,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import generation.ASTJsonSerializer;
 
 public class Main {
 
@@ -530,9 +531,12 @@ public class Main {
         symbolTable.setCurrentFileName(pythonFileName);
         symbolTable.setCurrentFilePath(pythonFile);
 
+        main.pythoncompiler.ast.ASTNode pythonRoot = null;  // ★ نعرّفها قبل try ★
+
         try {
             PythonCompiler compiler = new PythonCompiler(symbolTable);
             compiler.compile(pythonFile);
+            pythonRoot = compiler.getAST();                   // ★ نجيب الـ root ★
         } catch (Exception e) {
             System.out.println("  [Python] Compilation error: " + e.getMessage());
             System.out.println("\n  Stopping — Python compilation failed.");
@@ -588,7 +592,7 @@ public class Main {
         symbolTable.printSymbolTable();
         symbolTable.printScopeStructure();
 
-        // ===== 4. Semantic gate (بدون تقرير فارغ / بدون ملف إذا 0 أخطاء) =====
+        // ===== 4. Semantic gate =====
         SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
         semanticChecker.checkErrors();
 
@@ -620,7 +624,7 @@ public class Main {
         System.out.println("\n  Semantic check: OK (0 errors)");
         System.out.println("  Starting Generation ...");
 
-        // ===== 5. ContextBuilder (source-based, بدون SymbolTable) =====
+        // ===== 5. ContextBuilder =====
         ContextBuilder contextBuilder = new ContextBuilder();
         contextBuilder.setPythonFilePath(pythonFile);
         contextBuilder.setTemplatesDirectory(templatesDir);
@@ -633,77 +637,26 @@ public class Main {
             return;
         }
 
-        generationContext.setSemanticPassed(true);
-
-        // ===== 6. Generation =====
-        TemplateProcessor tp = new TemplateProcessor();
-        StaticRenderer sr = new StaticRenderer(generationContext);
-        JinjaRenderer jinjaRenderer = new JinjaRenderer();
-
-        // getRoutes() = Map<URL, funcName>  مثلاً {"/"→"index", "/item/<int:i>"→"item"}
-        // getTemplateForRoute(funcName) = template name  مثلاً "index.html"
-        for (Map.Entry<String, String> entry
-                : generationContext.getRoutes().entrySet()) {
-            String path     = entry.getKey();                         // "/item/<int:i>"
-            String funcName = entry.getValue();                       // "item"
-            String tplName  = generationContext
-                    .getTemplateForRoute(funcName);                   // "product_details.html"
-
-            if (tplName == null) continue;
-
-            // ★ Skip parent templates (base.html — ما فيها extends) ★
-            AST.Core.PageNode original = generationContext.getTemplate(tplName);
-            if (original == null) continue;
-            boolean hasExtends = false;
-            for (ASTNode child : original.children) {
-                if (child.nodeName.startsWith("JinjaExtends")) {
-                    hasExtends = true; break;
-                }
-            }
-            if (!hasExtends) continue;
-
-            // ★ هل هذا route فيه path parameter مثل <int:i>؟ ★
-            if (path.contains("<int:")) {
-                String paramName =
-                        path.replaceAll(".*<int:(\\w+)>.*", "$1");
-
-                List<Map<String, Object>> productList =
-                        generationContext.getProducts();
-
-                for (int i = 0; i < productList.size(); i++) {
-                    generationContext.pushScope("product",
-                            productList.get(i), i);
-
-                    AST.Core.PageNode merged =
-                            tp.process(original, generationContext);
-                    String html = jinjaRenderer.render(
-                            merged, generationContext, sr);
-
-                    System.out.println("\n  === HTML for " + tplName
-                            + " [" + funcName + " "
-                            + paramName + "=" + i + "] ===");
-                    System.out.println(html);
-
-                    generationContext.popScope();
-                }
-            } else {
-                // ★ Route عادي بدون parameters ★
-                AST.Core.PageNode merged =
-                        tp.process(original, generationContext);
-                String html = jinjaRenderer.render(
-                        merged, generationContext, sr);
-
-                System.out.println("\n  === HTML for "
-                        + funcName + " → " + tplName + " ===");
-                System.out.println(html);
-            }
+        // ★ نسلسل Python AST ونخزّن JSON بالـ context ★
+        if (pythonRoot != null) {
+            ASTJsonSerializer serializer = new ASTJsonSerializer();
+            String pythonAstJson = serializer.serializePythonAST(pythonRoot);
+            generationContext.setPythonAstJson(pythonAstJson);
+            System.out.println("  [Main] Python AST serialized successfully.");
+        } else {
+            System.out.println("  [Main] Python AST root is null — skipping ast_python.json.");
         }
 
-        generationContext.printContext();
-       printGenerationLogs(generationContext);
-       Generator generator = new Generator(generationContext);
-       generator.generate();
-        System.out.println("\n  Generation phase setup completed.");
+        generationContext.setSemanticPassed(true);
+
+        // ===== 6. Generation (Person 4 — Generator) =====
+        Generator generator = new Generator(generationContext);
+        generator.generate();
+
+        // ===== 7. Print Generation Logs =====
+        printGenerationLogs(generationContext);
+
+        System.out.println("\n  Generation phase completed.");
     }
     // ==================== printGenerationLogs ====================
 
@@ -714,7 +667,7 @@ public class Main {
     private static void printGenerationLogs(GenerationContext context) {
         System.out.println();
         System.out.println("=".repeat(60));
-        System.out.println(" Generation Logs (in-memory — file write = Person 4)");
+        System.out.println(" Generation Logs");
         System.out.println("=".repeat(60));
 
         List<String> entries = context.getLogEntries();
