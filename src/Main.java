@@ -642,9 +642,9 @@ public class Main {
             ASTJsonSerializer serializer = new ASTJsonSerializer();
             String pythonAstJson = serializer.serializePythonAST(pythonRoot);
             generationContext.setPythonAstJson(pythonAstJson);
-            System.out.println("  [Main] Python AST serialized successfully.");
+       //     System.out.println("  [Main] Python AST serialized successfully.");
         } else {
-            System.out.println("  [Main] Python AST root is null — skipping ast_python.json.");
+        //    System.out.println("  [Main] Python AST root is null — skipping ast_python.json.");
         }
 
         generationContext.setSemanticPassed(true);
@@ -654,7 +654,7 @@ public class Main {
         generator.generate();
 
         // ===== 7. Print Generation Logs =====
-        printGenerationLogs(generationContext);
+      //  printGenerationLogs(generationContext);
 
         System.out.println("\n  Generation phase completed.");
     }

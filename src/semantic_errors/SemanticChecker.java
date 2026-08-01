@@ -2,6 +2,7 @@ package semantic_errors;
 
 import semantic_errors.error_types.*;
 import symbol_table.SymbolTable;
+import symbol_table.SymbolEntry;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,6 +24,15 @@ public class SemanticChecker {
      * Each checker adds its found errors to the shared errors list.
      */
     public void checkErrors() {
+        // ★★★ إصلاح: هذا كان الفاحص المفقود. SymbolTable.insert() كانت
+        // تسجّل أخطاء "already declared" بقائمتها الخاصة (errorMessages /
+        // duplicateErrors) لوحدها، وMain.java كانت بوابته تشيك بس
+        // semanticChecker.getErrors() — يعني أخطاء التكرار الحقيقية
+        // (مو الزائفة اللي صلّحناها بـ SymbolTable.insert نفسها) كانت
+        // ممكن تفوت من البوابة وتخلي Generation يبدأ رغم وجود خطأ دلالي
+        // حقيقي. هذا الفاحص يوحّد القناتين.
+        checkSymbolTableDuplicateDeclarations();
+
         // 1. Missing Flask Variable Checker
         MissingFlaskVarChecker missingFlaskVarChecker = new MissingFlaskVarChecker(symbolTable, errors);
         missingFlaskVarChecker.check();
@@ -67,6 +77,34 @@ public class SemanticChecker {
         operationTypeErrorChecker.check();
 
     }
+
+    /**
+     * ★★★ إصلاح: يقرأ الأخطاء اللي سجّلها SymbolTable.insert() (تعريف
+     * مكرر لنفس الاسم بنفس الـ scope) ويحوّلها لكائنات SemanticError
+     * ضمن نفس القائمة الموحّدة اللي بوابة Main.java فعلياً تشيكها.
+     *
+     * بنستخدم symbolTable.getDuplicateErrors() (List<SymbolEntry>) وليس
+     * getErrorMessages() (List<String>) لأن الأخيرة فيها أيضاً تحذيرات
+     * CSS property المكررة ("Warning [Line ...]")، وهاي مش أخطاء دلالية
+     * حقيقية ولا يصح توقف Generation بسببها. duplicateErrors فيها فقط
+     * التكرارات الحقيقية (متغيرات/دوال/رموز)، لأن insertCssProperty ما
+     * بتضيف إلها شي أصلاً.
+     */
+    private void checkSymbolTableDuplicateDeclarations() {
+        for (SymbolEntry dup : symbolTable.getDuplicateErrors()) {
+            errors.add(new SemanticError(
+                    SemanticErrorType.DUPLICATE_DECLARATION,
+                    "DuplicateDeclaration",
+                    "Symbol '" + dup.getName() + "' is already declared in this scope",
+                    dup.getLine(),
+                    dup.getFileName(),
+                    dup.getName(),
+                    "",
+                    ""
+            ));
+        }
+    }
+
     public List<SemanticError> getErrors() {
         return errors;
     }
@@ -78,21 +116,6 @@ public class SemanticChecker {
     /**
      * Print all semantic errors to console.
      */
-//    public void printErrors() {
-//        System.out.println("\n" + "=".repeat(80));
-//        System.out.println("                    SEMANTIC ERROR CHECK RESULTS");
-//        System.out.println("=".repeat(80));
-//
-//        if (errors.isEmpty()) {
-//            System.out.println("No Semantic Errors found.");
-//        } else {
-//            System.out.println("Semantic Check :");
-//            for (SemanticError error : errors) {
-//                System.out.println(error.toString());
-//            }
-//        }
-//        System.out.println("=".repeat(80));
-//    }
     public void printErrors() {
         System.out.println("\n" + "=".repeat(80));
         System.out.println("                         SEMANTIC ERROR REPORT");
@@ -112,24 +135,10 @@ public class SemanticChecker {
         }
         System.out.println("=".repeat(80));
     }
+
     /**
      * Write all semantic errors to a file.
      */
-//    public void writeErrorsToFile(String filePath) {
-//        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
-//            writer.println("Semantic Check :");
-//            if (errors.isEmpty()) {
-//                writer.println("No Semantic Errors found.");
-//            } else {
-//                for (SemanticError error : errors) {
-//                    writer.println(error.toString());
-//                }
-//            }
-//            }
-//        } catch (IOException e) {
-//            System.err.println("Error writing semantic errors to file: " + e.getMessage());
-//        }
-//    }
     public void writeErrorsToFile(String filePath) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
             writer.println("=".repeat(80));

@@ -12,4 +12,8 @@ public enum SemanticErrorType {
     INVALID_ATTRIBUTE_ACCESS,
     OPERATION_ON_NONE,
     OPERATION_TYPE_ERROR,
+    // ★ إضافة: كان SymbolTable.errorMessages منفصل تماماً عن هذا الـ enum،
+    // فبوابة Main.java (اللي بتشيك semanticChecker.getErrors()) ما كانت
+    // ترى أخطاء "already declared" إطلاقاً مهما كانت حقيقية.
+    DUPLICATE_DECLARATION,
 }

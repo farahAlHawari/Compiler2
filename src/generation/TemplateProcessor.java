@@ -7,7 +7,6 @@ import AST.Jinja.JinjaBlockNode;
 import AST.Jinja.JinjaEndBlockNode;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,11 +15,9 @@ import java.util.Map;
 public class TemplateProcessor {
 
     public PageNode process(PageNode childPage, GenerationContext context) {
-        // 1. يبحث عن JinjaExtendsNode في child
         JinjaExtendsNode extendsNode = findExtendsNode(childPage);
-        if (extendsNode == null) return childPage; // لا extends → صفحة كاملة
+        if (extendsNode == null) return childPage;
 
-        // 2. ★ Validation: التحقق من وجود Base Template ★
         String parentName = extractTemplateName(extendsNode);
         PageNode parentPage = context.getTemplate(parentName);
         if (parentPage == null) {
@@ -28,13 +25,11 @@ public class TemplateProcessor {
             return childPage;
         }
 
-        // 3. يجمع block names + content من child
         Map<String, List<ASTNode>> childBlocks = collectBlocks(childPage);
 
-        // 4. ينسخ شجرة parent (لا نعدّل الأصلية!)
-        PageNode merged = deepCopy(parentPage);
+        // ★ تعديل: مرّرنا context لـ deepCopy حتى تقدر تسجّل تحذيراً لو الفشل صار
+        PageNode merged = deepCopy(parentPage, context);
 
-        // 5. ★ Validation: التحقق من وجود Block المطلوب ★
         replaceBlocks(merged, childBlocks, context);
 
         context.addLog("[TemplateProcessor] Merged " + parentName);
@@ -76,7 +71,6 @@ public class TemplateProcessor {
                 String blockName = blockNode.getBlockName();
                 List<ASTNode> content = new ArrayList<>();
 
-                // ★ Fix: الـ parser ممكن يخزّن المحتوى كأولاد لـ JinjaBlockNode ★
                 if (node.children != null && !node.children.isEmpty()) {
                     for (ASTNode child : node.children) {
                         if (!(child instanceof JinjaEndBlockNode)) {
@@ -85,7 +79,6 @@ public class TemplateProcessor {
                     }
                 }
 
-                // Fallback: المحتوى كـ siblings بين block و endblock
                 if (content.isEmpty()) {
                     for (int j = i + 1; j < nodes.size(); j++) {
                         ASTNode sibling = nodes.get(j);
@@ -104,20 +97,34 @@ public class TemplateProcessor {
         }
     }
 
-    private PageNode deepCopy(PageNode page) {
+    private PageNode deepCopy(PageNode page, GenerationContext context) {
         PageNode copy = new PageNode(page.getLine());
         for (ASTNode child : page.children) {
-            copy.children.add(deepCopyNode(child));
+            copy.children.add(deepCopyNode(child, context));
         }
         return copy;
     }
 
-    private ASTNode deepCopyNode(ASTNode node) {
+    /**
+     * ★★★ الإصلاح: كانت createNodeCopy لو فشلت (نوع عقدة ما يطابق أي
+     * منشئ معروف) ترجع null بصمت، وdeepCopyNode كانت حينها تُرجع العقدة
+     * الأصلية *نفسها* (نفس المرجع) بدل نسخة عنها. هذا يعني أن "merged"
+     * ممكن يشارك مرجعياً أجزاء من شجرة base.html الأصلية، وreplaceBlocksInList
+     * بعدين قد تُعدّل تلك الأجزاء المشتركة فعلياً — أي تُعدّل الشجرة
+     * الأصلية رغم أن التعليق يقول صراحة "لا نعدّل الأصلية!".
+     * الآن: نسجّل تحذيراً واضحاً بدل أن يمر الأمر بصمت.
+     */
+    private ASTNode deepCopyNode(ASTNode node, GenerationContext context) {
         ASTNode copy = createNodeCopy(node);
-        if (copy == null) return node;
+        if (copy == null) {
+            context.addWarning("Deep-copy failed for node type '"
+                    + node.getClass().getSimpleName()
+                    + "' — reusing original node reference (base template tree may be shared)");
+            return node;
+        }
         if (node.children != null) {
             for (ASTNode child : node.children) {
-                copy.children.add(deepCopyNode(child));
+                copy.children.add(deepCopyNode(child, context));
             }
         }
         return copy;
@@ -125,7 +132,6 @@ public class TemplateProcessor {
 
     private ASTNode createNodeCopy(ASTNode node) {
         int line = node.getLine();
-        String cls = node.getClass().getSimpleName();
 
         try {
             Constructor<?> ctor = node.getClass().getConstructor(int.class);
@@ -288,17 +294,14 @@ public class TemplateProcessor {
                 JinjaBlockNode blockNode = (JinjaBlockNode) node;
                 String blockName = blockNode.getBlockName();
                 if (childBlocks.containsKey(blockName)) {
-                    // ★ نبحث عن JinjaEndBlockNode كـ sibling ★
                     int endIdx = -1;
                     for (int j = i + 1; j < nodes.size(); j++) {
                         if (nodes.get(j) instanceof JinjaEndBlockNode) { endIdx = j; break; }
                     }
 
                     if (endIdx > i) {
-                        // Sibling-based: أحذف من block لـ endblock (شامل) وأدخل المحتوى
                         for (int j = endIdx; j >= i; j--) nodes.remove(j);
                     } else {
-                        // ★ Child-based: أحذف block فقط (المحتوى جواه كأولاد) ★
                         nodes.remove(i);
                     }
 

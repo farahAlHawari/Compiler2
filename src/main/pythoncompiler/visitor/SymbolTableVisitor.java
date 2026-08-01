@@ -293,7 +293,7 @@ public class SymbolTableVisitor {
                             entry.setDeclaredType(assignNode.declaredType);
                         }
                         symbolTable.insert(entry);
-                        symbolTable.insert(entry); // شو سبب تكراره؟
+                      // symbolTable.insert(entry); // شو سبب تكراره؟
                     }
                 }
             }

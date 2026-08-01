@@ -201,6 +201,17 @@ public class SymbolTable {
         // Check for duplicate in current scope
         if (current.contains(entry.getName())) {
             SymbolEntry existing = current.lookup(entry.getName());
+
+            // ★ NEW: تجاهل التكرار إذا من ملف مختلف ★
+            // (block:content, extends, include, import — كل template يضيفها وهذا طبيعي)
+            String entryFile = (entry.getFileName() != null) ? entry.getFileName() : "";
+            String existFile = (existing != null && existing.getFileName() != null)
+                    ? existing.getFileName() : "";
+            if (!entryFile.isEmpty() && !existFile.isEmpty()
+                    && !entryFile.equals(existFile)) {
+                return true;  // ملف مختلف — مش خطأ حقيقي
+            }
+
             String errorMsg = String.format(
                     "Semantic Error [Line %d]: Symbol '%s' is already declared in scope '%s' (first declared at line %d)",
                     entry.getLine(), entry.getName(), current.getContextName(),
@@ -215,7 +226,6 @@ public class SymbolTable {
         allEntries.add(entry);
         return true;
     }
-
     // ==================== [تعديل 2] إصلاح insertCssProperty ====================
     /**
      * Insert a CSS property (allows duplicates since CSS properties can repeat

@@ -33,9 +33,6 @@ public class ASTJsonSerializer {
     // Public API — Jinja/HTML/CSS
     // =================================================================
 
-    /**
-     * يُسلسل كل template ASTs الموجودة بالـ context إلى JSON array واحد.
-     */
     public String serializeJinjaASTs(GenerationContext context) {
         StringBuilder sb = new StringBuilder();
         sb.append("[\n");
@@ -85,7 +82,6 @@ public class ASTJsonSerializer {
         }
 
         String pad = "  ".repeat(indent);
-        String childPad = "  ".repeat(indent + 1);
 
         sb.append("{\n");
 
@@ -142,24 +138,20 @@ public class ASTJsonSerializer {
 
         sb.append("{\n");
 
-        // type
         sb.append(pad).append("  \"type\": ")
                 .append(escapeJson(node.getClass().getSimpleName())).append(",\n");
 
-        // nodeName
         sb.append(pad).append("  \"nodeName\": ")
                 .append(escapeJson(node.nodeName)).append(",\n");
 
         // line — Python AST يستخدم lineNumber (public field) مش getLine()
         sb.append(pad).append("  \"line\": ").append(node.lineNumber);
 
-        // ★ حقول خاصة بكل نوع Python ★
         String extraFields = extractPyExtraFields(node);
         if (extraFields != null && !extraFields.isEmpty()) {
             sb.append(",\n").append(extraFields);
         }
 
-        // children
         if (node.children != null && !node.children.isEmpty()) {
             sb.append(",\n");
             sb.append(pad).append("  \"children\": [\n");
@@ -178,7 +170,7 @@ public class ASTJsonSerializer {
     }
 
     // =================================================================
-    // Extra Fields — Jinja/HTML/CSS (AST.Core.ASTNode)
+    // Extra Fields — Jinja/HTML/CSS
     // =================================================================
 
     private String extractExtraFields(ASTNode node) {
@@ -186,8 +178,14 @@ public class ASTJsonSerializer {
 
         if (node instanceof HtmlElementNode) {
             HtmlElementNode el = (HtmlElementNode) node;
+            // ★★★ الإصلاح: كان String.valueOf(el) بدل el.getTagName() ★★★
+            // String.valueOf(el) يستدعي toString() الافتراضي من Object
+            // (مثل AST.Html.HtmlElementNode@1a2b3c)، وبما إن الصنف ما بيعمل
+            // override لـ toString()، فـ isVoidTag كانت ترجع false دائماً
+            // حتى لو كان الوسم فعلياً img أو br أو input. النتيجة: حقل
+            // "isVoid" في ast_jinja.json كان دائماً false بشكل خاطئ.
             return pad + "  \"tagName\": " + escapeJson(el.getTagName())
-                    + ",\n" + pad + "  \"isVoid\": " + isVoidTag(String.valueOf(el));
+                    + ",\n" + pad + "  \"isVoid\": " + isVoidTag(el.getTagName());
         }
         else if (node instanceof HtmlAttributeNode) {
             HtmlAttributeNode attr = (HtmlAttributeNode) node;
@@ -223,12 +221,9 @@ public class ASTJsonSerializer {
     }
 
     // =================================================================
-    // Extra Fields — Python (main.pythoncompiler.ast.*)
+    // Extra Fields — Python
     // =================================================================
 
-    /**
-     * يرجع حقول JSON إضافية خاصة بنوع العقدة Python.
-     */
     private String extractPyExtraFields(main.pythoncompiler.ast.ASTNode node) {
         String pad = "  ";
 
@@ -295,9 +290,6 @@ public class ASTJsonSerializer {
             ClassDefNode n = (ClassDefNode) node;
             return pad + "  \"className\": " + escapeJson(n.className);
         }
-        // ProgramNode, BlockNode, IfNode, ElseNode, WhileNode,
-        // ListNode, DictNode, IndexNode, DecoratorNode, DecoratorListNode
-        // → ما في حقول إضافية، المحتوى كلو بـ nodeName + children
         return null;
     }
 

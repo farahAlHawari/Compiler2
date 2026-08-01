@@ -2,40 +2,15 @@ package generation;
 
 import AST.Core.ASTNode;
 import AST.Core.PageNode;
-import AST.Html.DoctypeNode;
 import AST.Html.HtmlAttributeNode;
 import AST.Html.HtmlElementNode;
-import AST.Html.TextNode;
-import AST.Css.Rules.DeclarationListNode;
-import AST.Css.Rules.DeclarationNode;
-import AST.Css.Rules.StyleBlockNode;
-import AST.Css.Rules.StyleRuleNode;
-import AST.Css.Selectors.AttributeSelectorNode;
-import AST.Css.Selectors.ClassSelectorNode;
-import AST.Css.Selectors.CombinedSelectorNode;
-import AST.Css.Selectors.IdSelectorNode;
-import AST.Css.Selectors.PseudoClassNode;
-import AST.Css.Selectors.PseudoElementNode;
-import AST.Css.Selectors.TypeSelectorNode;
-import AST.Css.Selectors.UniversalSelectorNode;
-import AST.Css.Values.ColorCssValue;
-import AST.Css.Values.FunctionCallCssValue;
-import AST.Css.Values.IdentifierCssValue;
-import AST.Css.Values.NumericCssValue;
-import AST.Css.Values.StringCssValue;
-import AST.Core.ASTNode;
-import AST.Core.PageNode;
 import AST.Jinja.*;
 
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class JinjaRenderer {
 
@@ -47,8 +22,6 @@ public class JinjaRenderer {
             "link", "meta", "param", "source", "track", "wbr"
     );
 
-    // ==================== Public API ====================
-
     public String render(PageNode page, GenerationContext ctx, StaticRenderer sr) {
         this.context = ctx;
         this.staticRenderer = sr;
@@ -56,8 +29,6 @@ public class JinjaRenderer {
         renderNode(page, html);
         return html.toString();
     }
-
-    // ==================== Main Dispatch ====================
 
     private void renderNode(ASTNode node, StringBuilder html) {
         if (node == null) return;
@@ -117,8 +88,6 @@ public class JinjaRenderer {
         staticRenderer.renderStaticNode(node, html);
     }
 
-    // ==================== HTML Element with Jinja-Aware Child Traversal ====================
-
     private void renderHtmlElement(HtmlElementNode node, StringBuilder html) {
         String tagName = node.getTagName();
         html.append("<").append(tagName);
@@ -130,11 +99,11 @@ public class JinjaRenderer {
         }
 
         if (isVoidTag(tagName)) {
-            html.append(">\n");          // ✅ تغيير 1
+            html.append(">\n");
             return;
         }
 
-        html.append(">\n");              // ✅ تغيير 2
+        html.append(">\n");
 
         for (ASTNode child : node.children) {
             if (!(child instanceof HtmlAttributeNode)) {
@@ -142,7 +111,7 @@ public class JinjaRenderer {
             }
         }
 
-        html.append("</").append(tagName).append(">\n");   // ✅ تغيير 3
+        html.append("</").append(tagName).append(">\n");
     }
 
     private void renderAttribute(HtmlAttributeNode node, StringBuilder html) {
@@ -151,7 +120,6 @@ public class JinjaRenderer {
         if (val.startsWith("\"") && val.endsWith("\"") && val.length() > 1)
             val = val.substring(1, val.length() - 1);
         val = resolveExpressionsInString(val);
-
         val = convertRouteToStaticPage(node.getAttrName(), val);
 
         if (!val.isEmpty())
@@ -175,39 +143,85 @@ public class JinjaRenderer {
         return str;
     }
 
+    /**
+     * ★★★ الإصلاح: النسخة القديمة كانت "مقفلة" على app1.py بالذات — تفحص
+     * قيماً حرفية ثابتة ("/", "/add", بادئة "/details/", بادئة "/delete/").
+     * كانت تعمل بالصدفة مع هذا التطبيق فقط لأن أسماء الدوال طابقت أسماء
+     * القوالب (index→index.html، add→add.html). أي تطبيق Flask آخر
+     * بمسارات أو أسماء دوال مختلفة كانت ستكسر الروابط الناتجة.
+     *
+     * النسخة الجديدة تبني المطابقة ديناميكياً من context.getRoutes() +
+     * context.getTemplateForRoute()، بنفس منطق تسمية الملفات المستخدم
+     * فعلياً في Generator (funcName + ".html" العادي، أو
+     * baseName + "_" + i + ".html" للـ Routes المعاملية)، فتدعم أي عدد
+     * من الـ Routes بدل مسارين اثنين فقط.
+     */
     private String convertRouteToStaticPage(String attrName, String value) {
-
-        if (!attrName.equals("href") && !attrName.equals("action"))
+        if (!attrName.equals("href") && !attrName.equals("action")) {
             return value;
-
-        switch (value) {
-
-            case "/":
-                return "index.html";
-
-            case "/add":
-                return "add.html";
-
-            default:
-
-                if (value.startsWith("/details/")) {
-                    String id = value.substring("/details/".length());
-                    return "product_details_" + id + ".html";
-                }
-
-                if (value.startsWith("/delete/")) {
-                    return "#";
-                }
-
-                return value;
         }
+        if (value == null || value.isEmpty() || context == null) {
+            return value;
+        }
+
+        for (Map.Entry<String, String> route : context.getRoutes().entrySet()) {
+            String routePattern = route.getKey();   // مثل "/details/<int:i>"
+            String funcName = route.getValue();      // مثل "details"
+
+            java.util.regex.Matcher m = Pattern.compile(routeToRegex(routePattern))
+                    .matcher(value);
+            if (!m.matches()) {
+                continue;
+            }
+
+            String templateName = context.getTemplateForRoute(funcName);
+            if (templateName == null) {
+                // Route موجود لكن لا يعرض صفحة (مثل /delete/<int:i> الذي
+                // يعمل redirect فقط) — لا صفحة له فعلياً
+                return "#";
+            }
+
+            String baseName = templateName.endsWith(".html")
+                    ? templateName.substring(0, templateName.length() - 5)
+                    : templateName;
+
+            return (m.groupCount() >= 1)
+                    ? baseName + "_" + m.group(1) + ".html"
+                    : funcName + ".html";
+        }
+
+        return value; // رابط خارجي غير معروف — إرجاعه كما هو
+    }
+
+    /** يحوّل نمط Route من Flask (مثل /details/<int:i>) إلى Regex قابل للمطابقة. */
+    private String routeToRegex(String routePattern) {
+        StringBuilder regex = new StringBuilder("^");
+        int i = 0;
+        while (i < routePattern.length()) {
+            int lt = routePattern.indexOf('<', i);
+            if (lt < 0) {
+                regex.append(Pattern.quote(routePattern.substring(i)));
+                break;
+            }
+            int gt = routePattern.indexOf('>', lt);
+            if (gt < 0) {
+                regex.append(Pattern.quote(routePattern.substring(i)));
+                break;
+            }
+            if (lt > i) {
+                regex.append(Pattern.quote(routePattern.substring(i, lt)));
+            }
+            String param = routePattern.substring(lt + 1, gt);
+            regex.append(param.startsWith("int:") ? "(\\d+)" : "([^/]+)");
+            i = gt + 1;
+        }
+        regex.append("$");
+        return regex.toString();
     }
 
     private boolean isVoidTag(String tagName) {
         return VOID_TAGS.contains(tagName.toLowerCase());
     }
-
-    // ==================== {{ expression }} ====================
 
     private void renderExpression(JinjaExpressionNode node, StringBuilder html) {
         String expr = extractExpression(node);
@@ -226,11 +240,16 @@ public class JinjaRenderer {
         html.append(value.toString());
     }
 
-    // ==================== {% for var in collection %} ====================
-
     private void renderFor(JinjaForNode node, StringBuilder html) {
         String forExpr = node.getForExpr();
         String[] parts = forExpr.split(" in ");
+
+        // ★ إصلاح: forExpr مشوّه (بدون " in ") → تحذير بدل انهيار
+        if (parts.length < 2) {
+            context.addWarning("Malformed for-expression: '" + forExpr + "'");
+            return;
+        }
+
         String varName = parts[0].trim();
         String collectionName = parts[1].trim();
 
@@ -240,7 +259,17 @@ public class JinjaRenderer {
             return;
         }
 
-        List<Object> items = (List<Object>) collectionObj;
+        // ★★★ الإصلاح: كان فيه (List<Object>) collectionObj بدون حراسة.
+        // لو المتغير مربوط بقيمة مش List (مثلاً Map أو نص) كان يرمي
+        // ClassCastException ويوقف التوليد بالكامل — مخالف صراحة لمبدأ
+        // "لا ينهار البرنامج". الآن: تحذير + skip فقط.
+        if (!(collectionObj instanceof List)) {
+            context.addWarning("Collection '" + collectionName + "' is not a list (found "
+                    + collectionObj.getClass().getSimpleName() + ") — skipping for loop");
+            return;
+        }
+
+        List<?> items = (List<?>) collectionObj;
         if (items.isEmpty()) return;
 
         List<ASTNode> bodyNodes = getForBody(node);
@@ -256,8 +285,6 @@ public class JinjaRenderer {
         context.addLog("[JinjaRenderer] Expanded for loop: " + forExpr + " (" + items.size() + " iterations)");
     }
 
-    // ==================== {% if condition %} / {% else %} ====================
-
     private void renderIf(JinjaIfNode node, StringBuilder html) {
         String condition = node.getCondition();
         if (condition.startsWith("if ")) {
@@ -265,9 +292,7 @@ public class JinjaRenderer {
         }
 
         boolean result = evaluateCondition(condition);
-
-        // phase: 0 = if-branch, 1 = else-branch, 2 = trailing (always render)
-        int phase = 0;
+        int phase = 0; // 0=if, 1=else, 2=trailing
 
         for (ASTNode child : node.children) {
             if (child instanceof JinjaEndIfNode) {
@@ -277,7 +302,6 @@ public class JinjaRenderer {
 
             if (child instanceof JinjaElseNode) {
                 phase = 1;
-                // ارسم أولاد الـ ElseNode لما الشرط false
                 if (!result && child.children != null) {
                     for (ASTNode c : child.children) {
                         if (!(c instanceof JinjaEndIfNode)) {
@@ -285,8 +309,6 @@ public class JinjaRenderer {
                         }
                     }
                 }
-                // ★ المفتاح: إذا ElseNode عنده أولاد → الـ else content منتهي
-                // أي sibling بعدو مش جزء من else → لازم يرسم دائماً
                 if (child.children != null && !child.children.isEmpty()) {
                     phase = 2;
                 }
@@ -294,20 +316,15 @@ public class JinjaRenderer {
             }
 
             switch (phase) {
-                case 0: // if-branch: ارسم لما الشرط true
-                    if (result) renderNode(child, html);
-                    break;
-                case 1: // else-branch: ارسم لما الشرط false (ElseNode بدون أولاد)
-                    if (!result) renderNode(child, html);
-                    break;
-                case 2: // trailing: ارسم دائماً
-                    renderNode(child, html);
-                    break;
+                case 0: if (result) renderNode(child, html); break;
+                case 1: if (!result) renderNode(child, html); break;
+                case 2: renderNode(child, html); break;
             }
         }
 
         context.addLog("[JinjaRenderer] Evaluated condition: " + condition + " → " + result);
     }
+
     private List<ASTNode> getForBody(JinjaForNode node) {
         List<ASTNode> body = new ArrayList<>();
         for (ASTNode child : node.children) {
