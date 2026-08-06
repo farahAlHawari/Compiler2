@@ -357,6 +357,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import generation.ASTJsonSerializer;
+import java.nio.file.*;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 public class Main {
 
@@ -365,7 +367,7 @@ public class Main {
     /**
      * يشغّل الـ compiler على ملف Python + HTML واحد
      * ويطبع الـ Symbol Table + الأخطاء الدلالية
-     *
+     * <p>
      * لا يتضمن مرحلة Generation — فقط Parsing + Semantic.
      */
     public static void compileAndCheck(String pythonFile, String htmlFile,
@@ -642,9 +644,9 @@ public class Main {
             ASTJsonSerializer serializer = new ASTJsonSerializer();
             String pythonAstJson = serializer.serializePythonAST(pythonRoot);
             generationContext.setPythonAstJson(pythonAstJson);
-       //     System.out.println("  [Main] Python AST serialized successfully.");
+            //     System.out.println("  [Main] Python AST serialized successfully.");
         } else {
-        //    System.out.println("  [Main] Python AST root is null — skipping ast_python.json.");
+            //    System.out.println("  [Main] Python AST root is null — skipping ast_python.json.");
         }
 
         generationContext.setSemanticPassed(true);
@@ -654,7 +656,7 @@ public class Main {
         generator.generate();
 
         // ===== 7. Print Generation Logs =====
-      //  printGenerationLogs(generationContext);
+        //  printGenerationLogs(generationContext);
 
         System.out.println("\n  Generation phase completed.");
     }
@@ -694,6 +696,67 @@ public class Main {
 
     // ==================== main ====================
 
+    public static void main(String[] args) throws Exception {
+
+        // ==============================================================
+        //  TEST 6: Code Generation — Flask app + Jinja templates
+        // ==============================================================
+        String pythonFile = "src/tests/app1.py";
+        String templatesDir = "src/templets";
+        String outputTitle = "TEST 6: Code Generation (app1.py)";
+
+        // ===== تشغيل أولي =====
+        compileAndGenerate(pythonFile, templatesDir, outputTitle);
+
+        // ===== WatchService — يراقب تغييرات app1.py والقوالب =====
+        System.out.println("\n" + "=".repeat(80));
+        System.out.println("  Watching for changes... (Ctrl+C to stop)");
+        System.out.println("  Edit app1.py or any .html template and save to regenerate.");
+        System.out.println("=".repeat(80));
+
+        Path pythonDir = Paths.get(pythonFile).getParent();
+        String pythonFileName = Paths.get(pythonFile).getFileName().toString();
+
+        Path templatesDirPath = Paths.get(templatesDir);
+
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        pythonDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+        templatesDirPath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+
+        try {
+            while (true) {
+                WatchKey key = watchService.take();
+
+                boolean pythonChanged = false;
+                boolean templateChanged = false;
+
+                for (WatchEvent<?> event : key.pollEvents()) {
+                    Path changed = (Path) event.context();
+                    String changedName = changed.toString();
+
+                    if (changedName.equals(pythonFileName)) {
+                        pythonChanged = true;
+                    } else if (changedName.endsWith(".html")) {
+                        templateChanged = true;
+                    }
+                }
+
+                if (pythonChanged || templateChanged) {
+                    Thread.sleep(500);
+                    System.out.println("\n  File changed — regenerating...");
+                    compileAndGenerate(pythonFile, templatesDir, outputTitle);
+                    System.out.println("\n  Done. Waiting for next change...");
+                }
+
+                boolean valid = key.reset();
+                if (!valid) break;
+            }
+        } catch (InterruptedException e) {
+            System.out.println("\n  Watcher stopped.");
+        }
+    }
+}
+    /*
     public static void main(String[] args) throws Exception {
 
         // ==============================================================
@@ -755,3 +818,4 @@ public class Main {
 //        );
     }
 }
+*/

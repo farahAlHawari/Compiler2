@@ -14,7 +14,14 @@ products = [
       {"name": "C",
        "price": 300,
         "image": "",
-         "details": "Third Product"}
+         "details": "Third Product"},
+
+           {"name": "D",
+                "price": 400,
+                 "image": "",
+                  "details": "Fourth Product"}
+
+
 ]
 
 @app.route("/")
