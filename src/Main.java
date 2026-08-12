@@ -359,7 +359,14 @@ import java.util.Map;
 import generation.ASTJsonSerializer;
 import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpExchange;
+import java.net.InetSocketAddress;
+import java.net.URLDecoder;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 public class Main {
 
     // ==================== compileAndCheck (Tests 1-5) ====================
@@ -695,7 +702,7 @@ public class Main {
     }
 
     // ==================== main ====================
-
+/*
     public static void main(String[] args) throws Exception {
 
         // ==============================================================
@@ -754,6 +761,413 @@ public class Main {
         } catch (InterruptedException e) {
             System.out.println("\n  Watcher stopped.");
         }
+    }
+}
+*/
+
+// ==================== Imports مطلوبة (أضفها فوق الكلاس) ====================
+
+
+// ==================== حقول الكلاس ====================
+private static final String OUTPUT_DIR = "output";       // ← غيّرها حسب مسار الخرج عندك
+private static final int SERVER_PORT = 8080;
+private static final AtomicBoolean skipNextWatch = new AtomicBoolean(false);
+
+// ==================== main ====================
+public static void main(String[] args) throws Exception {
+
+    // ==============================================================
+    //  TEST 6: Code Generation — Flask app + Jinja templates
+    // ==============================================================
+    String pythonFile = "src/tests/app1.py";
+    String templatesDir = "src/templets";
+    String outputTitle = "TEST 6: Code Generation (app1.py)";
+
+    // ===== تشغيل أولي =====
+    compileAndGenerate(pythonFile, templatesDir, outputTitle);
+
+    // ==================== HTTP Server ====================
+    // ==================== HTTP Server ====================
+    HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
+
+    server.createContext("/", (HttpExchange exchange) -> {
+        String path = exchange.getRequestURI().getPath();
+        String method = exchange.getRequestMethod();
+
+        try {
+            // ===== GET / أو /index.html → صفحة المنتجات مع سكربت الحذف =====
+            if (method.equals("GET") && (path.equals("/") || path.equals("/index.html"))) {
+                serveIndexWithDeleteScript(exchange);
+                return;
+            }
+
+            // ===== GET /add.html → صفحة إضافة منتج =====
+            if (method.equals("GET") && path.equals("/add.html")) {
+                serveStaticFile(exchange, "add.html");
+                return;
+            }
+
+            // ===== POST /add.html → إضافة منتج فعلياً =====
+            if (method.equals("POST") && path.equals("/add.html")) {
+                String body = new String(exchange.getRequestBody().readAllBytes());
+                Map<String, String> params = parseFormData(body);
+
+                String name    = params.getOrDefault("name", "");
+                String price   = params.getOrDefault("price", "0");
+                String image   = params.getOrDefault("image", "");
+                String details = params.getOrDefault("details", "");
+
+                if (name.isEmpty()) {
+                    sendJson(exchange, 400, "{\"success\":false,\"error\":\"Product name is required\"}");
+                    return;
+                }
+
+                addProductToSource(pythonFile, name, price, image, details);
+                skipNextWatch.set(true);
+                compileAndGenerate(pythonFile, templatesDir, outputTitle);
+                System.out.println("  [API] Product added: " + name);
+                sendRedirect(exchange, "/index.html");
+                return;
+            }
+
+            // ===== GET /delete/{i} → حذف منتج =====
+            if (method.equals("GET") && path.startsWith("/delete/")) {
+                String indexStr = path.substring("/delete/".length());
+                try {
+                    int index = Integer.parseInt(indexStr);
+                    deleteProductFromSource(pythonFile, index);
+                    skipNextWatch.set(true);
+                    compileAndGenerate(pythonFile, templatesDir, outputTitle);
+                    System.out.println("  [API] Product deleted at index: " + index);
+                } catch (NumberFormatException e) {
+                    System.out.println("  [API] Invalid delete index: " + indexStr);
+                }
+                sendRedirect(exchange, "/index.html");
+                return;
+            }
+
+            // ===== GET /details/{i} → تحويل لصفحة التفاصيل =====
+            if (method.equals("GET") && path.startsWith("/details/")) {
+                String indexStr = path.substring("/details/".length());
+                sendRedirect(exchange, "/product_details_" + indexStr + ".html");
+                return;
+            }
+
+            // ===== Default: خدمة ملف ثابت =====
+            serveStaticFile(exchange, path);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                sendJson(exchange, 500, "{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}");
+            } catch (IOException ignored) {}
+        }
+    });
+
+    server.setExecutor(null);
+    server.start();
+
+    // ==================== WatchService ====================
+    System.out.println("\n" + "=".repeat(80));
+    System.out.println("  Server  ->  http://localhost:" + SERVER_PORT);
+    System.out.println("  Watching for changes... (Ctrl+C to stop)");
+    System.out.println("  You can now add/delete products from the web UI!");
+    System.out.println("=".repeat(80));
+
+    Path pythonDir = Paths.get(pythonFile).getParent();
+    String pythonFileName = Paths.get(pythonFile).getFileName().toString();
+    Path templatesDirPath = Paths.get(templatesDir);
+
+    WatchService watchService = FileSystems.getDefault().newWatchService();
+    pythonDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+    templatesDirPath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+
+    try {
+        while (true) {
+            WatchKey key = watchService.take();
+
+            boolean pythonChanged = false;
+            boolean templateChanged = false;
+
+            for (WatchEvent<?> event : key.pollEvents()) {
+                Path changed = (Path) event.context();
+                String changedName = changed.toString();
+
+                if (changedName.equals(pythonFileName)) {
+                    pythonChanged = true;
+                } else if (changedName.endsWith(".html")) {
+                    templateChanged = true;
+                }
+            }
+
+            if ((pythonChanged || templateChanged) && !skipNextWatch.getAndSet(false)) {
+                Thread.sleep(500);
+                System.out.println("\n  File changed -- regenerating...");
+                compileAndGenerate(pythonFile, templatesDir, outputTitle);
+                System.out.println("  Done. Waiting for next change...");
+            }
+
+            boolean valid = key.reset();
+            if (!valid) break;
+        }
+    } catch (InterruptedException e) {
+        System.out.println("\n  Watcher stopped.");
+    }
+}
+
+// ==================== Helper Methods ====================
+
+// ---------- خدمات HTTP ----------
+
+private static void serveStaticFile(HttpExchange exchange, String filePath) throws IOException {
+    // إذا كان filePath يبدأ بـ / نحذفها
+    if (filePath.startsWith("/")) filePath = filePath.substring(1);
+    if (filePath.isEmpty()) filePath = "index.html";
+
+    File file = new File(OUTPUT_DIR, filePath);
+    if (file.exists() && file.isFile()) {
+        byte[] bytes = Files.readAllBytes(file.toPath());
+        exchange.getResponseHeaders().set("Content-Type", getContentType(filePath));
+        exchange.sendResponseHeaders(200, bytes.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(bytes);
+        os.close();
+    } else {
+        String msg = "404 Not Found: " + filePath;
+        exchange.sendResponseHeaders(404, msg.length());
+        OutputStream os = exchange.getResponseBody();
+        os.write(msg.getBytes());
+        os.close();
+    }
+}
+
+private static boolean tryServeFile(HttpExchange exchange, String filePath) throws IOException {
+    if (filePath.startsWith("/")) filePath = filePath.substring(1);
+    File file = new File(OUTPUT_DIR, filePath);
+    if (file.exists() && file.isFile()) {
+        byte[] bytes = Files.readAllBytes(file.toPath());
+        exchange.getResponseHeaders().set("Content-Type", getContentType(filePath));
+        exchange.sendResponseHeaders(200, bytes.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(bytes);
+        os.close();
+        return true;
+    }
+    return false;
+}
+
+private static void sendJson(HttpExchange exchange, int code, String json) throws IOException {
+    exchange.getResponseHeaders().set("Content-Type", "application/json");
+    exchange.sendResponseHeaders(code, json.length());
+    OutputStream os = exchange.getResponseBody();
+    os.write(json.getBytes());
+    os.close();
+}
+
+private static void sendRedirect(HttpExchange exchange, String location) throws IOException {
+    exchange.getResponseHeaders().set("Location", location);
+    exchange.sendResponseHeaders(302, -1);
+    exchange.getResponseBody().close();
+}
+
+// ---------- تعديل ملف المصدر ----------
+
+/**
+ * يضيف منتج جديد (name, price, image, details) داخل قائمة products بملف app1.py
+ */
+private static void addProductToSource(String pythonFile, String name, String price,
+                                       String image, String details) throws IOException {
+    List<String> lines = Files.readAllLines(Paths.get(pythonFile));
+    List<String> newLines = new ArrayList<>();
+    boolean insideProducts = false;
+    int bracketDepth = 0;
+    boolean inserted = false;
+
+    for (String line : lines) {
+        String trimmed = line.trim();
+
+        if (!insideProducts && trimmed.startsWith("products") && trimmed.contains("[")) {
+            insideProducts = true;
+            newLines.add(line);
+            for (char c : trimmed.toCharArray()) {
+                if (c == '[') bracketDepth++;
+                if (c == ']') bracketDepth--;
+            }
+            if (bracketDepth <= 0) {
+                // products = [] — قائمة فارغة
+                newLines.add("    {\"name\": \"" + name + "\", \"price\": " + price
+                        + ", \"image\": \"" + image + "\", \"details\": \"" + details + "\"}");
+                inserted = true;
+                insideProducts = false;
+            }
+            continue;
+        }
+
+        if (insideProducts) {
+            for (char c : trimmed.toCharArray()) {
+                if (c == '[') bracketDepth++;
+                if (c == ']') bracketDepth--;
+            }
+
+            if (bracketDepth <= 0) {
+                // سطر الإغلاق ] — ندرج المنتج الجديد قبله
+                newLines.add("    {\"name\": \"" + name + "\", \"price\": " + price
+                        + ", \"image\": \"" + image + "\", \"details\": \"" + details + "\"},");
+                newLines.add(line);
+                inserted = true;
+                insideProducts = false;
+                continue;
+            }
+        }
+
+        newLines.add(line);
+    }
+
+    if (!inserted) {
+        throw new IOException("Could not find 'products' list in " + pythonFile);
+    }
+
+    Files.write(Paths.get(pythonFile), newLines);
+}
+
+/**
+ * يحذف منتج حسب الفهرس من قائمة products بملف app1.py
+ */
+private static void deleteProductFromSource(String pythonFile, int index) throws IOException {
+    List<String> lines = Files.readAllLines(Paths.get(pythonFile));
+    List<String> newLines = new ArrayList<>();
+    boolean insideProducts = false;
+    int listDepth = 0;
+    int productCount = 0;
+    boolean skipping = false;
+    int dictBraceDepth = 0;
+    boolean deleted = false;
+
+    for (String line : lines) {
+        String trimmed = line.trim();
+
+        // اكتشاف بداية قائمة products
+        if (!insideProducts) {
+            newLines.add(line);
+            if (trimmed.startsWith("products") && trimmed.contains("[")) {
+                insideProducts = true;
+                listDepth = 0;
+                for (char c : trimmed.toCharArray()) {
+                    if (c == '[') listDepth++;
+                    if (c == ']') listDepth--;
+                }
+            }
+            continue;
+        }
+
+        // داخل القائمة — نحسب الأقواس
+        int openBrackets = 0, closeBrackets = 0;
+        int openBraces = 0, closeBraces = 0;
+        for (char c : trimmed.toCharArray()) {
+            if (c == '[') openBrackets++;
+            if (c == ']') closeBrackets++;
+            if (c == '{') openBraces++;
+            if (c == '}') closeBraces++;
+        }
+        listDepth += openBrackets - closeBrackets;
+
+        // بداية dict جديد على مستوى القائمة
+        if (listDepth == 1 && openBraces > 0 && !skipping) {
+            if (productCount == index) {
+                skipping = true;
+                dictBraceDepth = 0;
+            }
+            productCount++;
+        }
+
+        if (skipping) {
+            for (char c : trimmed.toCharArray()) {
+                if (c == '{') dictBraceDepth++;
+                if (c == '}') dictBraceDepth--;
+            }
+            if (dictBraceDepth <= 0 && closeBraces > 0) {
+                skipping = false;
+                deleted = true;
+            }
+            continue; // نتجاهل كل سطور المنتج المحذوف
+        }
+
+        newLines.add(line);
+
+        if (listDepth <= 0) {
+            insideProducts = false;
+        }
+    }
+
+    if (!deleted) {
+        throw new IOException("Could not delete product at index " + index
+                + " (found " + productCount + " products)");
+    }
+
+    Files.write(Paths.get(pythonFile), newLines);
+}
+
+// ---------- أدوات مساعدة ----------
+
+private static Map<String, String> parseFormData(String body) {
+    Map<String, String> params = new HashMap<>();
+    if (body == null || body.isEmpty()) return params;
+    for (String pair : body.split("&")) {
+        String[] kv = pair.split("=", 2);
+        if (kv.length == 2) {
+            try {
+                params.put(URLDecoder.decode(kv[0], "UTF-8"),
+                        URLDecoder.decode(kv[1], "UTF-8"));
+            } catch (Exception e) {
+                params.put(kv[0], kv[1]);
+            }
+        }
+    }
+    return params;
+}
+
+private static String getContentType(String path) {
+    if (path.endsWith(".html")) return "text/html; charset=UTF-8";
+    if (path.endsWith(".css"))  return "text/css; charset=UTF-8";
+    if (path.endsWith(".js"))   return "application/javascript; charset=UTF-8";
+    if (path.endsWith(".png"))  return "image/png";
+    if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
+    if (path.endsWith(".gif"))  return "image/gif";
+    if (path.endsWith(".svg"))  return "image/svg+xml";
+    return "application/octet-stream";
+}
+    /**
+     * يخدم index.html مع حقن سكربت JavaScript يصلح أزرار الحذف
+     * الكومبايلر يولّد action="#" بدل /delete/0 ، فالسكربت يصححها
+     */
+    private static void serveIndexWithDeleteScript(HttpExchange exchange) throws IOException {
+        File file = new File(OUTPUT_DIR, "index.html");
+        if (!file.exists() || !file.isFile()) {
+            serveStaticFile(exchange, "index.html");
+            return;
+        }
+
+        String html = new String(Files.readAllBytes(file.toPath()), "UTF-8");
+
+        // سكربت يعدّل كل فورم حذف: يغير action="#" إلى /delete/0 , /delete/1 , ...
+        String deleteScript =
+                "<script>\n" +
+                        "  document.querySelectorAll('form[action=\"#\"]').forEach(function(form, i) {\n" +
+                        "    if (form.querySelector('.btn-danger')) {\n" +
+                        "      form.action = '/delete/' + i;\n" +
+                        "    }\n" +
+                        "  });\n" +
+                        "</script>\n";
+
+        // حقن السكربت قبل </body>
+        html = html.replace("</body>", deleteScript + "</body>");
+
+        byte[] bytes = html.getBytes("UTF-8");
+        exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
+        exchange.sendResponseHeaders(200, bytes.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(bytes);
+        os.close();
     }
 }
     /*

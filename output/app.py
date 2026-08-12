@@ -16,12 +16,8 @@ products = [
         "image": "",
          "details": "Third Product"},
 
-           {"name": "D",
-                "price": 400,
-                 "image": "",
-                  "details": "Fourth Product"}
 
-
+    {"name": "New", "price": 8794, "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAmAMBIgACEQEDEQH/xAAbAAACAwEBAQAAAAAAAAAAAAAEBQADBgIBB//EADwQAAIBAwMCBAQEBAUCBwAAAAECAwAEEQUSITFBEyJRYQZxgZEUMkKhI7HR8BUzUsHhYqIWNHKCksLx/8QAGQEAAwEBAQAAAAAAAAAAAAAAAQIDAAQF/8QAIxEAAgICAQQDAQEAAAAAAAAAAAECEQMhEgQTMUEiUWGhFP/aAAwDAQACEQMRAD8A+Yh3TgE/KuWZictVshyASMVSxoIxF5NFWwxIpdsYFA7uasjckgZ60TDw3CbAdwwOgrswpc2svqFOD70gZyrcHmrY7udc7ZCBS0GzpZZHATGTXjwyKpZ1IHypjo1qzOJXxhhwMU41bT2ew8gAZWyfetdAMmEPHvXXh96LitmeRUICsq5+YxT/AEnT0ntkcxg7u9GzGdt7MySK2OAeRTWK0kcFWXAB8taNNJTIwOnt1q1bcDyIg+1LYaMy9nKuVKFjny4HSq5bJgvIINbKKzBzuHfFCXtmuxgowc9T2rGMLe2m1CSG5qmDT0aFXyc0/mSRpxaTIsbSDyEd+f2qqOya3G1zkDOT60QCKa2WMgDmhZoRycdO1MNSjwfEV/ITjg0A0wCFQpznrTIwIyHdwABUqzJOalYxp5dOJhUAgmll7amFc4781p2xg8Uo1lgLVlxyTxU4sZoz7GvA5BrhjXOaoKFgNIcgVdaIrSBnYKgOSTVdtOAMI3JGDUkRo4xIWUgtjArGNBd3S28Fu9m4fY2Gwcj61cutXsCky", "details": "new sixth"},
 ]
 
 @app.route("/")

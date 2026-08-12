@@ -5,16 +5,16 @@
 --- Log Entries ---
 [ContextBuilder] Starting source-based extraction...
 [ContextBuilder] extractProductsFromSource...
-[ContextBuilder] Skipped products.append at line 34 — inside a function/route body (runtime data, not static)
+[ContextBuilder] Skipped products.append at line 30 — inside a function/route body (runtime data, not static)
 [ContextBuilder] Products: 4
 [ContextBuilder] extractRoutesFromSource...
-[ContextBuilder] Decorator / @ line 27
+[ContextBuilder] Decorator / @ line 23
 [ContextBuilder] Route: / → index
-[ContextBuilder] Decorator /add @ line 31
+[ContextBuilder] Decorator /add @ line 27
 [ContextBuilder] Route: /add → add
-[ContextBuilder] Decorator /delete/<int:i> @ line 42
+[ContextBuilder] Decorator /delete/<int:i> @ line 38
 [ContextBuilder] Route: /delete/<int:i> → delete_product
-[ContextBuilder] Decorator /details/<int:i> @ line 48
+[ContextBuilder] Decorator /details/<int:i> @ line 44
 [ContextBuilder] Route: /details/<int:i> → details
 [ContextBuilder] Routes: 4
 [ContextBuilder] extractTemplateVariablesFromSource...
@@ -50,7 +50,7 @@
 [JinjaRenderer] Evaluated condition: p.details → true
 [JinjaRenderer] Evaluated condition: p.image → false
 [JinjaRenderer] Evaluated condition: p.details → true
-[JinjaRenderer] Evaluated condition: p.image → false
+[JinjaRenderer] Evaluated condition: p.image → true
 [JinjaRenderer] Expanded for loop: p in products (4 iterations)
 [JinjaRenderer] Evaluated condition: products → true
 [Generator] Processing add_product.html [add → /add]
@@ -69,7 +69,7 @@
 [JinjaRenderer] Evaluated condition: product.details → true
 [Generator] Processing product_details.html [details i=3]
 [TemplateProcessor] Merged base.html
-[JinjaRenderer] Evaluated condition: product.image → false
+[JinjaRenderer] Evaluated condition: product.image → true
 [JinjaRenderer] Evaluated condition: product.details → true
 [Generator] Rendered 6 page(s)
 [Generator] Serializing template ASTs to JSON

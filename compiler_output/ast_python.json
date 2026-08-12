@@ -348,25 +348,25 @@
 {
         "type": "DictNode",
         "nodeName": "DictLiteral",
-        "line": 19,
+        "line": 20,
         "children": [
 {
           "type": "",
           "nodeName": "DictEntry",
-          "line": 19,
+          "line": 20,
           "children": [
 {
             "type": "LiteralNode",
             "nodeName": "Literal",
-            "line": 19,
+            "line": 20,
     "value": "\"name\"",
     "literalType": "STRING"
           },
 {
             "type": "LiteralNode",
             "nodeName": "Literal",
-            "line": 19,
-    "value": "\"D\"",
+            "line": 20,
+    "value": "\"New\"",
     "literalType": "STRING"
           }
           ]
@@ -387,7 +387,7 @@
             "type": "LiteralNode",
             "nodeName": "Literal",
             "line": 20,
-    "value": "400",
+    "value": "8794",
     "literalType": "INT"
           }
           ]
@@ -395,20 +395,20 @@
 {
           "type": "",
           "nodeName": "DictEntry",
-          "line": 21,
+          "line": 20,
           "children": [
 {
             "type": "LiteralNode",
             "nodeName": "Literal",
-            "line": 21,
+            "line": 20,
     "value": "\"image\"",
     "literalType": "STRING"
           },
 {
             "type": "LiteralNode",
             "nodeName": "Literal",
-            "line": 21,
-    "value": "\"\"",
+            "line": 20,
+    "value": "\"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAmAMBIgACEQEDEQH/xAAbAAACAwEBAQAAAAAAAAAAAAAEBQADBgIBB//EADwQAAIBAwMCBAQEBAUCBwAAAAECAwAEEQUSITFBEyJRYQZxgZEUMkKhI7HR8BUzUsHhYqIWNHKCksLx/8QAGQEAAwEBAQAAAAAAAAAAAAAAAQIDAAQF/8QAIxEAAgICAQQDAQEAAAAAAAAAAAECEQMhEgQTMUEiUWGhFP/aAAwDAQACEQMRAD8A+Yh3TgE/KuWZictVshyASMVSxoIxF5NFWwxIpdsYFA7uasjckgZ60TDw3CbAdwwOgrswpc2svqFOD70gZyrcHmrY7udc7ZCBS0GzpZZHATGTXjwyKpZ1IHypjo1qzOJXxhhwMU41bT2ew8gAZWyfetdAMmEPHvXXh96LitmeRUICsq5+YxT/AEnT0ntkcxg7u9GzGdt7MySK2OAeRTWK0kcFWXAB8taNNJTIwOnt1q1bcDyIg+1LYaMy9nKuVKFjny4HSq5bJgvIINbKKzBzuHfFCXtmuxgowc9T2rGMLe2m1CSG5qmDT0aFXyc0/mSRpxaTIsbSDyEd+f2qqOya3G1zkDOT60QCKa2WMgDmhZoRycdO1MNSjwfEV/ITjg0A0wCFQpznrTIwIyHdwABUqzJOalYxp5dOJhUAgmll7amFc4781p2xg8Uo1lgLVlxyTxU4sZoz7GvA5BrhjXOaoKFgNIcgVdaIrSBnYKgOSTVdtOAMI3JGDUkRo4xIWUgtjArGNBd3S28Fu9m4fY2Gwcj61cutXsCky\"",
     "literalType": "STRING"
           }
           ]
@@ -416,20 +416,20 @@
 {
           "type": "",
           "nodeName": "DictEntry",
-          "line": 22,
+          "line": 20,
           "children": [
 {
             "type": "LiteralNode",
             "nodeName": "Literal",
-            "line": 22,
+            "line": 20,
     "value": "\"details\"",
     "literalType": "STRING"
           },
 {
             "type": "LiteralNode",
             "nodeName": "Literal",
-            "line": 22,
-    "value": "\"Fourth Product\"",
+            "line": 20,
+    "value": "\"new sixth\"",
     "literalType": "STRING"
           }
           ]
@@ -443,8 +443,121 @@
 {
     "type": "FunctionDefNode",
     "nodeName": "RouteFunction",
-    "line": 28,
+    "line": 24,
     "functionName": "index",
+    "returnType": "",
+    "paramCount": 0,
+    "children": [
+{
+      "type": "DecoratorListNode",
+      "nodeName": "DecoratorList",
+      "line": 23,
+      "children": [
+{
+        "type": "DecoratorNode",
+        "nodeName": "Decorator",
+        "line": 23,
+        "children": [
+{
+          "type": "CallNode",
+          "nodeName": "CallExpr",
+          "line": 23,
+    "functionName": "app.route",
+    "argCount": 0,
+          "children": [
+{
+            "type": "",
+            "nodeName": "Arguments",
+            "line": 23,
+            "children": [
+{
+              "type": "",
+              "nodeName": "PositionalArg",
+              "line": 23,
+              "children": [
+{
+                "type": "LiteralNode",
+                "nodeName": "Literal",
+                "line": 23,
+    "value": "\"/\"",
+    "literalType": "STRING"
+              }
+              ]
+            }
+            ]
+          }
+          ]
+        }
+        ]
+      }
+      ]
+    },
+{
+      "type": "BlockNode",
+      "nodeName": "Block",
+      "line": 24,
+      "children": [
+{
+        "type": "ReturnNode",
+        "nodeName": "ReturnStmt",
+        "line": 25,
+    "returnExprType": "unknown",
+    "enclosingFunctionName": "",
+        "children": [
+{
+          "type": "CallNode",
+          "nodeName": "CallExpr",
+          "line": 25,
+    "functionName": "render_template",
+    "argCount": 2,
+          "children": [
+{
+            "type": "",
+            "nodeName": "Arguments",
+            "line": 25,
+            "children": [
+{
+              "type": "",
+              "nodeName": "PositionalArg",
+              "line": 25,
+              "children": [
+{
+                "type": "LiteralNode",
+                "nodeName": "Literal",
+                "line": 25,
+    "value": "\"index.html\"",
+    "literalType": "STRING"
+              }
+              ]
+            },
+{
+              "type": "",
+              "nodeName": "NamedArg",
+              "line": 25,
+              "children": [
+{
+                "type": "IdentifierNode",
+                "nodeName": "Identifier",
+                "line": 25,
+    "name": "products"
+              }
+              ]
+            }
+            ]
+          }
+          ]
+        }
+        ]
+      }
+      ]
+    }
+    ]
+  },
+{
+    "type": "FunctionDefNode",
+    "nodeName": "RouteFunction",
+    "line": 28,
+    "functionName": "add",
     "returnType": "",
     "paramCount": 0,
     "children": [
@@ -479,8 +592,36 @@
                 "type": "LiteralNode",
                 "nodeName": "Literal",
                 "line": 27,
-    "value": "\"/\"",
+    "value": "\"/add\"",
     "literalType": "STRING"
+              }
+              ]
+            },
+{
+              "type": "",
+              "nodeName": "NamedArg",
+              "line": 27,
+              "children": [
+{
+                "type": "ListNode",
+                "nodeName": "ListLiteral",
+                "line": 27,
+                "children": [
+{
+                  "type": "LiteralNode",
+                  "nodeName": "Literal",
+                  "line": 27,
+    "value": "\"GET\"",
+    "literalType": "STRING"
+                },
+{
+                  "type": "LiteralNode",
+                  "nodeName": "Literal",
+                  "line": 27,
+    "value": "\"POST\"",
+    "literalType": "STRING"
+                }
+                ]
               }
               ]
             }
@@ -498,172 +639,31 @@
       "line": 28,
       "children": [
 {
-        "type": "ReturnNode",
-        "nodeName": "ReturnStmt",
-        "line": 29,
-    "returnExprType": "unknown",
-    "enclosingFunctionName": "",
-        "children": [
-{
-          "type": "CallNode",
-          "nodeName": "CallExpr",
-          "line": 29,
-    "functionName": "render_template",
-    "argCount": 2,
-          "children": [
-{
-            "type": "",
-            "nodeName": "Arguments",
-            "line": 29,
-            "children": [
-{
-              "type": "",
-              "nodeName": "PositionalArg",
-              "line": 29,
-              "children": [
-{
-                "type": "LiteralNode",
-                "nodeName": "Literal",
-                "line": 29,
-    "value": "\"index.html\"",
-    "literalType": "STRING"
-              }
-              ]
-            },
-{
-              "type": "",
-              "nodeName": "NamedArg",
-              "line": 29,
-              "children": [
-{
-                "type": "IdentifierNode",
-                "nodeName": "Identifier",
-                "line": 29,
-    "name": "products"
-              }
-              ]
-            }
-            ]
-          }
-          ]
-        }
-        ]
-      }
-      ]
-    }
-    ]
-  },
-{
-    "type": "FunctionDefNode",
-    "nodeName": "RouteFunction",
-    "line": 32,
-    "functionName": "add",
-    "returnType": "",
-    "paramCount": 0,
-    "children": [
-{
-      "type": "DecoratorListNode",
-      "nodeName": "DecoratorList",
-      "line": 31,
-      "children": [
-{
-        "type": "DecoratorNode",
-        "nodeName": "Decorator",
-        "line": 31,
-        "children": [
-{
-          "type": "CallNode",
-          "nodeName": "CallExpr",
-          "line": 31,
-    "functionName": "app.route",
-    "argCount": 0,
-          "children": [
-{
-            "type": "",
-            "nodeName": "Arguments",
-            "line": 31,
-            "children": [
-{
-              "type": "",
-              "nodeName": "PositionalArg",
-              "line": 31,
-              "children": [
-{
-                "type": "LiteralNode",
-                "nodeName": "Literal",
-                "line": 31,
-    "value": "\"/add\"",
-    "literalType": "STRING"
-              }
-              ]
-            },
-{
-              "type": "",
-              "nodeName": "NamedArg",
-              "line": 31,
-              "children": [
-{
-                "type": "ListNode",
-                "nodeName": "ListLiteral",
-                "line": 31,
-                "children": [
-{
-                  "type": "LiteralNode",
-                  "nodeName": "Literal",
-                  "line": 31,
-    "value": "\"GET\"",
-    "literalType": "STRING"
-                },
-{
-                  "type": "LiteralNode",
-                  "nodeName": "Literal",
-                  "line": 31,
-    "value": "\"POST\"",
-    "literalType": "STRING"
-                }
-                ]
-              }
-              ]
-            }
-            ]
-          }
-          ]
-        }
-        ]
-      }
-      ]
-    },
-{
-      "type": "BlockNode",
-      "nodeName": "Block",
-      "line": 32,
-      "children": [
-{
         "type": "IfNode",
         "nodeName": "IfStatement",
-        "line": 33,
+        "line": 29,
         "children": [
 {
           "type": "",
           "nodeName": "IfBranch",
-          "line": 33,
+          "line": 29,
           "children": [
 {
             "type": "BinaryOpNode",
             "nodeName": "BinaryOp",
-            "line": 33,
+            "line": 29,
     "operator": "==",
             "children": [
 {
               "type": "AttributeNode",
               "nodeName": "AttributeAccess",
-              "line": 33,
+              "line": 29,
     "attributeName": "method",
               "children": [
 {
                 "type": "IdentifierNode",
                 "nodeName": "Identifier",
-                "line": 33,
+                "line": 29,
     "name": "request"
               }
               ]
@@ -671,7 +671,7 @@
 {
               "type": "LiteralNode",
               "nodeName": "Literal",
-              "line": 33,
+              "line": 29,
     "value": "\"POST\"",
     "literalType": "STRING"
             }
@@ -680,25 +680,25 @@
 {
             "type": "BlockNode",
             "nodeName": "Block",
-            "line": 33,
+            "line": 29,
             "children": [
 {
               "type": "CallNode",
               "nodeName": "CallExpr",
-              "line": 34,
+              "line": 30,
     "functionName": "append",
     "argCount": 1,
               "children": [
 {
                 "type": "AttributeNode",
                 "nodeName": "AttributeAccess",
-                "line": 34,
+                "line": 30,
     "attributeName": "append",
                 "children": [
 {
                   "type": "IdentifierNode",
                   "nodeName": "Identifier",
-                  "line": 34,
+                  "line": 30,
     "name": "products"
                 }
                 ]
@@ -706,45 +706,45 @@
 {
                 "type": "",
                 "nodeName": "Arguments",
-                "line": 34,
+                "line": 30,
                 "children": [
 {
                   "type": "",
                   "nodeName": "PositionalArg",
-                  "line": 34,
+                  "line": 30,
                   "children": [
 {
                     "type": "DictNode",
                     "nodeName": "DictLiteral",
-                    "line": 34,
+                    "line": 30,
                     "children": [
 {
                       "type": "",
                       "nodeName": "DictEntry",
-                      "line": 35,
+                      "line": 31,
                       "children": [
 {
                         "type": "LiteralNode",
                         "nodeName": "Literal",
-                        "line": 35,
+                        "line": 31,
     "value": "\"image\"",
     "literalType": "STRING"
                       },
 {
                         "type": "IndexNode",
                         "nodeName": "IndexAccess",
-                        "line": 35,
+                        "line": 31,
                         "children": [
 {
                           "type": "AttributeNode",
                           "nodeName": "AttributeAccess",
-                          "line": 35,
+                          "line": 31,
     "attributeName": "form",
                           "children": [
 {
                             "type": "IdentifierNode",
                             "nodeName": "Identifier",
-                            "line": 35,
+                            "line": 31,
     "name": "request"
                           }
                           ]
@@ -752,7 +752,7 @@
 {
                           "type": "LiteralNode",
                           "nodeName": "Literal",
-                          "line": 35,
+                          "line": 31,
     "value": "\"image\"",
     "literalType": "STRING"
                         }
@@ -763,30 +763,30 @@
 {
                       "type": "",
                       "nodeName": "DictEntry",
-                      "line": 36,
+                      "line": 32,
                       "children": [
 {
                         "type": "LiteralNode",
                         "nodeName": "Literal",
-                        "line": 36,
+                        "line": 32,
     "value": "\"name\"",
     "literalType": "STRING"
                       },
 {
                         "type": "IndexNode",
                         "nodeName": "IndexAccess",
-                        "line": 36,
+                        "line": 32,
                         "children": [
 {
                           "type": "AttributeNode",
                           "nodeName": "AttributeAccess",
-                          "line": 36,
+                          "line": 32,
     "attributeName": "form",
                           "children": [
 {
                             "type": "IdentifierNode",
                             "nodeName": "Identifier",
-                            "line": 36,
+                            "line": 32,
     "name": "request"
                           }
                           ]
@@ -794,7 +794,7 @@
 {
                           "type": "LiteralNode",
                           "nodeName": "Literal",
-                          "line": 36,
+                          "line": 32,
     "value": "\"name\"",
     "literalType": "STRING"
                         }
@@ -805,30 +805,30 @@
 {
                       "type": "",
                       "nodeName": "DictEntry",
-                      "line": 37,
+                      "line": 33,
                       "children": [
 {
                         "type": "LiteralNode",
                         "nodeName": "Literal",
-                        "line": 37,
+                        "line": 33,
     "value": "\"price\"",
     "literalType": "STRING"
                       },
 {
                         "type": "IndexNode",
                         "nodeName": "IndexAccess",
-                        "line": 37,
+                        "line": 33,
                         "children": [
 {
                           "type": "AttributeNode",
                           "nodeName": "AttributeAccess",
-                          "line": 37,
+                          "line": 33,
     "attributeName": "form",
                           "children": [
 {
                             "type": "IdentifierNode",
                             "nodeName": "Identifier",
-                            "line": 37,
+                            "line": 33,
     "name": "request"
                           }
                           ]
@@ -836,7 +836,7 @@
 {
                           "type": "LiteralNode",
                           "nodeName": "Literal",
-                          "line": 37,
+                          "line": 33,
     "value": "\"price\"",
     "literalType": "STRING"
                         }
@@ -847,30 +847,30 @@
 {
                       "type": "",
                       "nodeName": "DictEntry",
-                      "line": 38,
+                      "line": 34,
                       "children": [
 {
                         "type": "LiteralNode",
                         "nodeName": "Literal",
-                        "line": 38,
+                        "line": 34,
     "value": "\"details\"",
     "literalType": "STRING"
                       },
 {
                         "type": "IndexNode",
                         "nodeName": "IndexAccess",
-                        "line": 38,
+                        "line": 34,
                         "children": [
 {
                           "type": "AttributeNode",
                           "nodeName": "AttributeAccess",
-                          "line": 38,
+                          "line": 34,
     "attributeName": "form",
                           "children": [
 {
                             "type": "IdentifierNode",
                             "nodeName": "Identifier",
-                            "line": 38,
+                            "line": 34,
     "name": "request"
                           }
                           ]
@@ -878,7 +878,7 @@
 {
                           "type": "LiteralNode",
                           "nodeName": "Literal",
-                          "line": 38,
+                          "line": 34,
     "value": "\"details\"",
     "literalType": "STRING"
                         }
@@ -903,31 +903,31 @@
 {
         "type": "ReturnNode",
         "nodeName": "ReturnStmt",
-        "line": 40,
+        "line": 36,
     "returnExprType": "unknown",
     "enclosingFunctionName": "",
         "children": [
 {
           "type": "CallNode",
           "nodeName": "CallExpr",
-          "line": 40,
+          "line": 36,
     "functionName": "render_template",
     "argCount": 1,
           "children": [
 {
             "type": "",
             "nodeName": "Arguments",
-            "line": 40,
+            "line": 36,
             "children": [
 {
               "type": "",
               "nodeName": "PositionalArg",
-              "line": 40,
+              "line": 36,
               "children": [
 {
                 "type": "LiteralNode",
                 "nodeName": "Literal",
-                "line": 40,
+                "line": 36,
     "value": "\"add_product.html\"",
     "literalType": "STRING"
               }
@@ -946,7 +946,7 @@
 {
     "type": "FunctionDefNode",
     "nodeName": "RouteFunction",
-    "line": 43,
+    "line": 39,
     "functionName": "delete_product",
     "returnType": "",
     "paramCount": 1,
@@ -954,34 +954,34 @@
 {
       "type": "DecoratorListNode",
       "nodeName": "DecoratorList",
-      "line": 42,
+      "line": 38,
       "children": [
 {
         "type": "DecoratorNode",
         "nodeName": "Decorator",
-        "line": 42,
+        "line": 38,
         "children": [
 {
           "type": "CallNode",
           "nodeName": "CallExpr",
-          "line": 42,
+          "line": 38,
     "functionName": "app.route",
     "argCount": 0,
           "children": [
 {
             "type": "",
             "nodeName": "Arguments",
-            "line": 42,
+            "line": 38,
             "children": [
 {
               "type": "",
               "nodeName": "PositionalArg",
-              "line": 42,
+              "line": 38,
               "children": [
 {
                 "type": "LiteralNode",
                 "nodeName": "Literal",
-                "line": 42,
+                "line": 38,
     "value": "\"/delete/<int:i>\"",
     "literalType": "STRING"
               }
@@ -998,12 +998,12 @@
 {
       "type": "",
       "nodeName": "Parameters",
-      "line": 43,
+      "line": 39,
       "children": [
 {
         "type": "IdentifierNode",
         "nodeName": "Identifier",
-        "line": 43,
+        "line": 39,
     "name": "i"
       }
       ]
@@ -1011,41 +1011,41 @@
 {
       "type": "BlockNode",
       "nodeName": "Block",
-      "line": 43,
+      "line": 39,
       "children": [
 {
         "type": "IfNode",
         "nodeName": "IfStatement",
-        "line": 44,
+        "line": 40,
         "children": [
 {
           "type": "",
           "nodeName": "IfBranch",
-          "line": 44,
+          "line": 40,
           "children": [
 {
             "type": "BinaryOpNode",
             "nodeName": "BinaryOp",
-            "line": 44,
+            "line": 40,
     "operator": "<",
             "children": [
 {
               "type": "BinaryOpNode",
               "nodeName": "BinaryOp",
-              "line": 44,
+              "line": 40,
     "operator": "<=",
               "children": [
 {
                 "type": "LiteralNode",
                 "nodeName": "Literal",
-                "line": 44,
+                "line": 40,
     "value": "0",
     "literalType": "INT"
               },
 {
                 "type": "IdentifierNode",
                 "nodeName": "Identifier",
-                "line": 44,
+                "line": 40,
     "name": "i"
               }
               ]
@@ -1053,24 +1053,24 @@
 {
               "type": "CallNode",
               "nodeName": "CallExpr",
-              "line": 44,
+              "line": 40,
     "functionName": "len",
     "argCount": 1,
               "children": [
 {
                 "type": "",
                 "nodeName": "Arguments",
-                "line": 44,
+                "line": 40,
                 "children": [
 {
                   "type": "",
                   "nodeName": "PositionalArg",
-                  "line": 44,
+                  "line": 40,
                   "children": [
 {
                     "type": "IdentifierNode",
                     "nodeName": "Identifier",
-                    "line": 44,
+                    "line": 40,
     "name": "products"
                   }
                   ]
@@ -1084,25 +1084,25 @@
 {
             "type": "BlockNode",
             "nodeName": "Block",
-            "line": 44,
+            "line": 40,
             "children": [
 {
               "type": "CallNode",
               "nodeName": "CallExpr",
-              "line": 45,
+              "line": 41,
     "functionName": "pop",
     "argCount": 1,
               "children": [
 {
                 "type": "AttributeNode",
                 "nodeName": "AttributeAccess",
-                "line": 45,
+                "line": 41,
     "attributeName": "pop",
                 "children": [
 {
                   "type": "IdentifierNode",
                   "nodeName": "Identifier",
-                  "line": 45,
+                  "line": 41,
     "name": "products"
                 }
                 ]
@@ -1110,17 +1110,17 @@
 {
                 "type": "",
                 "nodeName": "Arguments",
-                "line": 45,
+                "line": 41,
                 "children": [
 {
                   "type": "",
                   "nodeName": "PositionalArg",
-                  "line": 45,
+                  "line": 41,
                   "children": [
 {
                     "type": "IdentifierNode",
                     "nodeName": "Identifier",
-                    "line": 45,
+                    "line": 41,
     "name": "i"
                   }
                   ]
@@ -1138,48 +1138,48 @@
 {
         "type": "ReturnNode",
         "nodeName": "ReturnStmt",
-        "line": 46,
+        "line": 42,
     "returnExprType": "unknown",
     "enclosingFunctionName": "",
         "children": [
 {
           "type": "CallNode",
           "nodeName": "CallExpr",
-          "line": 46,
+          "line": 42,
     "functionName": "redirect",
     "argCount": 1,
           "children": [
 {
             "type": "",
             "nodeName": "Arguments",
-            "line": 46,
+            "line": 42,
             "children": [
 {
               "type": "",
               "nodeName": "PositionalArg",
-              "line": 46,
+              "line": 42,
               "children": [
 {
                 "type": "CallNode",
                 "nodeName": "CallExpr",
-                "line": 46,
+                "line": 42,
     "functionName": "url_for",
     "argCount": 1,
                 "children": [
 {
                   "type": "",
                   "nodeName": "Arguments",
-                  "line": 46,
+                  "line": 42,
                   "children": [
 {
                     "type": "",
                     "nodeName": "PositionalArg",
-                    "line": 46,
+                    "line": 42,
                     "children": [
 {
                       "type": "LiteralNode",
                       "nodeName": "Literal",
-                      "line": 46,
+                      "line": 42,
     "value": "\"index\"",
     "literalType": "STRING"
                     }
@@ -1204,7 +1204,7 @@
 {
     "type": "FunctionDefNode",
     "nodeName": "RouteFunction",
-    "line": 49,
+    "line": 45,
     "functionName": "details",
     "returnType": "",
     "paramCount": 1,
@@ -1212,34 +1212,34 @@
 {
       "type": "DecoratorListNode",
       "nodeName": "DecoratorList",
-      "line": 48,
+      "line": 44,
       "children": [
 {
         "type": "DecoratorNode",
         "nodeName": "Decorator",
-        "line": 48,
+        "line": 44,
         "children": [
 {
           "type": "CallNode",
           "nodeName": "CallExpr",
-          "line": 48,
+          "line": 44,
     "functionName": "app.route",
     "argCount": 0,
           "children": [
 {
             "type": "",
             "nodeName": "Arguments",
-            "line": 48,
+            "line": 44,
             "children": [
 {
               "type": "",
               "nodeName": "PositionalArg",
-              "line": 48,
+              "line": 44,
               "children": [
 {
                 "type": "LiteralNode",
                 "nodeName": "Literal",
-                "line": 48,
+                "line": 44,
     "value": "\"/details/<int:i>\"",
     "literalType": "STRING"
               }
@@ -1256,12 +1256,12 @@
 {
       "type": "",
       "nodeName": "Parameters",
-      "line": 49,
+      "line": 45,
       "children": [
 {
         "type": "IdentifierNode",
         "nodeName": "Identifier",
-        "line": 49,
+        "line": 45,
     "name": "i"
       }
       ]
@@ -1269,36 +1269,36 @@
 {
       "type": "BlockNode",
       "nodeName": "Block",
-      "line": 49,
+      "line": 45,
       "children": [
 {
         "type": "ReturnNode",
         "nodeName": "ReturnStmt",
-        "line": 50,
+        "line": 46,
     "returnExprType": "unknown",
     "enclosingFunctionName": "",
         "children": [
 {
           "type": "CallNode",
           "nodeName": "CallExpr",
-          "line": 50,
+          "line": 46,
     "functionName": "render_template",
     "argCount": 2,
           "children": [
 {
             "type": "",
             "nodeName": "Arguments",
-            "line": 50,
+            "line": 46,
             "children": [
 {
               "type": "",
               "nodeName": "PositionalArg",
-              "line": 50,
+              "line": 46,
               "children": [
 {
                 "type": "LiteralNode",
                 "nodeName": "Literal",
-                "line": 50,
+                "line": 46,
     "value": "\"product_details.html\"",
     "literalType": "STRING"
               }
@@ -1307,23 +1307,23 @@
 {
               "type": "",
               "nodeName": "NamedArg",
-              "line": 50,
+              "line": 46,
               "children": [
 {
                 "type": "IndexNode",
                 "nodeName": "IndexAccess",
-                "line": 50,
+                "line": 46,
                 "children": [
 {
                   "type": "IdentifierNode",
                   "nodeName": "Identifier",
-                  "line": 50,
+                  "line": 46,
     "name": "products"
                 },
 {
                   "type": "IdentifierNode",
                   "nodeName": "Identifier",
-                  "line": 50,
+                  "line": 46,
     "name": "i"
                 }
                 ]
@@ -1343,20 +1343,20 @@
 {
     "type": "CallNode",
     "nodeName": "CallExpr",
-    "line": 52,
+    "line": 48,
     "functionName": "run",
     "argCount": 1,
     "children": [
 {
       "type": "AttributeNode",
       "nodeName": "AttributeAccess",
-      "line": 52,
+      "line": 48,
     "attributeName": "run",
       "children": [
 {
         "type": "IdentifierNode",
         "nodeName": "Identifier",
-        "line": 52,
+        "line": 48,
     "name": "app"
       }
       ]
@@ -1364,17 +1364,17 @@
 {
       "type": "",
       "nodeName": "Arguments",
-      "line": 52,
+      "line": 48,
       "children": [
 {
         "type": "",
         "nodeName": "NamedArg",
-        "line": 52,
+        "line": 48,
         "children": [
 {
           "type": "LiteralNode",
           "nodeName": "Literal",
-          "line": 52,
+          "line": 48,
     "value": "True",
     "literalType": "BOOL"
         }
