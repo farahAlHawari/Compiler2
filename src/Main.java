@@ -1,337 +1,3 @@
-//import AST.Core.PageNode;
-//import Visitor.HtmlCssJinjaVisitor;
-//import Visitor.TemplateSymbolTableVisitor;
-//import antlr.TemplateLexer;
-//import antlr.TemplateParser;
-//import main.pythoncompiler.PythonCompiler;
-//import symbol_table.SymbolTable;
-//import semantic_errors.SemanticChecker;
-//import generation.GenerationContext;
-//import generation.ContextBuilder;
-//import org.antlr.v4.runtime.CharStream;
-//import org.antlr.v4.runtime.CharStreams;
-//import org.antlr.v4.runtime.CommonTokenStream;
-//import org.antlr.v4.runtime.tree.ParseTree;
-//
-//import java.util.List;
-//
-//public class Main {
-//
-//    /**
-//     * يشغّل الـ compiler على ملف Python + HTML واحد
-//     * ويطبع الـ Symbol Table + الأخطاء الدلالية
-//     */
-//    public static void compileAndCheck(String pythonFile, String htmlFile,
-//                                       String outputTitle) throws Exception {
-//        System.out.println("\n");
-//        System.out.println("*".repeat(80));
-//        System.out.println("  " + outputTitle);
-//        System.out.println("  Python: " + pythonFile);
-//        System.out.println("  HTML  : " + htmlFile);
-//        System.out.println("*".repeat(80));
-//
-//        // Create ONE shared Symbol Table
-//        SymbolTable symbolTable = new SymbolTable();
-//
-//        // ===== Python Compiler =====
-//        String pythonFileName = new java.io.File(pythonFile).getName();
-//        symbolTable.setCurrentFileName(pythonFileName);
-//        symbolTable.setCurrentFilePath(pythonFile);
-//
-//        try {
-//            PythonCompiler compiler = new PythonCompiler(symbolTable);
-//            compiler.compile(pythonFile);
-//        } catch (Exception e) {
-//            System.out.println("  [Python] Compilation error: " + e.getMessage());
-//        }
-//
-//        // ===== HTML/CSS/Jinja Parser =====
-//        String templateFileName = new java.io.File(htmlFile).getName();
-//        symbolTable.setSource("template");
-//        symbolTable.setCurrentFileName(templateFileName);
-//        symbolTable.setCurrentFilePath(htmlFile);
-//
-//        try {
-//            CharStream charStream = CharStreams.fromFileName(htmlFile);
-//            TemplateLexer lexer = new TemplateLexer(charStream);
-//            CommonTokenStream tokens = new CommonTokenStream(lexer);
-//            TemplateParser parser = new TemplateParser(tokens);
-//            ParseTree tree = parser.page();
-//
-//            // AST
-//            HtmlCssJinjaVisitor visitor = new HtmlCssJinjaVisitor();
-//            PageNode ast = (PageNode) visitor.visit(tree);
-//
-//            // Build Symbol Table for Template
-//            symbolTable.setSource("template");
-//            TemplateSymbolTableVisitor templateVisitor =
-//                    new TemplateSymbolTableVisitor(symbolTable);
-//            templateVisitor.visit(ast);
-//        } catch (Exception e) {
-//            System.out.println("  [Template] Parsing error: " + e.getMessage());
-//        }
-//
-//        // ===== Print Symbol Table =====
-//        symbolTable.printSymbolTable();
-//        symbolTable.printScopeStructure();
-//
-//        // ===== Semantic Error Checking =====
-//        SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
-//        semanticChecker.checkErrors();
-//        semanticChecker.printErrors();
-//
-//        // ===== Write to file =====
-//        String outputFile = "Result/" + outputTitle
-//                .replace(" ", "_").replace(":", "") + ".txt";
-//        semanticChecker.writeErrorsToFile(outputFile);
-//
-//        // ===== Summary =====
-//        List<semantic_errors.SemanticError> errors = semanticChecker.getErrors();
-//        System.out.println("\n  Total errors found: " + errors.size());
-//        if (!errors.isEmpty()) {
-//            System.out.println("  Error breakdown:");
-//            java.util.Map<String, Integer> breakdown = new java.util.LinkedHashMap<>();
-//            for (semantic_errors.SemanticError err : errors) {
-//                String name = err.getErrorName();
-//                breakdown.merge(name, 1, Integer::sum);
-//            }
-//            for (var entry : breakdown.entrySet()) {
-//                System.out.println("    - " + entry.getKey() + ": " + entry.getValue());
-//            }
-//        }
-//    }
-//
-//    /**
-//     * نسخة مبسّطة: تشغّل الـ compiler على ملف Python فقط
-//     * بدون HTML (تستخدم HTML فارغ مؤقت)
-//     */
-//    /**
-//     * يشغّل الـ compiler على ملف Python + HTML واحد
-//     * ثم يشغّل مرحلة Code Generation إذا لم توجد أخطاء دلالية
-//     */
-//    public static void compileAndGenerate(String pythonFile, String htmlFile,
-//                                          String outputTitle) throws Exception {
-//        System.out.println("\n");
-//        System.out.println("*".repeat(80));
-//        System.out.println("  " + outputTitle);
-//        System.out.println("  Python: " + pythonFile);
-//        System.out.println("  HTML  : " + htmlFile);
-//        System.out.println("*".repeat(80));
-//
-//        SymbolTable symbolTable = new SymbolTable();
-//
-//        // ===== Python Compiler =====
-//        String pythonFileName = new java.io.File(pythonFile).getName();
-//        symbolTable.setCurrentFileName(pythonFileName);
-//        symbolTable.setCurrentFilePath(pythonFile);
-//
-//        try {
-//            PythonCompiler compiler = new PythonCompiler(symbolTable);
-//            compiler.compile(pythonFile);
-//        } catch (Exception e) {
-//            System.out.println("  [Python] Compilation error: " + e.getMessage());
-//        }
-//
-//        // ===== HTML/CSS/Jinja Parser =====
-//        String templateFileName = new java.io.File(htmlFile).getName();
-//        symbolTable.setSource("template");
-//        symbolTable.setCurrentFileName(templateFileName);
-//        symbolTable.setCurrentFilePath(htmlFile);
-//
-//        PageNode ast = null;
-//        try {
-//            CharStream charStream = CharStreams.fromFileName(htmlFile);
-//            TemplateLexer lexer = new TemplateLexer(charStream);
-//            CommonTokenStream tokens = new CommonTokenStream(lexer);
-//            TemplateParser parser = new TemplateParser(tokens);
-//            ParseTree tree = parser.page();
-//
-//            HtmlCssJinjaVisitor visitor = new HtmlCssJinjaVisitor();
-//            ast = (PageNode) visitor.visit(tree);
-//
-//            symbolTable.setSource("template");
-//            TemplateSymbolTableVisitor templateVisitor =
-//                    new TemplateSymbolTableVisitor(symbolTable);
-//            templateVisitor.visit(ast);
-//        } catch (Exception e) {
-//            System.out.println("  [Template] Parsing error: " + e.getMessage());
-//        }
-//
-//        // ===== Print Symbol Table =====
-//        symbolTable.printSymbolTable();
-//        symbolTable.printScopeStructure();
-//
-//        // ===== Semantic Error Checking =====
-//        SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
-//        semanticChecker.checkErrors();
-//        semanticChecker.printErrors();
-//
-//        // ===== Write to file =====
-//        String outputFile = "Result/" + outputTitle
-//                .replace(" ", "_").replace(":", "") + ".txt";
-//        semanticChecker.writeErrorsToFile(outputFile);
-//
-//        // ===== Summary =====
-//        List<semantic_errors.SemanticError> errors = semanticChecker.getErrors();
-//        System.out.println("\n  Total errors found: " + errors.size());
-//
-//        // ===== ★ Code Generation Phase ★ =====
-//        if (errors.isEmpty()) {
-//            System.out.println("\n  No semantic errors — Starting Code Generation phase...");
-//
-//            // ★ بناء GenerationContext من SymbolTable ★
-//            // ContextBuilder يأخذ SymbolTable في الكونستراكتور و build() بدون args
-//            // وي parsing كل التمبلات تلقائياً من مجلد tests/
-//            ContextBuilder contextBuilder = new ContextBuilder(symbolTable);
-//            GenerationContext generationContext = contextBuilder.build();
-//
-//            // ★ طباعة Context لtesting ★
-//            generationContext.printContext();
-//
-//            System.out.println("\n  Generation phase setup completed.");
-//            System.out.println("  NOTE: Full Generation requires Person 2, 3, 4 classes.");
-//            System.out.println("  Current output: GenerationContext with extracted data.");
-//
-//        } else {
-//            System.out.println("\n  Cannot start Generation — Semantic errors exist.");
-//            System.out.println("  Fix semantic errors first, then retry generation.");
-//        }
-//    }
-//
-//    public static void compilePythonOnly(String pythonFile,
-//                                         String outputTitle) throws Exception {
-//        // ننشئ ملف HTML مؤقت بسيط بنفس اسم الملف
-//        String htmlFile = pythonFile.replace(".py", ".html");
-//
-//        System.out.println("\n");
-//        System.out.println("*".repeat(80));
-//        System.out.println("  " + outputTitle);
-//        System.out.println("  Python: " + pythonFile);
-//        System.out.println("  HTML  : " + htmlFile + " (companion)");
-//        System.out.println("*".repeat(80));
-//
-//        SymbolTable symbolTable = new SymbolTable();
-//
-//        // ===== Python Compiler =====
-//        String pythonFileName = new java.io.File(pythonFile).getName();
-//        symbolTable.setCurrentFileName(pythonFileName);
-//        symbolTable.setCurrentFilePath(pythonFile);
-//
-//        try {
-//            PythonCompiler compiler = new PythonCompiler(symbolTable);
-//            compiler.compile(pythonFile);
-//        } catch (Exception e) {
-//            System.out.println("  [Python] Compilation error: " + e.getMessage());
-//        }
-//
-//        // ===== HTML/CSS/Jinja Parser =====
-//        try {
-//            CharStream charStream = CharStreams.fromFileName(htmlFile);
-//            TemplateLexer lexer = new TemplateLexer(charStream);
-//            CommonTokenStream tokens = new CommonTokenStream(lexer);
-//            TemplateParser parser = new TemplateParser(tokens);
-//            ParseTree tree = parser.page();
-//
-//            HtmlCssJinjaVisitor visitor = new HtmlCssJinjaVisitor();
-//            PageNode ast = (PageNode) visitor.visit(tree);
-//
-//            symbolTable.setSource("template");
-//            TemplateSymbolTableVisitor templateVisitor =
-//                    new TemplateSymbolTableVisitor(symbolTable);
-//            templateVisitor.visit(ast);
-//        } catch (Exception e) {
-//            System.out.println("  [Template] Parsing error: " + e.getMessage());
-//        }
-//
-//        // ===== Print Symbol Table =====
-//        symbolTable.printSymbolTable();
-//        symbolTable.printScopeStructure();
-//
-//        // ===== Semantic Error Checking =====
-//        SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
-//        semanticChecker.checkErrors();
-//        semanticChecker.printErrors();
-//
-//        // ===== Summary =====
-//        List<semantic_errors.SemanticError> errors = semanticChecker.getErrors();
-//        System.out.println("\n  Total errors found: " + errors.size());
-//        if (!errors.isEmpty()) {
-//            System.out.println("  Error breakdown:");
-//            java.util.Map<String, Integer> breakdown = new java.util.LinkedHashMap<>();
-//            for (semantic_errors.SemanticError err : errors) {
-//                String name = err.getErrorName();
-//                breakdown.merge(name, 1, Integer::sum);
-//            }
-//            for (var entry : breakdown.entrySet()) {
-//                System.out.println("    - " + entry.getKey() + ": " + entry.getValue());
-//            }
-//        }
-//    }
-//
-//    public static void main(String[] args) throws Exception {
-//        compileAndGenerate(
-//                "src/tests/app1.py",
-//                "tests",
-//                "TEST 6: Code Generation (app1.py)"
-//        );
-////        // ==============================================================
-////        //  TEST 1: NameError — متغير غير معرّف
-////        //  يتوقع: NameError لـ x, z, age
-////        // ==============================================================
-////        compilePythonOnly(
-////                "src/tests/test_undefined.py",
-////                "TEST 1: NameError (undefined variable)"
-////        );
-////
-////        // ==============================================================
-////        //  TEST 2: AttributeError — وصول لـ attribute غير موجود
-////        //  يتوقع: AttributeError لـ text.append, items.split, user.upper, num.keys
-////        // ==============================================================
-////        compilePythonOnly(
-////                "src/tests/test_invalid_attr.py",
-////                "TEST 2: AttributeError (invalid attribute access)"
-////        );
-////
-////        // ==============================================================
-////        //  TEST 3: TypeError — عملية حسابية على None
-////        //  يتوقع: TypeError لـ x+5, 10*x, x-y, x/2, x**2
-////        // ==============================================================
-////        compilePythonOnly(
-////                "src/tests/test_operation_on_none.py",
-////                "TEST 3: TypeError (operation on None)"
-////        );
-////
-////        // ==============================================================
-////        //  TEST 4: AttributeError على NoneType
-////        //  يتوقع: AttributeError لـ user.name, data.get, items.append, text.upper
-////        // ==============================================================
-////        compilePythonOnly(
-////                "src/tests/test_none_attr.py",
-////                "TEST 4: AttributeError on NoneType"
-////        );
-////
-////        // ==============================================================
-////        //  TEST: Type Error
-////        //  يتوقع: TypeError لكل الحالات الـ 24
-////        // ==============================================================
-////        compileAndCheck(
-////                "src/tests/test_type_error.py",
-////                "tests/test_type_error.html",
-////                "TEST: Type Error"
-////        );
-////
-////        // ==============================================================
-////        //  TEST 5: Error Type — عملية بين نوعين غير متوافقين
-////        //  يتوقع: 12 TypeError (عمليات حسابية/مقارنة/فهرسة/len)
-////        //  + 3 حالات صحيحة ما لازم تنكشف كأخطاء
-////        // ==============================================================
-////        compilePythonOnly(
-////                "src/tests/test_operation_type_error.py",
-////                "TEST 5: Error Type (incompatible operand types)"
-////        );
-//
-//    }
-//}
 import AST.Core.ASTNode;
 import AST.Core.PageNode;
 import Visitor.HtmlCssJinjaVisitor;
@@ -349,34 +15,48 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import generation.ASTJsonSerializer;
+import java.io.OutputStream;
 import java.nio.file.*;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpExchange;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+
 public class Main {
 
-    // ==================== compileAndCheck (Tests 1-5) ====================
+    private static final String OUTPUT_DIR = "output";
+    private static final int SERVER_PORT = 8080;
+    private static final AtomicBoolean skipNextWatch = new AtomicBoolean(false);
 
-    /**
-     * يشغّل الـ compiler على ملف Python + HTML واحد
-     * ويطبع الـ Symbol Table + الأخطاء الدلالية
-     * <p>
-     * لا يتضمن مرحلة Generation — فقط Parsing + Semantic.
-     */
+    // ==================== Semantic Test Files ====================
+
+    private static final String[][] SEMANTIC_TESTS = {
+            {"src/tests/test_undefined.py",           "NameError (undefined variable)"},
+            {"src/tests/test_invalid_attr.py",        "AttributeError (invalid attribute)"},
+            {"src/tests/test_operation_on_none.py",   "TypeError (operation on None)"},
+            {"src/tests/test_none_attr.py",            "AttributeError on NoneType"},
+            {"src/tests/test_type_error.py",          "TypeError (type mismatch)"},
+            {"src/tests/test_operation_type_error.py","Operation Type Error"},
+            {"src/tests/test_division.py",             "Division By Zero"},
+            {"src/tests/test_return_type_mismatch.py","Return Type Mismatch"},
+            {"src/tests/test_unbound_local.py",       "UnboundLocalError"},
+            {"src/tests/test_use_before_init.py",     "Use Before Initialization"},
+            {"src/tests/test_missing_flask_var.py",   "Missing Flask Variable"},
+            {"src/tests/test_invalid_func_call.py",   "Invalid Function Call"},
+            {"src/tests/test_wrong_args_count.py",    "Wrong Arguments Count"},
+            {"src/tests/test_no_errors.py",           "No Errors (clean code)"},
+            {"src/tests/test_all_errors.py",          "All Errors Combined"},
+    };
+
+    private static final String GENERATION_PYTHON  = "src/tests/app1.py";
+    private static final String GENERATION_TEMPLATES = "src/templets";
+
+    // ==================== compileAndCheck ====================
+
     public static void compileAndCheck(String pythonFile, String htmlFile,
                                        String outputTitle) throws Exception {
         System.out.println("\n");
@@ -388,7 +68,6 @@ public class Main {
 
         SymbolTable symbolTable = new SymbolTable();
 
-        // ===== Python Compiler =====
         String pythonFileName = new File(pythonFile).getName();
         symbolTable.setCurrentFileName(pythonFileName);
         symbolTable.setCurrentFilePath(pythonFile);
@@ -400,11 +79,10 @@ public class Main {
             System.out.println("  [Python] Compilation error: " + e.getMessage());
         }
 
-        // ===== HTML/CSS/Jinja Parser =====
         File companionFile = new File(htmlFile);
         if (!companionFile.exists() || !companionFile.isFile()) {
             System.out.println("\n  Companion HTML file '" + htmlFile
-                    + "' not found — proceeding with Python-only analysis.");
+                    + "' not found \u2014 proceeding with Python-only analysis.");
         } else {
             String templateFileName = companionFile.getName();
             symbolTable.setSource("template");
@@ -430,22 +108,18 @@ public class Main {
             }
         }
 
-        // ===== Print Symbol Table =====
         symbolTable.printSymbolTable();
         symbolTable.printScopeStructure();
 
-        // ===== Semantic Error Checking =====
         SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
         semanticChecker.checkErrors();
         semanticChecker.printErrors();
 
-        // ===== Write to file =====
         String outputFile = "Result/" + outputTitle
                 .replace(" ", "_").replace(":", "") + ".txt";
         Files.createDirectories(Path.of("Result"));
         semanticChecker.writeErrorsToFile(outputFile);
 
-        // ===== Summary =====
         List<semantic_errors.SemanticError> errors = semanticChecker.getErrors();
         System.out.println("\n  Total errors found: " + errors.size());
         if (!errors.isEmpty()) {
@@ -462,10 +136,6 @@ public class Main {
 
     // ==================== compilePythonOnly ====================
 
-    /**
-     * نسخة مبسّطة: تشغّل الـ compiler على ملف Python فقط
-     * بدون HTML.
-     */
     public static void compilePythonOnly(String pythonFile,
                                          String outputTitle) throws Exception {
         System.out.println("\n");
@@ -514,18 +184,10 @@ public class Main {
         }
     }
 
-    // ==================== compileAndGenerate (Test 6 — Generation) ====================
+    // ==================== compileAndGenerate ====================
 
-    /**
-     * Python + كل templates → Semantic gate → Person 1 ContextBuilder.
-     * <p>
-     * عند عدم وجود أخطاء دلالية: لا يُطبع تقرير Semantic الفارغ
-     * ولا يُكتب ملف Result — فقط سطر تأكيد ثم Generation.
-     * كتابة generation_log.txt تُترك لشخص 4.
-     * </p>
-     */
-    public static void compileAndGenerate(String pythonFile, String templatesDir,
-                                          String outputTitle) throws Exception {
+    public static GenerationContext compileAndGenerate(String pythonFile, String templatesDir,
+                                                       String outputTitle) throws Exception {
         System.out.println("\n");
         System.out.println("*".repeat(80));
         System.out.println("  " + outputTitle);
@@ -540,16 +202,16 @@ public class Main {
         symbolTable.setCurrentFileName(pythonFileName);
         symbolTable.setCurrentFilePath(pythonFile);
 
-        main.pythoncompiler.ast.ASTNode pythonRoot = null;  // ★ نعرّفها قبل try ★
+        main.pythoncompiler.ast.ASTNode pythonRoot = null;
 
         try {
             PythonCompiler compiler = new PythonCompiler(symbolTable);
             compiler.compile(pythonFile);
-            pythonRoot = compiler.getAST();                   // ★ نجيب الـ root ★
+            pythonRoot = compiler.getAST();
         } catch (Exception e) {
             System.out.println("  [Python] Compilation error: " + e.getMessage());
-            System.out.println("\n  Stopping — Python compilation failed.");
-            return;
+            System.out.println("\n  Stopping \u2014 Python compilation failed.");
+            return null;
         }
 
         // ===== 2. Parse + visit ALL templates =====
@@ -560,7 +222,7 @@ public class Main {
 
         if (!templatesDirFile.isDirectory()) {
             System.out.println("  [Template] Templates directory '" + templatesDir
-                    + "' not found — proceeding with Python-only symbol table.");
+                    + "' not found \u2014 proceeding with Python-only symbol table.");
         } else if (htmlFiles == null || htmlFiles.length == 0) {
             System.out.println("  [Template] No .html files found in '" + templatesDir + "'.");
         } else {
@@ -601,21 +263,23 @@ public class Main {
         symbolTable.printSymbolTable();
         symbolTable.printScopeStructure();
 
-        // ===== 4. Semantic gate =====
+        // ===== 4. Semantic Check =====
         SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
         semanticChecker.checkErrors();
 
+        // ★ دائماً اطبع التقرير حتى لو ما في أخطاء ★
+        semanticChecker.printErrors();
+
         List<semantic_errors.SemanticError> errors = semanticChecker.getErrors();
 
+        // ★ دائماً اكتب الملف حتى لو ما في أخطاء ★
+        String outputFile = "Result/" + outputTitle
+                .replace(" ", "_").replace(":", "") + "_Semantic.txt";
+        Files.createDirectories(Path.of("Result"));
+        semanticChecker.writeErrorsToFile(outputFile);
+
+        System.out.println("\n  Total errors found: " + errors.size());
         if (!errors.isEmpty()) {
-            semanticChecker.printErrors();
-
-            String outputFile = "Result/" + outputTitle
-                    .replace(" ", "_").replace(":", "") + ".txt";
-            Files.createDirectories(Path.of("Result"));
-            semanticChecker.writeErrorsToFile(outputFile);
-
-            System.out.println("\n  Total errors found: " + errors.size());
             System.out.println("  Error breakdown:");
             Map<String, Integer> breakdown = new LinkedHashMap<>();
             for (semantic_errors.SemanticError err : errors) {
@@ -625,9 +289,9 @@ public class Main {
                 System.out.println("    - " + entry.getKey() + ": " + entry.getValue());
             }
 
-            System.out.println("\n  Cannot start Generation — Semantic errors exist.");
+            System.out.println("\n  Cannot start Generation \u2014 Semantic errors exist.");
             System.out.println("  Fix semantic errors first, then retry generation.");
-            return;
+            return null;
         }
 
         System.out.println("\n  Semantic check: OK (0 errors)");
@@ -642,42 +306,37 @@ public class Main {
         GenerationContext generationContext = contextBuilder.build();
 
         if (generationContext == null) {
-            System.out.println("\n  Stopping — ContextBuilder.build() returned null.");
-            return;
+            System.out.println("\n  Stopping \u2014 ContextBuilder.build() returned null.");
+            return null;
         }
 
-        // ★ نسلسل Python AST ونخزّن JSON بالـ context ★
         if (pythonRoot != null) {
             ASTJsonSerializer serializer = new ASTJsonSerializer();
             String pythonAstJson = serializer.serializePythonAST(pythonRoot);
             generationContext.setPythonAstJson(pythonAstJson);
-            //     System.out.println("  [Main] Python AST serialized successfully.");
-        } else {
-            //    System.out.println("  [Main] Python AST root is null — skipping ast_python.json.");
         }
 
         generationContext.setSemanticPassed(true);
 
-        // ===== 6. Generation (Person 4 — Generator) =====
+        // ===== 6. Generation =====
         Generator generator = new Generator(generationContext);
         generator.generate();
 
-        // ===== 7. Print Generation Logs =====
-        //  printGenerationLogs(generationContext);
+        // ★ دائماً اطبع Generation Log بالتيرمينال ★
+        printGenerationLogs(generationContext);
 
         System.out.println("\n  Generation phase completed.");
+
+        return generationContext;
     }
+
     // ==================== printGenerationLogs ====================
 
-    /**
-     * يطبع logEntries + warnings على الـ console.
-     * كتابة generation_log.txt = شخص 4 لاحقاً.
-     */
     private static void printGenerationLogs(GenerationContext context) {
         System.out.println();
-        System.out.println("=".repeat(60));
-        System.out.println(" Generation Logs");
-        System.out.println("=".repeat(60));
+        System.out.println("=".repeat(80));
+        System.out.println("                    GENERATION LOG");
+        System.out.println("=".repeat(80));
 
         List<String> entries = context.getLogEntries();
         if (entries.isEmpty()) {
@@ -692,67 +351,258 @@ public class Main {
             System.out.println();
             System.out.println("--- Warnings ---");
             for (String w : context.getWarnings()) {
-                System.out.println("  ⚠ " + w);
+                System.out.println("  Warning: " + w);
             }
         }
 
-        System.out.println("=".repeat(60));
+        System.out.println();
+        System.out.println("--- Generated Pages ---");
+        for (String fileName : context.getOutputHtml().keySet()) {
+            System.out.println("  " + fileName);
+        }
+
+        System.out.println("=".repeat(80));
         System.out.println(" Total log entries: " + entries.size());
-        System.out.println("=".repeat(60));
+        System.out.println(" Generated pages: " + context.getOutputHtml().size());
+        System.out.println("=".repeat(80));
     }
 
-    // ==================== main ====================
-/*
+    // ==================== main (Interactive Menu) ====================
+
     public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
 
-        // ==============================================================
-        //  TEST 6: Code Generation — Flask app + Jinja templates
-        // ==============================================================
-        String pythonFile = "src/tests/app1.py";
-        String templatesDir = "src/templets";
-        String outputTitle = "TEST 6: Code Generation (app1.py)";
+        while (true) {
+            System.out.println();
+            System.out.println("=".repeat(60));
+            System.out.println("        COMPILER 2 \u2014 Interactive Menu");
+            System.out.println("=".repeat(60));
+            System.out.println("  1. Semantic Analysis  (Python only - choose a test)");
+            System.out.println("  2. Code Generation   (Full pipeline + HTTP Server)");
+            System.out.println("  3. Run All Semantic Tests");
+            System.out.println("  0. Exit");
+            System.out.println("=".repeat(60));
+            System.out.print("  Choose [0-3]: ");
 
-        // ===== تشغيل أولي =====
-        compileAndGenerate(pythonFile, templatesDir, outputTitle);
+            String choice = scanner.nextLine().trim();
 
-        // ===== WatchService — يراقب تغييرات app1.py والقوالب =====
-        System.out.println("\n" + "=".repeat(80));
-        System.out.println("  Watching for changes... (Ctrl+C to stop)");
-        System.out.println("  Edit app1.py or any .html template and save to regenerate.");
-        System.out.println("=".repeat(80));
+            switch (choice) {
+                case "1" -> runSemanticMenu(scanner);
+                case "2" -> runCodeGeneration(scanner);
+                case "3" -> runAllSemanticTests();
+                case "0" -> {
+                    System.out.println("\n  Goodbye!");
+                    return;
+                }
+                default -> System.out.println("  Invalid choice. Please enter 0-3.");
+            }
+        }
+    }
 
-        Path pythonDir = Paths.get(pythonFile).getParent();
-        String pythonFileName = Paths.get(pythonFile).getFileName().toString();
+    // ==================== Semantic Analysis Menu ====================
 
-        Path templatesDirPath = Paths.get(templatesDir);
+    private static void runSemanticMenu(Scanner scanner) throws Exception {
+        System.out.println("\n  Available Semantic Tests:");
+        System.out.println("  " + "-".repeat(56));
+        for (int i = 0; i < SEMANTIC_TESTS.length; i++) {
+            System.out.printf("  %2d. %-40s [%s]%n",
+                    (i + 1), SEMANTIC_TESTS[i][1], SEMANTIC_TESTS[i][0]);
+        }
+        System.out.println("  " + "-".repeat(56));
+        System.out.print("  Enter test number (or 0 to go back): ");
 
-        WatchService watchService = FileSystems.getDefault().newWatchService();
-        pythonDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-        templatesDirPath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+        String input = scanner.nextLine().trim();
+        if (input.equals("0")) return;
 
         try {
+            int idx = Integer.parseInt(input) - 1;
+            if (idx < 0 || idx >= SEMANTIC_TESTS.length) {
+                System.out.println("  Invalid test number.");
+                return;
+            }
+            compilePythonOnly(SEMANTIC_TESTS[idx][0],
+                    "Semantic: " + SEMANTIC_TESTS[idx][1]);
+        } catch (NumberFormatException e) {
+            System.out.println("  Please enter a valid number.");
+        }
+    }
+
+    // ==================== Code Generation + HTTP Server ====================
+
+    private static void runCodeGeneration(Scanner scanner) throws Exception {
+        System.out.println();
+        System.out.println("  Available generation files:");
+        System.out.println("    1. app1.py  +  src/templets");
+        System.out.println("    2. app2.py  +  src/templets");
+        System.out.println("    3. Custom (enter file paths)");
+        System.out.print("  Choose [1-3] (or 0 to go back): ");
+
+        String input = scanner.nextLine().trim();
+        if (input.equals("0")) return;
+
+        String pythonFile = GENERATION_PYTHON;
+        String templatesDir = GENERATION_TEMPLATES;
+
+        switch (input) {
+            case "1" -> { /* defaults */ }
+            case "2" -> pythonFile = "src/tests/app2.py";
+            case "3" -> {
+                System.out.print("  Enter Python file path: ");
+                pythonFile = scanner.nextLine().trim();
+                System.out.print("  Enter templates directory: ");
+                templatesDir = scanner.nextLine().trim();
+            }
+            default -> {
+                System.out.println("  Invalid choice.");
+                return;
+            }
+        }
+
+        String outputTitle = "Code Generation (" + new File(pythonFile).getName() + ")";
+
+        GenerationContext ctx = compileAndGenerate(pythonFile, templatesDir, outputTitle);
+        if (ctx == null) return;
+
+        System.out.println("\n  Starting HTTP Server on http://localhost:" + SERVER_PORT);
+        System.out.println("  Press Ctrl+C to stop.\n");
+
+        startHttpServer(pythonFile, templatesDir, outputTitle);
+    }
+
+    // ==================== Run All Semantic Tests ====================
+
+    private static void runAllSemanticTests() throws Exception {
+        System.out.println();
+        System.out.println("=".repeat(80));
+        System.out.println("        RUNNING ALL SEMANTIC TESTS");
+        System.out.println("=".repeat(80));
+
+        int totalErrors = 0;
+        for (int i = 0; i < SEMANTIC_TESTS.length; i++) {
+            System.out.println("\n  >>> TEST " + (i + 1) + "/" + SEMANTIC_TESTS.length + " <<<");
+            try {
+                compilePythonOnly(SEMANTIC_TESTS[i][0],
+                        "All Tests: " + SEMANTIC_TESTS[i][1]);
+            } catch (Exception e) {
+                System.out.println("  [ERROR] Test failed: " + e.getMessage());
+            }
+        }
+
+        System.out.println("\n" + "=".repeat(80));
+        System.out.println("  All tests completed. Check Result/ folder for reports.");
+        System.out.println("=".repeat(80));
+    }
+
+    // ==================== HTTP Server ====================
+
+    private static void startHttpServer(String pythonFile, String templatesDir,
+                                          String outputTitle) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
+
+        server.createContext("/", (HttpExchange exchange) -> {
+            String path = exchange.getRequestURI().getPath();
+            String method = exchange.getRequestMethod();
+
+            try {
+                if (method.equals("GET") && (path.equals("/") || path.equals("/index.html"))) {
+                    serveIndexWithDeleteScript(exchange);
+                    return;
+                }
+
+                if (method.equals("GET") && path.equals("/add.html")) {
+                    serveStaticFile(exchange, "add.html");
+                    return;
+                }
+
+                if (method.equals("POST") && path.equals("/add.html")) {
+                    String body = new String(exchange.getRequestBody().readAllBytes());
+                    Map<String, String> params = parseFormData(body);
+
+                    String name    = params.getOrDefault("name", "");
+                    String price   = params.getOrDefault("price", "0");
+                    String image   = params.getOrDefault("image", "");
+                    String details = params.getOrDefault("details", "");
+
+                    if (name.isEmpty()) {
+                        sendJson(exchange, 400, "{\"success\":false,\"error\":\"Product name is required\"}");
+                        return;
+                    }
+
+                    addProductToSource(pythonFile, name, price, image, details);
+                    skipNextWatch.set(true);
+                    try { compileAndGenerate(pythonFile, templatesDir, outputTitle); } catch (Exception ignored) {}
+                    System.out.println("  [API] Product added: " + name);
+                    sendRedirect(exchange, "/index.html");
+                    return;
+                }
+
+                if (method.equals("GET") && path.startsWith("/delete/")) {
+                    String indexStr = path.substring("/delete/".length());
+                    try {
+                        int index = Integer.parseInt(indexStr);
+                        deleteProductFromSource(pythonFile, index);
+                        skipNextWatch.set(true);
+                        try { compileAndGenerate(pythonFile, templatesDir, outputTitle); } catch (Exception ignored) {}
+                        System.out.println("  [API] Product deleted at index: " + index);
+                    } catch (NumberFormatException e) {
+                        System.out.println("  [API] Invalid delete index: " + indexStr);
+                    }
+                    sendRedirect(exchange, "/index.html");
+                    return;
+                }
+
+                if (method.equals("GET") && path.startsWith("/details/")) {
+                    String indexStr = path.substring("/details/".length());
+                    sendRedirect(exchange, "/product_details_" + indexStr + ".html");
+                    return;
+                }
+
+                serveStaticFile(exchange, path);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    sendJson(exchange, 500, "{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}");
+                } catch (IOException ignored) {}
+            }
+        });
+
+        server.setExecutor(null);
+        server.start();
+
+        // ===== WatchService =====
+        System.out.println("  Server  ->  http://localhost:" + SERVER_PORT);
+        System.out.println("  Watching for changes... (Ctrl+C to stop)");
+        System.out.println("  You can now add/delete products from the web UI!");
+
+        try {
+            Path pythonDir = Paths.get(pythonFile).getParent();
+            String pythonFileName = Paths.get(pythonFile).getFileName().toString();
+            Path templatesDirPath = Paths.get(templatesDir);
+
+            java.nio.file.WatchService watchService = FileSystems.getDefault().newWatchService();
+            pythonDir.register(watchService, java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY);
+            templatesDirPath.register(watchService, java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY);
+
             while (true) {
-                WatchKey key = watchService.take();
+                java.nio.file.WatchKey key = watchService.take();
 
                 boolean pythonChanged = false;
                 boolean templateChanged = false;
 
-                for (WatchEvent<?> event : key.pollEvents()) {
+                for (java.nio.file.WatchEvent<?> event : key.pollEvents()) {
                     Path changed = (Path) event.context();
                     String changedName = changed.toString();
 
-                    if (changedName.equals(pythonFileName)) {
-                        pythonChanged = true;
-                    } else if (changedName.endsWith(".html")) {
-                        templateChanged = true;
-                    }
+                    if (changedName.equals(pythonFileName)) pythonChanged = true;
+                    else if (changedName.endsWith(".html")) templateChanged = true;
                 }
 
-                if (pythonChanged || templateChanged) {
+                if ((pythonChanged || templateChanged) && !skipNextWatch.getAndSet(false)) {
                     Thread.sleep(500);
-                    System.out.println("\n  File changed — regenerating...");
-                    compileAndGenerate(pythonFile, templatesDir, outputTitle);
-                    System.out.println("\n  Done. Waiting for next change...");
+                    System.out.println("\n  File changed -- regenerating...");
+                    try { compileAndGenerate(pythonFile, templatesDir, outputTitle); } catch (Exception ignored) {}
+                    System.out.println("  Done. Waiting for next change...");
                 }
 
                 boolean valid = key.reset();
@@ -762,384 +612,26 @@ public class Main {
             System.out.println("\n  Watcher stopped.");
         }
     }
-}
-*/
 
-// ==================== Imports مطلوبة (أضفها فوق الكلاس) ====================
+    // ==================== HTTP Helper Methods ====================
 
+    private static void serveStaticFile(HttpExchange exchange, String filePath) throws IOException {
+        if (filePath.startsWith("/")) filePath = filePath.substring(1);
+        if (filePath.isEmpty()) filePath = "index.html";
 
-// ==================== حقول الكلاس ====================
-private static final String OUTPUT_DIR = "output";       // ← غيّرها حسب مسار الخرج عندك
-private static final int SERVER_PORT = 8080;
-private static final AtomicBoolean skipNextWatch = new AtomicBoolean(false);
-
-// ==================== main ====================
-public static void main(String[] args) throws Exception {
-
-    // ==============================================================
-    //  TEST 6: Code Generation — Flask app + Jinja templates
-    // ==============================================================
-    String pythonFile = "src/tests/app1.py";
-    String templatesDir = "src/templets";
-    String outputTitle = "TEST 6: Code Generation (app1.py)";
-
-    // ===== تشغيل أولي =====
-    compileAndGenerate(pythonFile, templatesDir, outputTitle);
-
-    // ==================== HTTP Server ====================
-    // ==================== HTTP Server ====================
-    HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
-
-    server.createContext("/", (HttpExchange exchange) -> {
-        String path = exchange.getRequestURI().getPath();
-        String method = exchange.getRequestMethod();
-
-        try {
-            // ===== GET / أو /index.html → صفحة المنتجات مع سكربت الحذف =====
-            if (method.equals("GET") && (path.equals("/") || path.equals("/index.html"))) {
-                serveIndexWithDeleteScript(exchange);
-                return;
-            }
-
-            // ===== GET /add.html → صفحة إضافة منتج =====
-            if (method.equals("GET") && path.equals("/add.html")) {
-                serveStaticFile(exchange, "add.html");
-                return;
-            }
-
-            // ===== POST /add.html → إضافة منتج فعلياً =====
-            if (method.equals("POST") && path.equals("/add.html")) {
-                String body = new String(exchange.getRequestBody().readAllBytes());
-                Map<String, String> params = parseFormData(body);
-
-                String name    = params.getOrDefault("name", "");
-                String price   = params.getOrDefault("price", "0");
-                String image   = params.getOrDefault("image", "");
-                String details = params.getOrDefault("details", "");
-
-                if (name.isEmpty()) {
-                    sendJson(exchange, 400, "{\"success\":false,\"error\":\"Product name is required\"}");
-                    return;
-                }
-
-                addProductToSource(pythonFile, name, price, image, details);
-                skipNextWatch.set(true);
-                compileAndGenerate(pythonFile, templatesDir, outputTitle);
-                System.out.println("  [API] Product added: " + name);
-                sendRedirect(exchange, "/index.html");
-                return;
-            }
-
-            // ===== GET /delete/{i} → حذف منتج =====
-            if (method.equals("GET") && path.startsWith("/delete/")) {
-                String indexStr = path.substring("/delete/".length());
-                try {
-                    int index = Integer.parseInt(indexStr);
-                    deleteProductFromSource(pythonFile, index);
-                    skipNextWatch.set(true);
-                    compileAndGenerate(pythonFile, templatesDir, outputTitle);
-                    System.out.println("  [API] Product deleted at index: " + index);
-                } catch (NumberFormatException e) {
-                    System.out.println("  [API] Invalid delete index: " + indexStr);
-                }
-                sendRedirect(exchange, "/index.html");
-                return;
-            }
-
-            // ===== GET /details/{i} → تحويل لصفحة التفاصيل =====
-            if (method.equals("GET") && path.startsWith("/details/")) {
-                String indexStr = path.substring("/details/".length());
-                sendRedirect(exchange, "/product_details_" + indexStr + ".html");
-                return;
-            }
-
-            // ===== Default: خدمة ملف ثابت =====
-            serveStaticFile(exchange, path);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                sendJson(exchange, 500, "{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}");
-            } catch (IOException ignored) {}
-        }
-    });
-
-    server.setExecutor(null);
-    server.start();
-
-    // ==================== WatchService ====================
-    System.out.println("\n" + "=".repeat(80));
-    System.out.println("  Server  ->  http://localhost:" + SERVER_PORT);
-    System.out.println("  Watching for changes... (Ctrl+C to stop)");
-    System.out.println("  You can now add/delete products from the web UI!");
-    System.out.println("=".repeat(80));
-
-    Path pythonDir = Paths.get(pythonFile).getParent();
-    String pythonFileName = Paths.get(pythonFile).getFileName().toString();
-    Path templatesDirPath = Paths.get(templatesDir);
-
-    WatchService watchService = FileSystems.getDefault().newWatchService();
-    pythonDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-    templatesDirPath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-
-    try {
-        while (true) {
-            WatchKey key = watchService.take();
-
-            boolean pythonChanged = false;
-            boolean templateChanged = false;
-
-            for (WatchEvent<?> event : key.pollEvents()) {
-                Path changed = (Path) event.context();
-                String changedName = changed.toString();
-
-                if (changedName.equals(pythonFileName)) {
-                    pythonChanged = true;
-                } else if (changedName.endsWith(".html")) {
-                    templateChanged = true;
-                }
-            }
-
-            if ((pythonChanged || templateChanged) && !skipNextWatch.getAndSet(false)) {
-                Thread.sleep(500);
-                System.out.println("\n  File changed -- regenerating...");
-                compileAndGenerate(pythonFile, templatesDir, outputTitle);
-                System.out.println("  Done. Waiting for next change...");
-            }
-
-            boolean valid = key.reset();
-            if (!valid) break;
-        }
-    } catch (InterruptedException e) {
-        System.out.println("\n  Watcher stopped.");
-    }
-}
-
-// ==================== Helper Methods ====================
-
-// ---------- خدمات HTTP ----------
-
-private static void serveStaticFile(HttpExchange exchange, String filePath) throws IOException {
-    // إذا كان filePath يبدأ بـ / نحذفها
-    if (filePath.startsWith("/")) filePath = filePath.substring(1);
-    if (filePath.isEmpty()) filePath = "index.html";
-
-    File file = new File(OUTPUT_DIR, filePath);
-    if (file.exists() && file.isFile()) {
-        byte[] bytes = Files.readAllBytes(file.toPath());
-        exchange.getResponseHeaders().set("Content-Type", getContentType(filePath));
-        exchange.sendResponseHeaders(200, bytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(bytes);
-        os.close();
-    } else {
-        String msg = "404 Not Found: " + filePath;
-        exchange.sendResponseHeaders(404, msg.length());
-        OutputStream os = exchange.getResponseBody();
-        os.write(msg.getBytes());
-        os.close();
-    }
-}
-
-private static boolean tryServeFile(HttpExchange exchange, String filePath) throws IOException {
-    if (filePath.startsWith("/")) filePath = filePath.substring(1);
-    File file = new File(OUTPUT_DIR, filePath);
-    if (file.exists() && file.isFile()) {
-        byte[] bytes = Files.readAllBytes(file.toPath());
-        exchange.getResponseHeaders().set("Content-Type", getContentType(filePath));
-        exchange.sendResponseHeaders(200, bytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(bytes);
-        os.close();
-        return true;
-    }
-    return false;
-}
-
-private static void sendJson(HttpExchange exchange, int code, String json) throws IOException {
-    exchange.getResponseHeaders().set("Content-Type", "application/json");
-    exchange.sendResponseHeaders(code, json.length());
-    OutputStream os = exchange.getResponseBody();
-    os.write(json.getBytes());
-    os.close();
-}
-
-private static void sendRedirect(HttpExchange exchange, String location) throws IOException {
-    exchange.getResponseHeaders().set("Location", location);
-    exchange.sendResponseHeaders(302, -1);
-    exchange.getResponseBody().close();
-}
-
-// ---------- تعديل ملف المصدر ----------
-
-/**
- * يضيف منتج جديد (name, price, image, details) داخل قائمة products بملف app1.py
- */
-private static void addProductToSource(String pythonFile, String name, String price,
-                                       String image, String details) throws IOException {
-    List<String> lines = Files.readAllLines(Paths.get(pythonFile));
-    List<String> newLines = new ArrayList<>();
-    boolean insideProducts = false;
-    int bracketDepth = 0;
-    boolean inserted = false;
-
-    for (String line : lines) {
-        String trimmed = line.trim();
-
-        if (!insideProducts && trimmed.startsWith("products") && trimmed.contains("[")) {
-            insideProducts = true;
-            newLines.add(line);
-            for (char c : trimmed.toCharArray()) {
-                if (c == '[') bracketDepth++;
-                if (c == ']') bracketDepth--;
-            }
-            if (bracketDepth <= 0) {
-                // products = [] — قائمة فارغة
-                newLines.add("    {\"name\": \"" + name + "\", \"price\": " + price
-                        + ", \"image\": \"" + image + "\", \"details\": \"" + details + "\"}");
-                inserted = true;
-                insideProducts = false;
-            }
-            continue;
-        }
-
-        if (insideProducts) {
-            for (char c : trimmed.toCharArray()) {
-                if (c == '[') bracketDepth++;
-                if (c == ']') bracketDepth--;
-            }
-
-            if (bracketDepth <= 0) {
-                // سطر الإغلاق ] — ندرج المنتج الجديد قبله
-                newLines.add("    {\"name\": \"" + name + "\", \"price\": " + price
-                        + ", \"image\": \"" + image + "\", \"details\": \"" + details + "\"},");
-                newLines.add(line);
-                inserted = true;
-                insideProducts = false;
-                continue;
-            }
-        }
-
-        newLines.add(line);
-    }
-
-    if (!inserted) {
-        throw new IOException("Could not find 'products' list in " + pythonFile);
-    }
-
-    Files.write(Paths.get(pythonFile), newLines);
-}
-
-/**
- * يحذف منتج حسب الفهرس من قائمة products بملف app1.py
- */
-private static void deleteProductFromSource(String pythonFile, int index) throws IOException {
-    List<String> lines = Files.readAllLines(Paths.get(pythonFile));
-    List<String> newLines = new ArrayList<>();
-    boolean insideProducts = false;
-    int listDepth = 0;
-    int productCount = 0;
-    boolean skipping = false;
-    int dictBraceDepth = 0;
-    boolean deleted = false;
-
-    for (String line : lines) {
-        String trimmed = line.trim();
-
-        // اكتشاف بداية قائمة products
-        if (!insideProducts) {
-            newLines.add(line);
-            if (trimmed.startsWith("products") && trimmed.contains("[")) {
-                insideProducts = true;
-                listDepth = 0;
-                for (char c : trimmed.toCharArray()) {
-                    if (c == '[') listDepth++;
-                    if (c == ']') listDepth--;
-                }
-            }
-            continue;
-        }
-
-        // داخل القائمة — نحسب الأقواس
-        int openBrackets = 0, closeBrackets = 0;
-        int openBraces = 0, closeBraces = 0;
-        for (char c : trimmed.toCharArray()) {
-            if (c == '[') openBrackets++;
-            if (c == ']') closeBrackets++;
-            if (c == '{') openBraces++;
-            if (c == '}') closeBraces++;
-        }
-        listDepth += openBrackets - closeBrackets;
-
-        // بداية dict جديد على مستوى القائمة
-        if (listDepth == 1 && openBraces > 0 && !skipping) {
-            if (productCount == index) {
-                skipping = true;
-                dictBraceDepth = 0;
-            }
-            productCount++;
-        }
-
-        if (skipping) {
-            for (char c : trimmed.toCharArray()) {
-                if (c == '{') dictBraceDepth++;
-                if (c == '}') dictBraceDepth--;
-            }
-            if (dictBraceDepth <= 0 && closeBraces > 0) {
-                skipping = false;
-                deleted = true;
-            }
-            continue; // نتجاهل كل سطور المنتج المحذوف
-        }
-
-        newLines.add(line);
-
-        if (listDepth <= 0) {
-            insideProducts = false;
+        File file = new File(OUTPUT_DIR, filePath);
+        if (file.exists() && file.isFile()) {
+            byte[] bytes = Files.readAllBytes(file.toPath());
+            exchange.getResponseHeaders().set("Content-Type", getContentType(filePath));
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (OutputStream os = exchange.getResponseBody()) { os.write(bytes); }
+        } else {
+            String msg = "404 Not Found: " + filePath;
+            exchange.sendResponseHeaders(404, msg.length());
+            try (OutputStream os = exchange.getResponseBody()) { os.write(msg.getBytes()); }
         }
     }
 
-    if (!deleted) {
-        throw new IOException("Could not delete product at index " + index
-                + " (found " + productCount + " products)");
-    }
-
-    Files.write(Paths.get(pythonFile), newLines);
-}
-
-// ---------- أدوات مساعدة ----------
-
-private static Map<String, String> parseFormData(String body) {
-    Map<String, String> params = new HashMap<>();
-    if (body == null || body.isEmpty()) return params;
-    for (String pair : body.split("&")) {
-        String[] kv = pair.split("=", 2);
-        if (kv.length == 2) {
-            try {
-                params.put(URLDecoder.decode(kv[0], "UTF-8"),
-                        URLDecoder.decode(kv[1], "UTF-8"));
-            } catch (Exception e) {
-                params.put(kv[0], kv[1]);
-            }
-        }
-    }
-    return params;
-}
-
-private static String getContentType(String path) {
-    if (path.endsWith(".html")) return "text/html; charset=UTF-8";
-    if (path.endsWith(".css"))  return "text/css; charset=UTF-8";
-    if (path.endsWith(".js"))   return "application/javascript; charset=UTF-8";
-    if (path.endsWith(".png"))  return "image/png";
-    if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
-    if (path.endsWith(".gif"))  return "image/gif";
-    if (path.endsWith(".svg"))  return "image/svg+xml";
-    return "application/octet-stream";
-}
-    /**
-     * يخدم index.html مع حقن سكربت JavaScript يصلح أزرار الحذف
-     * الكومبايلر يولّد action="#" بدل /delete/0 ، فالسكربت يصححها
-     */
     private static void serveIndexWithDeleteScript(HttpExchange exchange) throws IOException {
         File file = new File(OUTPUT_DIR, "index.html");
         if (!file.exists() || !file.isFile()) {
@@ -1149,87 +641,186 @@ private static String getContentType(String path) {
 
         String html = new String(Files.readAllBytes(file.toPath()), "UTF-8");
 
-        // سكربت يعدّل كل فورم حذف: يغير action="#" إلى /delete/0 , /delete/1 , ...
         String deleteScript =
                 "<script>\n" +
-                        "  document.querySelectorAll('form[action=\"#\"]').forEach(function(form, i) {\n" +
-                        "    if (form.querySelector('.btn-danger')) {\n" +
-                        "      form.action = '/delete/' + i;\n" +
-                        "    }\n" +
-                        "  });\n" +
-                        "</script>\n";
+                "  document.querySelectorAll('form[action=\"#\"]').forEach(function(form, i) {\n" +
+                "    if (form.querySelector('.btn-danger')) {\n" +
+                "      form.action = '/delete/' + i;\n" +
+                "    }\n" +
+                "  });\n" +
+                "</script>\n";
 
-        // حقن السكربت قبل </body>
         html = html.replace("</body>", deleteScript + "</body>");
 
         byte[] bytes = html.getBytes("UTF-8");
         exchange.getResponseHeaders().set("Content-Type", "text/html; charset=UTF-8");
         exchange.sendResponseHeaders(200, bytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(bytes);
-        os.close();
+        try (OutputStream os = exchange.getResponseBody()) { os.write(bytes); }
+    }
+
+    private static void sendJson(HttpExchange exchange, int code, String json) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(code, json.length());
+        try (OutputStream os = exchange.getResponseBody()) { os.write(json.getBytes()); }
+    }
+
+    private static void sendRedirect(HttpExchange exchange, String location) throws IOException {
+        exchange.getResponseHeaders().set("Location", location);
+        exchange.sendResponseHeaders(302, -1);
+        exchange.getResponseBody().close();
+    }
+
+    private static Map<String, String> parseFormData(String body) {
+        Map<String, String> params = new HashMap<>();
+        if (body == null || body.isEmpty()) return params;
+        for (String pair : body.split("&")) {
+            String[] kv = pair.split("=", 2);
+            if (kv.length == 2) {
+                try {
+                    params.put(URLDecoder.decode(kv[0], "UTF-8"),
+                            URLDecoder.decode(kv[1], "UTF-8"));
+                } catch (Exception e) {
+                    params.put(kv[0], kv[1]);
+                }
+            }
+        }
+        return params;
+    }
+
+    private static String getContentType(String path) {
+        if (path.endsWith(".html")) return "text/html; charset=UTF-8";
+        if (path.endsWith(".css"))  return "text/css; charset=UTF-8";
+        if (path.endsWith(".js"))   return "application/javascript; charset=UTF-8";
+        if (path.endsWith(".png"))  return "image/png";
+        if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
+        if (path.endsWith(".gif"))  return "image/gif";
+        if (path.endsWith(".svg"))  return "image/svg+xml";
+        return "application/octet-stream";
+    }
+
+    // ==================== Source File Modification ====================
+
+    private static void addProductToSource(String pythonFile, String name, String price,
+                                           String image, String details) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(pythonFile));
+        List<String> newLines = new ArrayList<>();
+        boolean insideProducts = false;
+        int bracketDepth = 0;
+        boolean inserted = false;
+
+        for (String line : lines) {
+            String trimmed = line.trim();
+
+            if (!insideProducts && trimmed.startsWith("products") && trimmed.contains("[")) {
+                insideProducts = true;
+                newLines.add(line);
+                for (char c : trimmed.toCharArray()) {
+                    if (c == '[') bracketDepth++;
+                    if (c == ']') bracketDepth--;
+                }
+                if (bracketDepth <= 0) {
+                    newLines.add("    {\"name\": \"" + name + "\", \"price\": " + price
+                            + ", \"image\": \"" + image + "\", \"details\": \"" + details + "\"}");
+                    inserted = true;
+                    insideProducts = false;
+                }
+                continue;
+            }
+
+            if (insideProducts) {
+                for (char c : trimmed.toCharArray()) {
+                    if (c == '[') bracketDepth++;
+                    if (c == ']') bracketDepth--;
+                }
+
+                if (bracketDepth <= 0) {
+                    newLines.add("    {\"name\": \"" + name + "\", \"price\": " + price
+                            + ", \"image\": \"" + image + "\", \"details\": \"" + details + "\"},");
+                    newLines.add(line);
+                    inserted = true;
+                    insideProducts = false;
+                    continue;
+                }
+            }
+
+            newLines.add(line);
+        }
+
+        if (!inserted) {
+            throw new IOException("Could not find 'products' list in " + pythonFile);
+        }
+
+        Files.write(Paths.get(pythonFile), newLines);
+    }
+
+    private static void deleteProductFromSource(String pythonFile, int index) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(pythonFile));
+        List<String> newLines = new ArrayList<>();
+        boolean insideProducts = false;
+        int listDepth = 0;
+        int productCount = 0;
+        boolean skipping = false;
+        int dictBraceDepth = 0;
+        boolean deleted = false;
+
+        for (String line : lines) {
+            String trimmed = line.trim();
+
+            if (!insideProducts) {
+                newLines.add(line);
+                if (trimmed.startsWith("products") && trimmed.contains("[")) {
+                    insideProducts = true;
+                    listDepth = 0;
+                    for (char c : trimmed.toCharArray()) {
+                        if (c == '[') listDepth++;
+                        if (c == ']') listDepth--;
+                    }
+                }
+                continue;
+            }
+
+            int openBrackets = 0, closeBrackets = 0;
+            int openBraces = 0, closeBraces = 0;
+            for (char c : trimmed.toCharArray()) {
+                if (c == '[') openBrackets++;
+                if (c == ']') closeBrackets++;
+                if (c == '{') openBraces++;
+                if (c == '}') closeBraces++;
+            }
+            listDepth += openBrackets - closeBrackets;
+
+            if (listDepth == 1 && openBraces > 0 && !skipping) {
+                if (productCount == index) {
+                    skipping = true;
+                    dictBraceDepth = 0;
+                }
+                productCount++;
+            }
+
+            if (skipping) {
+                for (char c : trimmed.toCharArray()) {
+                    if (c == '{') dictBraceDepth++;
+                    if (c == '}') dictBraceDepth--;
+                }
+                if (dictBraceDepth <= 0 && closeBraces > 0) {
+                    skipping = false;
+                    deleted = true;
+                }
+                continue;
+            }
+
+            newLines.add(line);
+
+            if (listDepth <= 0) {
+                insideProducts = false;
+            }
+        }
+
+        if (!deleted) {
+            throw new IOException("Could not delete product at index " + index
+                    + " (found " + productCount + " products)");
+        }
+
+        Files.write(Paths.get(pythonFile), newLines);
     }
 }
-    /*
-    public static void main(String[] args) throws Exception {
-
-        // ==============================================================
-        //  TEST 6: Code Generation — Flask app + Jinja templates
-        // ==============================================================
-        compileAndGenerate(
-                "src/tests/app1.py",
-                "src/templets",
-                "TEST 6: Code Generation (app1.py)"
-        );
-
-        // ==============================================================
-        //  TEST 1: NameError
-        // ==============================================================
-//        compilePythonOnly(
-//                "src/tests/test_undefined.py",
-//                "TEST 1: NameError (undefined variable)"
-//        );
-
-        // ==============================================================
-        //  TEST 2: AttributeError
-        // ==============================================================
-//        compilePythonOnly(
-//                "src/tests/test_invalid_attr.py",
-//                "TEST 2: AttributeError (invalid attribute access)"
-//        );
-
-        // ==============================================================
-        //  TEST 3: TypeError (operation on None)
-        // ==============================================================
-//        compilePythonOnly(
-//                "src/tests/test_operation_on_none.py",
-//                "TEST 3: TypeError (operation on None)"
-//        );
-
-        // ==============================================================
-        //  TEST 4: AttributeError on NoneType
-        // ==============================================================
-//        compilePythonOnly(
-//                "src/tests/test_none_attr.py",
-//                "TEST 4: AttributeError on NoneType"
-//        );
-
-        // ==============================================================
-        //  TEST: Type Error
-        // ==============================================================
-//        compileAndCheck(
-//                "src/tests/test_type_error.py",
-//                "tests/test_type_error.html",
-//                "TEST: Type Error"
-//        );
-
-        // ==============================================================
-        //  TEST 5: Error Type
-        // ==============================================================
-//        compilePythonOnly(
-//                "src/tests/test_operation_type_error.py",
-//                "TEST 5: Error Type (incompatible operand types)"
-//        );
-    }
-}
-*/
