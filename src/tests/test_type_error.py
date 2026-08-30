@@ -64,6 +64,14 @@ a32 **= x
 a33 = "hello"
 a33 /= x
 
+r35 = "a" * "b"
+
+r36 = n < x
+
+valid1 = "ab" * 3
+valid2 = b + x
+valid3 = d["key"]
+
 
 from flask import Flask, render_template
 

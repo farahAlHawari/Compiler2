@@ -45,7 +45,7 @@ public class Main {
 
     private static final String[][] SEMANTIC_TESTS = {
             {"src/tests/test_type_error.py",          "TypeError (binary op)"},
-            {"src/tests/test_operation_type_error.py","Operation Type Error"},
+//            {"src/tests/test_operation_type_error.py","Operation Type Error"},
 
             {"src/tests/test_undefined.py",           "NameError (undefined variable)"},
             {"src/tests/test_type_mismatch.py",       "Type Mismatch (declared type / Bridge)"},
