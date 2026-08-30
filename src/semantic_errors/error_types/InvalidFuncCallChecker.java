@@ -68,7 +68,7 @@ public class InvalidFuncCallChecker {
 
                     errors.add(new SemanticError(
                             SemanticErrorType.INVALID_FUNC_CALL,
-                            "NameError",
+                            "NameError(Invalid Function Call)",
                             "Jinja filter '" + funcName + "' does not exist",
                             line,
                             callInfo.getFileName(),
@@ -94,7 +94,7 @@ public class InvalidFuncCallChecker {
 
                 errors.add(new SemanticError(
                         SemanticErrorType.INVALID_FUNC_CALL,
-                        "NameError",
+                        "NameError(Invalid Function Call)",
                         "Function '" + funcName + "' is called but not defined",
                         line,
                         callInfo.getFileName(),
@@ -112,7 +112,7 @@ public class InvalidFuncCallChecker {
 
                 errors.add(new SemanticError(
                         SemanticErrorType.INVALID_FUNC_CALL,
-                        "TypeError",
+                        "TypeError(Invalid Function Call)",
                         "Identifier '" + funcName + "' is used as a function but is declared as " + kind,
                         line,
                         callInfo.getFileName(),

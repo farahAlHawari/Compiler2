@@ -36,7 +36,7 @@ public class UnboundLocalErrorChecker {
             if (info.isVariableInOuterScope() && !info.isDeclaredGlobal()) {
                 errors.add(new SemanticError(
                         SemanticErrorType.UNBOUND_LOCAL,
-                        "UnboundLocalError",
+                        "UnboundLocalError(Scope Error)",
                         "cannot access local variable '" + info.getVariableName()
                                 + "' before assignment. Variable '" + info.getVariableName()
                                 + "' is referenced inside " + info.getScopeType()

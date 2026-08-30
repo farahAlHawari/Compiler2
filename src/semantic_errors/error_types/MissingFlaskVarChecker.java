@@ -69,7 +69,7 @@ public class MissingFlaskVarChecker {
             if (!flaskPassedVars.contains(varName)) {
                 errors.add(new SemanticError(
                         SemanticErrorType.MISSING_FLASK_VARIABLE,
-                        "NameError",
+                        "UndefinedError(missing flask variable)" ,
                         "Variable '" + varName + "' is used in Jinja but not passed from Flask via render_template",
                         entry.getLine(),
                         entry.getFileName(),

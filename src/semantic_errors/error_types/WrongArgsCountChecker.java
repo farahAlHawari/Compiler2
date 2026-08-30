@@ -86,7 +86,7 @@ public class WrongArgsCountChecker {
 
                 errors.add(new SemanticError(
                         SemanticErrorType.WRONG_ARGS_COUNT,
-                        "TypeError",
+                        "TypeError(Wrong Arguments Count)",
                         "Function '" + funcName + "' expects " + expectedParamCount
                                 + " argument(s) but called with " + actualArgCount
                                 + " (" + detail + ")",
@@ -112,7 +112,7 @@ public class WrongArgsCountChecker {
             if (expectedParamCount >= 0 && argCount != expectedParamCount) {
                 errors.add(new SemanticError(
                         SemanticErrorType.WRONG_ARGS_COUNT,
-                        "TypeError",
+                        "TypeError(Wrong Arguments Count)",
                         "Jinja macro '" + filterName + "' expects " + expectedParamCount
                                 + " argument(s) but called with " + argCount,
                         line,

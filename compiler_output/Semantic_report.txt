@@ -2,364 +2,112 @@
                          SEMANTIC ERROR REPORT
 ================================================================================
 
-Found 36 semantic errors
+Found 11 semantic errors
 
-[1] TypeError
-File      : test_type_error.py
-Line      : 11
-Variable  : s + x
-Expression: s + x
-Code      : r1 = s + x
-Message   : can only concatenate str (not "int") to str
+[1] UndefinedError(missing flask variable)
+File      : test_invalid_func_call.html
+Line      : 8
+Variable  : name
+Expression: {{ name }}
+Code      : <p>{{ name|upper }}</p>
+Message   : Variable 'name' is used in Jinja but not passed from Flask via render_template
 
 -------------------------------------------------------------------------------
 
-[2] TypeError
-File      : test_type_error.py
+[2] UndefinedError(missing flask variable)
+File      : test_invalid_func_call.html
 Line      : 12
-Variable  : x + s
-Expression: x + s
-Code      : r2 = x + s
-Message   : unsupported operand type(s) for +: 'int' and 'string'
+Variable  : unknown_filter
+Expression: {{ unknown_filter }}
+Code      : <p>{{ name|unknown_filter }}</p>
+Message   : Variable 'unknown_filter' is used in Jinja but not passed from Flask via render_template
 
 -------------------------------------------------------------------------------
 
-[3] TypeError
-File      : test_type_error.py
-Line      : 13
-Variable  : lst + x
-Expression: lst + x
-Code      : r3 = lst + x
-Message   : can only concatenate list (not "int") to list
-
--------------------------------------------------------------------------------
-
-[4] TypeError
-File      : test_type_error.py
+[3] UndefinedError(missing flask variable)
+File      : test_invalid_func_call.html
 Line      : 14
-Variable  : s - x
-Expression: s - x
-Code      : r4 = s - x
-Message   : unsupported operand type(s) for -: 'string' and 'int'
+Variable  : age
+Expression: {{ age }}
+Code      : <p>{{ age|super_filter }}</p>
+Message   : Variable 'age' is used in Jinja but not passed from Flask via render_template
 
 -------------------------------------------------------------------------------
 
-[5] TypeError
-File      : test_type_error.py
-Line      : 15
-Variable  : s / x
-Expression: s / x
-Code      : r5 = s / x
-Message   : unsupported operand type(s) for /: 'string' and 'int'
+[4] UndefinedError(missing flask variable)
+File      : test_invalid_func_call.html
+Line      : 14
+Variable  : super_filter
+Expression: {{ super_filter }}
+Code      : <p>{{ age|super_filter }}</p>
+Message   : Variable 'super_filter' is used in Jinja but not passed from Flask via render_template
 
 -------------------------------------------------------------------------------
 
-[6] TypeError
-File      : test_type_error.py
-Line      : 16
-Variable  : s % x
-Expression: s % x
-Code      : r6 = s % x
-Message   : not all arguments converted during string formatting
-
--------------------------------------------------------------------------------
-
-[7] TypeError
-File      : test_type_error.py
-Line      : 17
-Variable  : s * lst
-Expression: s * lst
-Code      : r7 = s * lst
-Message   : can't multiply sequence by non-int of type 'list'
-
--------------------------------------------------------------------------------
-
-[8] TypeError
-File      : test_type_error.py
-Line      : 18
-Variable  : lst * s
-Expression: lst * s
-Code      : r8 = lst * s
-Message   : can't multiply sequence by non-int of type 'string'
-
--------------------------------------------------------------------------------
-
-[9] TypeError
-File      : test_type_error.py
-Line      : 19
-Variable  : s * 2.5
-Expression: s * 2.5
-Code      : r9 = s * 2.5
-Message   : can't multiply sequence by non-int of type 'float'
-
--------------------------------------------------------------------------------
-
-[10] TypeError
-File      : test_type_error.py
-Line      : 20
-Variable  : s // x
-Expression: s // x
-Code      : r10 = s // x
-Message   : unsupported operand type(s) for //: 'string' and 'int'
-
--------------------------------------------------------------------------------
-
-[11] TypeError
-File      : test_type_error.py
-Line      : 21
-Variable  : s ** x
-Expression: s ** x
-Code      : r11 = s ** x
-Message   : unsupported operand type(s) for ** or pow(): 'string' and 'int'
-
--------------------------------------------------------------------------------
-
-[12] TypeError
-File      : test_type_error.py
+[5] UndefinedError(missing flask variable)
+File      : test_invalid_func_call.html
 Line      : 25
-Variable  : x < s
-Expression: x < s
-Code      : r12 = x < s
-Message   : '<' not supported between instances of 'int' and 'string'
+Variable  : non_existent_macro
+Expression: {{ non_existent_macro }}
+Code      : {{ non_existent_macro("test") }}
+Message   : Variable 'non_existent_macro' is used in Jinja but not passed from Flask via render_template
 
 -------------------------------------------------------------------------------
 
-[13] TypeError
-File      : test_type_error.py
+[6] NameError(Invalid Function Call)
+File      : test_invalid_func_call.py
+Line      : 17
+Variable  : foo
+Expression: foo()
+Code      : foo()
+Message   : Function 'foo' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[7] NameError(Invalid Function Call)
+File      : test_invalid_func_call.py
+Line      : 21
+Variable  : x
+Expression: x()
+Code      : x()
+Message   : Function 'x' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[8] NameError(Invalid Function Call)
+File      : test_invalid_func_call.py
 Line      : 26
-Variable  : s > x
-Expression: s > x
-Code      : r13 = s > x
-Message   : '>' not supported between instances of 'string' and 'int'
+Variable  : calculate_total
+Expression: calculate_total()
+Code      : calculate_total(100)
+Message   : Function 'calculate_total' is called but not defined
 
 -------------------------------------------------------------------------------
 
-[14] TypeError
-File      : test_type_error.py
-Line      : 44
-Variable  : z += s
-Expression: z += s
-Code      : z += s
-Message   : unsupported operand type(s) for +=: 'int' and 'string'
+[9] NameError(Invalid Function Call)
+File      : test_invalid_func_call.html
+Line      : 12
+Expression: {{ ...|unknown_filter }}
+Code      : <p>{{ name|unknown_filter }}</p>
+Message   : Jinja filter 'unknown_filter' does not exist
 
 -------------------------------------------------------------------------------
 
-[15] TypeError
-File      : test_type_error.py
-Line      : 46
-Variable  : w -= x
-Expression: w -= x
-Code      : w -= x
-Message   : unsupported operand type(s) for -=: 'string' and 'int'
+[10] NameError(Invalid Function Call)
+File      : test_invalid_func_call.html
+Line      : 14
+Expression: {{ ...|super_filter }}
+Code      : <p>{{ age|super_filter }}</p>
+Message   : Jinja filter 'super_filter' does not exist
 
 -------------------------------------------------------------------------------
 
-[16] TypeError
-File      : test_type_error.py
-Line      : 48
-Variable  : m *= s
-Expression: m *= s
-Code      : m *= s
-Message   : can't multiply sequence by non-int of type 'string'
-
--------------------------------------------------------------------------------
-
-[17] TypeError
-File      : test_type_error.py
-Line      : 59
-Variable  : a30 %= s
-Expression: a30 %= s
-Code      : a30 %= s
-Message   : unsupported operand type(s) for %=: 'int' and 'string'
-
--------------------------------------------------------------------------------
-
-[18] TypeError
-File      : test_type_error.py
-Line      : 61
-Variable  : a31 //= x
-Expression: a31 //= x
-Code      : a31 //= x
-Message   : unsupported operand type(s) for //=: 'string' and 'int'
-
--------------------------------------------------------------------------------
-
-[19] TypeError
-File      : test_type_error.py
-Line      : 63
-Variable  : a32 **= x
-Expression: a32 **= x
-Code      : a32 **= x
-Message   : unsupported operand type(s) for ** or pow(): 'string' and 'int'
-
--------------------------------------------------------------------------------
-
-[20] TypeError
-File      : test_type_error.py
-Line      : 65
-Variable  : a33 /= x
-Expression: a33 /= x
-Code      : a33 /= x
-Message   : unsupported operand type(s) for /=: 'string' and 'int'
-
--------------------------------------------------------------------------------
-
-[21] TypeError
-File      : test_type_error.py
-Line      : 68
-Variable  : "a" * "b"
-Expression: "a" * "b"
-Code      : r35 = "a" * "b"
-Message   : can't multiply sequence by non-int of type 'string'
-
--------------------------------------------------------------------------------
-
-[22] TypeError
-File      : test_type_error.py
-Line      : 71
-Variable  : n < x
-Expression: n < x
-Code      : r36 = n < x
-Message   : '<' not supported between instances of 'NoneType' and 'int'
-
--------------------------------------------------------------------------------
-
-[23] TypeError
-File      : test_type_error.html
-Line      : 9
-Variable  : s + x
-Expression: s + x
-Code      : <p>{{ s + x }}</p>
-Message   : can only concatenate str (not "int") to str
-
--------------------------------------------------------------------------------
-
-[24] TypeError
-File      : test_type_error.py
-Line      : 39
-Variable  : s
-Expression: -s
-Code      : r20 = -s
-Message   : bad operand type for unary -: 'string'
-
--------------------------------------------------------------------------------
-
-[25] TypeError
-File      : test_type_error.py
-Line      : 40
-Variable  : s
-Expression: +s
-Code      : r21 = +s
-Message   : bad operand type for unary +: 'string'
-
--------------------------------------------------------------------------------
-
-[26] TypeError
-File      : test_type_error.py
-Line      : 29
-Variable  : x
-Expression: x[0]
-Code      : r14 = x[0]
-Message   : 'int' object is not subscriptable
-
--------------------------------------------------------------------------------
-
-[27] TypeError
-File      : test_type_error.py
-Line      : 30
-Variable  : b
-Expression: b[0]
-Code      : r15 = b[0]
-Message   : 'bool' object is not subscriptable
-
--------------------------------------------------------------------------------
-
-[28] TypeError
-File      : test_type_error.py
-Line      : 31
-Variable  : n
-Expression: n[0]
-Code      : r16 = n[0]
-Message   : 'NoneType' object is not subscriptable
-
--------------------------------------------------------------------------------
-
-[29] TypeError
-File      : test_type_error.py
-Line      : 32
-Variable  : lst
-Expression: lst[s]
-Code      : r17 = lst[s]
-Message   : list indices must be integers, not 'string'
-
--------------------------------------------------------------------------------
-
-[30] TypeError
-File      : test_type_error.py
-Line      : 35
-Variable  : x
-Expression: len(x)
-Code      : r18 = len(x)
-Message   : object of type 'int' has no len()
-
--------------------------------------------------------------------------------
-
-[31] TypeError
-File      : test_type_error.py
-Line      : 36
-Variable  : n
-Expression: len(n)
-Code      : r19 = len(n)
-Message   : object of type 'NoneType' has no len()
-
--------------------------------------------------------------------------------
-
-[32] TypeError
-File      : test_type_error.py
-Line      : 51
-Variable  : x
-Expression: sum(x)
-Code      : r25 = sum(x)
-Message   : 'int' object is not iterable
-
--------------------------------------------------------------------------------
-
-[33] TypeError
-File      : test_type_error.py
-Line      : 52
-Variable  : x
-Expression: sorted(x)
-Code      : r26 = sorted(x)
-Message   : 'int' object is not iterable
-
--------------------------------------------------------------------------------
-
-[34] TypeError
-File      : test_type_error.py
-Line      : 53
-Variable  : s
-Expression: abs(s)
-Code      : r27 = abs(s)
-Message   : bad operand type for abs(): 'string'
-
--------------------------------------------------------------------------------
-
-[35] TypeError
-File      : test_type_error.py
-Line      : 54
-Variable  : x
-Expression: max(x)
-Code      : r28 = max(x)
-Message   : 'int' object is not iterable
-
--------------------------------------------------------------------------------
-
-[36] TypeError
-File      : test_type_error.py
-Line      : 55
-Variable  : s
-Expression: round(s)
-Code      : r29 = round(s)
-Message   : type string doesn't define __round__ method
+[11] TypeError(Invalid Function Call)
+File      : test_invalid_func_call.html
+Line      : 25
+Variable  : non_existent_macro
+Expression: non_existent_macro()
+Code      : {{ non_existent_macro("test") }}
+Message   : Identifier 'non_existent_macro' is used as a function but is declared as jinja_var
 
 ================================================================================

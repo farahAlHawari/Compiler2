@@ -47,7 +47,7 @@ public class ReturnTypeMismatchChecker {
 
                 errors.add(new SemanticError(
                         SemanticErrorType.RETURN_TYPE_MISMATCH,
-                        "TypeError",
+                        "TypeError(Return Type Mismatch)",
                         "Function '" + funcName + "' declares return type '"
                                 + declaredReturnType + "' but returns '" + actualReturnType + "'",
                         line,
