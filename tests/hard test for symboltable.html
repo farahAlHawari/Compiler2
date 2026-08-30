@@ -1,1 +1,0 @@
-{% set globalCount = 10 %} {% block content %} Global is: {{ globalCount }} {% for i in range(10) %} Outer: {{ globalCount }} Inner: {{ i }} {% set i = 99 %} The mystery is: {{ unknownVariable }} {% endfor %} Value of i after loop: {{ i }} {% endblock %}

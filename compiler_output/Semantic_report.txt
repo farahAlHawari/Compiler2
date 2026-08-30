@@ -1,0 +1,1423 @@
+================================================================================
+                         SEMANTIC ERROR REPORT
+================================================================================
+
+Found 144 semantic errors
+
+[1] NameError
+File      : test_undefined.py
+Line      : 5
+Variable  : x
+Code      : print(x)
+Message   : name 'x' is not defined
+
+-------------------------------------------------------------------------------
+
+[2] NameError
+File      : test_undefined.py
+Line      : 11
+Variable  : z
+Code      : result = z + y
+Message   : name 'z' is not defined
+
+-------------------------------------------------------------------------------
+
+[3] NameError
+File      : test_undefined.py
+Line      : 18
+Variable  : age
+Code      : return name + " " + str(age)
+Message   : name 'age' is not defined
+
+-------------------------------------------------------------------------------
+
+[4] NameError
+File      : test_undefined.py
+Line      : 22
+Variable  : missing_list
+Code      : result = len(missing_list)
+Message   : name 'missing_list' is not defined
+
+-------------------------------------------------------------------------------
+
+[5] NameError
+File      : test_undefined.py
+Line      : 27
+Variable  : flag
+Code      : if flag:
+Message   : name 'flag' is not defined
+
+-------------------------------------------------------------------------------
+
+[6] NameError
+File      : test_undefined.py
+Line      : 33
+Variable  : unknown_var
+Code      : total = unknown_var + 100
+Message   : name 'unknown_var' is not defined
+
+-------------------------------------------------------------------------------
+
+[7] TypeError
+File      : test_undefined.py
+Line      : 18
+Variable  : BinaryOp + str(...)
+Expression: BinaryOp + str(...)
+Code      : return name + " " + str(age)
+Message   : unsupported operand type(s) for +: 'int' and 'string'
+
+-------------------------------------------------------------------------------
+
+[8] AttributeError
+File      : test_invalid_attr.py
+Line      : 6
+Variable  : text.append
+Expression: text.append
+Code      : text.append("!")
+Message   : type object 'string' has no attribute 'append'
+
+-------------------------------------------------------------------------------
+
+[9] AttributeError
+File      : test_invalid_attr.py
+Line      : 11
+Variable  : items.split
+Expression: items.split
+Code      : items.split(",")
+Message   : type object 'list' has no attribute 'split'
+
+-------------------------------------------------------------------------------
+
+[10] AttributeError
+File      : test_invalid_attr.py
+Line      : 16
+Variable  : user.upper
+Expression: user.upper
+Code      : user.upper()
+Message   : type object 'dict' has no attribute 'upper'
+
+-------------------------------------------------------------------------------
+
+[11] AttributeError
+File      : test_invalid_attr.py
+Line      : 21
+Variable  : num.keys
+Expression: num.keys
+Code      : num.keys()
+Message   : type object 'int' has no attribute 'keys'
+
+-------------------------------------------------------------------------------
+
+[12] AttributeError
+File      : test_invalid_attr.py
+Line      : 26
+Variable  : msg.pop
+Expression: msg.pop
+Code      : msg.pop()
+Message   : type object 'string' has no attribute 'pop'
+
+-------------------------------------------------------------------------------
+
+[13] AttributeError
+File      : test_invalid_attr.py
+Line      : 31
+Variable  : arr.upper
+Expression: arr.upper
+Code      : arr.upper()
+Message   : type object 'list' has no attribute 'upper'
+
+-------------------------------------------------------------------------------
+
+[14] AttributeError
+File      : test_invalid_attr.py
+Line      : 36
+Variable  : count.append
+Expression: count.append
+Code      : count.append(1)
+Message   : type object 'int' has no attribute 'append'
+
+-------------------------------------------------------------------------------
+
+[15] AttributeError
+File      : test_invalid_attr.py
+Line      : 41
+Variable  : price.keys
+Expression: price.keys
+Code      : price.keys()
+Message   : type object 'float' has no attribute 'keys'
+
+-------------------------------------------------------------------------------
+
+[16] TypeError
+File      : test_operation_on_none.py
+Line      : 7
+Variable  : x
+Expression: x + ...
+Code      : result = x + 5
+Message   : unsupported operand type(s) for +: 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[17] TypeError
+File      : test_operation_on_none.py
+Line      : 13
+Variable  : x
+Expression: x * ...
+Code      : result = 10 * x
+Message   : unsupported operand type(s) for *: 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[18] TypeError
+File      : test_operation_on_none.py
+Line      : 20
+Variable  : x
+Expression: x - ...
+Code      : result = x - y
+Message   : unsupported operand type(s) for -: 'NoneType' and 'y'
+
+-------------------------------------------------------------------------------
+
+[19] TypeError
+File      : test_operation_on_none.py
+Line      : 26
+Variable  : x
+Expression: x / ...
+Code      : result = x / 2
+Message   : unsupported operand type(s) for /: 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[20] TypeError
+File      : test_operation_on_none.py
+Line      : 32
+Variable  : x
+Expression: x ** ...
+Code      : result = x ** 2
+Message   : unsupported operand type(s) for **: 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[21] TypeError
+File      : test_operation_on_none.py
+Line      : 38
+Variable  : x
+Expression: x % ...
+Code      : result = x % 3
+Message   : unsupported operand type(s) for %: 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[22] TypeError
+File      : test_operation_on_none.py
+Line      : 44
+Variable  : x
+Expression: x + ...
+Code      : result = 100 + x
+Message   : unsupported operand type(s) for +: 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[23] TypeError
+File      : test_operation_on_none.py
+Line      : 51
+Variable  : a
+Expression: a + ...
+Code      : result = a + b
+Message   : unsupported operand type(s) for +: 'NoneType' and 'b'
+
+-------------------------------------------------------------------------------
+
+[24] TypeError
+File      : test_operation_on_none.py
+Line      : 57
+Variable  : x
+Expression: x - ...
+Code      : result = 50 - x
+Message   : unsupported operand type(s) for -: 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[25] AttributeError
+File      : test_none_attr.py
+Line      : 7
+Variable  : user.name
+Expression: user.name
+Code      : print(user.name)
+Message   : 'user' is NoneType. NoneType object has no attribute 'name'
+
+-------------------------------------------------------------------------------
+
+[26] AttributeError
+File      : test_none_attr.py
+Line      : 12
+Variable  : data.get
+Expression: data.get
+Code      : result = data.get("key")
+Message   : 'data' is NoneType. NoneType object has no attribute 'get'
+
+-------------------------------------------------------------------------------
+
+[27] AttributeError
+File      : test_none_attr.py
+Line      : 18
+Variable  : text.upper
+Expression: text.upper
+Code      : text.upper()
+Message   : 'text' is NoneType. NoneType object has no attribute 'upper'
+
+-------------------------------------------------------------------------------
+
+[28] AttributeError
+File      : test_none_attr.py
+Line      : 23
+Variable  : items.append
+Expression: items.append
+Code      : items.append(5)
+Message   : 'items' is NoneType. NoneType object has no attribute 'append'
+
+-------------------------------------------------------------------------------
+
+[29] AttributeError
+File      : test_none_attr.py
+Line      : 28
+Variable  : obj.data
+Expression: obj.data
+Code      : x = obj.data
+Message   : 'obj' is NoneType. NoneType object has no attribute 'data'
+
+-------------------------------------------------------------------------------
+
+[30] AttributeError
+File      : test_none_attr.py
+Line      : 33
+Variable  : stack.pop
+Expression: stack.pop
+Code      : stack.pop()
+Message   : 'stack' is NoneType. NoneType object has no attribute 'pop'
+
+-------------------------------------------------------------------------------
+
+[31] TypeError
+File      : test_type_error.py
+Line      : 15
+Variable  : s + x
+Expression: s + x
+Code      : r1 = s + x
+Message   : can only concatenate str (not "int") to str
+
+-------------------------------------------------------------------------------
+
+[32] TypeError
+File      : test_type_error.py
+Line      : 17
+Variable  : x + s
+Expression: x + s
+Code      : r2 = x + s
+Message   : unsupported operand type(s) for +: 'int' and 'string'
+
+-------------------------------------------------------------------------------
+
+[33] TypeError
+File      : test_type_error.py
+Line      : 19
+Variable  : lst + x
+Expression: lst + x
+Code      : r3 = lst + x
+Message   : can only concatenate list (not "int") to list
+
+-------------------------------------------------------------------------------
+
+[34] TypeError
+File      : test_type_error.py
+Line      : 21
+Variable  : s - x
+Expression: s - x
+Code      : r4 = s - x
+Message   : unsupported operand type(s) for -: 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[35] TypeError
+File      : test_type_error.py
+Line      : 23
+Variable  : s / x
+Expression: s / x
+Code      : r5 = s / x
+Message   : unsupported operand type(s) for /: 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[36] TypeError
+File      : test_type_error.py
+Line      : 25
+Variable  : s % x
+Expression: s % x
+Code      : r6 = s % x
+Message   : not all arguments converted during string formatting
+
+-------------------------------------------------------------------------------
+
+[37] TypeError
+File      : test_type_error.py
+Line      : 27
+Variable  : s * lst
+Expression: s * lst
+Code      : r7 = s * lst
+Message   : can't multiply sequence by non-int of type 'list'
+
+-------------------------------------------------------------------------------
+
+[38] TypeError
+File      : test_type_error.py
+Line      : 29
+Variable  : lst * s
+Expression: lst * s
+Code      : r8 = lst * s
+Message   : can't multiply sequence by non-int of type 'string'
+
+-------------------------------------------------------------------------------
+
+[39] TypeError
+File      : test_type_error.py
+Line      : 31
+Variable  : s * 2.5
+Expression: s * 2.5
+Code      : r9 = s * 2.5
+Message   : can't multiply sequence by non-int of type 'float'
+
+-------------------------------------------------------------------------------
+
+[40] TypeError
+File      : test_type_error.py
+Line      : 33
+Variable  : s // x
+Expression: s // x
+Code      : r10 = s // x
+Message   : unsupported operand type(s) for //: 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[41] TypeError
+File      : test_type_error.py
+Line      : 35
+Variable  : s ** x
+Expression: s ** x
+Code      : r11 = s ** x
+Message   : unsupported operand type(s) for ** or pow(): 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[42] TypeError
+File      : test_type_error.py
+Line      : 40
+Variable  : x < s
+Expression: x < s
+Code      : r12 = x < s
+Message   : '<' not supported between instances of 'int' and 'string'
+
+-------------------------------------------------------------------------------
+
+[43] TypeError
+File      : test_type_error.py
+Line      : 42
+Variable  : s > x
+Expression: s > x
+Code      : r13 = s > x
+Message   : '>' not supported between instances of 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[44] TypeError
+File      : test_type_error.py
+Line      : 73
+Variable  : z += s
+Expression: z += s
+Code      : z += s
+Message   : unsupported operand type(s) for +=: 'int' and 'string'
+
+-------------------------------------------------------------------------------
+
+[45] TypeError
+File      : test_type_error.py
+Line      : 76
+Variable  : w -= x
+Expression: w -= x
+Code      : w -= x
+Message   : unsupported operand type(s) for -=: 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[46] TypeError
+File      : test_type_error.py
+Line      : 79
+Variable  : m *= s
+Expression: m *= s
+Code      : m *= s
+Message   : can't multiply sequence by non-int of type 'string'
+
+-------------------------------------------------------------------------------
+
+[47] TypeError
+File      : test_type_error.py
+Line      : 98
+Variable  : a30 %= s
+Expression: a30 %= s
+Code      : a30 %= s
+Message   : unsupported operand type(s) for %=: 'int' and 'string'
+
+-------------------------------------------------------------------------------
+
+[48] TypeError
+File      : test_type_error.py
+Line      : 101
+Variable  : a31 //= x
+Expression: a31 //= x
+Code      : a31 //= x
+Message   : unsupported operand type(s) for //=: 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[49] TypeError
+File      : test_type_error.py
+Line      : 104
+Variable  : a32 **= x
+Expression: a32 **= x
+Code      : a32 **= x
+Message   : unsupported operand type(s) for ** or pow(): 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[50] TypeError
+File      : test_type_error.py
+Line      : 107
+Variable  : a33 /= x
+Expression: a33 /= x
+Code      : a33 /= x
+Message   : unsupported operand type(s) for /=: 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[51] TypeError
+File      : test_type_error.html
+Line      : 9
+Variable  : s + x
+Expression: s + x
+Code      : <p>{{ s + x }}</p>
+Message   : can only concatenate str (not "int") to str
+
+-------------------------------------------------------------------------------
+
+[52] TypeError
+File      : test_type_error.py
+Line      : 65
+Variable  : s
+Expression: -s
+Code      : r20 = -s
+Message   : bad operand type for unary -: 'string'
+
+-------------------------------------------------------------------------------
+
+[53] TypeError
+File      : test_type_error.py
+Line      : 67
+Variable  : s
+Expression: +s
+Code      : r21 = +s
+Message   : bad operand type for unary +: 'string'
+
+-------------------------------------------------------------------------------
+
+[54] TypeError
+File      : test_type_error.py
+Line      : 47
+Variable  : x
+Expression: x[0]
+Code      : r14 = x[0]
+Message   : 'int' object is not subscriptable
+
+-------------------------------------------------------------------------------
+
+[55] TypeError
+File      : test_type_error.py
+Line      : 49
+Variable  : b
+Expression: b[0]
+Code      : r15 = b[0]
+Message   : 'bool' object is not subscriptable
+
+-------------------------------------------------------------------------------
+
+[56] TypeError
+File      : test_type_error.py
+Line      : 51
+Variable  : n
+Expression: n[0]
+Code      : r16 = n[0]
+Message   : 'NoneType' object is not subscriptable
+
+-------------------------------------------------------------------------------
+
+[57] TypeError
+File      : test_type_error.py
+Line      : 53
+Variable  : lst
+Expression: lst[s]
+Code      : r17 = lst[s]
+Message   : list indices must be integers, not 'string'
+
+-------------------------------------------------------------------------------
+
+[58] TypeError
+File      : test_type_error.py
+Line      : 58
+Variable  : x
+Expression: len(x)
+Code      : r18 = len(x)
+Message   : object of type 'int' has no len()
+
+-------------------------------------------------------------------------------
+
+[59] TypeError
+File      : test_type_error.py
+Line      : 60
+Variable  : n
+Expression: len(n)
+Code      : r19 = len(n)
+Message   : object of type 'NoneType' has no len()
+
+-------------------------------------------------------------------------------
+
+[60] TypeError
+File      : test_type_error.py
+Line      : 84
+Variable  : x
+Expression: sum(x)
+Code      : r25 = sum(x)
+Message   : 'int' object is not iterable
+
+-------------------------------------------------------------------------------
+
+[61] TypeError
+File      : test_type_error.py
+Line      : 86
+Variable  : x
+Expression: sorted(x)
+Code      : r26 = sorted(x)
+Message   : 'int' object is not iterable
+
+-------------------------------------------------------------------------------
+
+[62] TypeError
+File      : test_type_error.py
+Line      : 88
+Variable  : s
+Expression: abs(s)
+Code      : r27 = abs(s)
+Message   : bad operand type for abs(): 'string'
+
+-------------------------------------------------------------------------------
+
+[63] TypeError
+File      : test_type_error.py
+Line      : 90
+Variable  : x
+Expression: max(x)
+Code      : r28 = max(x)
+Message   : 'int' object is not iterable
+
+-------------------------------------------------------------------------------
+
+[64] TypeError
+File      : test_type_error.py
+Line      : 92
+Variable  : s
+Expression: round(s)
+Code      : r29 = round(s)
+Message   : type string doesn't define __round__ method
+
+-------------------------------------------------------------------------------
+
+[65] TypeError
+File      : test_type_mismatch.py
+Line      : 10
+Variable  : c
+Code      : c: int = "hello"
+Message   : Type mismatch. Variable 'c' is declared as 'int' but assigned a value of type 'string'.
+
+-------------------------------------------------------------------------------
+
+[66] TypeError
+File      : test_type_mismatch.py
+Line      : 12
+Variable  : x
+Code      : x: str = 42
+Message   : Type mismatch. Variable 'x' is declared as 'str' but assigned a value of type 'int'.
+
+-------------------------------------------------------------------------------
+
+[67] TypeError
+File      : test_type_mismatch.py
+Line      : 14
+Variable  : y
+Code      : y: list = "not a list"
+Message   : Type mismatch. Variable 'y' is declared as 'list' but assigned a value of type 'string'.
+
+-------------------------------------------------------------------------------
+
+[68] TypeError
+File      : test_type_mismatch.py
+Line      : 16
+Variable  : z
+Code      : z: int = None
+Message   : Type mismatch. Variable 'z' is declared as 'int' but assigned a value of type 'NoneType'.
+
+-------------------------------------------------------------------------------
+
+[69] TypeError
+File      : test_type_mismatch.py
+Line      : 18
+Variable  : w
+Code      : w: float = "free"
+Message   : Type mismatch. Variable 'w' is declared as 'float' but assigned a value of type 'string'.
+
+-------------------------------------------------------------------------------
+
+[70] TypeError
+File      : test_type_mismatch.html
+Line      : 8
+Variable  : age
+Expression: {{ age|upper }}
+Code      : <p>Age: {{ age|upper }}</p>
+Message   : Filter 'upper' expects 'string' but variable 'age' is of type 'int'.
+
+-------------------------------------------------------------------------------
+
+[71] TypeError
+File      : test_type_mismatch.html
+Line      : 9
+Variable  : items
+Expression: {% for item in items %}
+Code      : {% for x in items %}
+Message   : Variable 'items' of type 'int' is not iterable.
+
+-------------------------------------------------------------------------------
+
+[72] TypeError
+File      : test_type_mismatch.html
+Line      : 17
+Variable  : age_str
+Expression: {{ age_str|join }}
+Code      : <p>{{ age_str|join(", ") }}</p>
+Message   : Filter 'join' expects iterable but variable 'age_str' is of type 'int'.
+
+-------------------------------------------------------------------------------
+
+[73] TypeError
+File      : test_operation_type_error.py
+Line      : 6
+Variable  : name + 4
+Expression: name + 4
+Code      : result = name + 4
+Message   : can only concatenate str (not "int") to str
+
+-------------------------------------------------------------------------------
+
+[74] TypeError
+File      : test_operation_type_error.py
+Line      : 12
+Variable  : name < 4
+Expression: name < 4
+Code      : result = name < 4
+Message   : '<' not supported between instances of 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[75] TypeError
+File      : test_operation_type_error.py
+Line      : 18
+Variable  : arr + 3
+Expression: arr + 3
+Code      : result = arr + 3
+Message   : can only concatenate list (not "int") to list
+
+-------------------------------------------------------------------------------
+
+[76] TypeError
+File      : test_operation_type_error.py
+Line      : 28
+Variable  : 5 / "hello"
+Expression: 5 / "hello"
+Code      : result = 5 / "hello"
+Message   : unsupported operand type(s) for /: 'int' and 'string'
+
+-------------------------------------------------------------------------------
+
+[77] TypeError
+File      : test_operation_type_error.py
+Line      : 33
+Variable  : "a" * "b"
+Expression: "a" * "b"
+Code      : result = "a" * "b"
+Message   : can't multiply sequence by non-int of type 'string'
+
+-------------------------------------------------------------------------------
+
+[78] TypeError
+File      : test_operation_type_error.py
+Line      : 51
+Variable  : x < 5
+Expression: x < 5
+Code      : result = x < 5
+Message   : '<' not supported between instances of 'NoneType' and 'int'
+
+-------------------------------------------------------------------------------
+
+[79] TypeError
+File      : test_operation_type_error.py
+Line      : 68
+Variable  : "ab" ** 2
+Expression: "ab" ** 2
+Code      : result = "ab" ** 2
+Message   : unsupported operand type(s) for ** or pow(): 'string' and 'int'
+
+-------------------------------------------------------------------------------
+
+[80] TypeError
+File      : test_operation_type_error.py
+Line      : 39
+Variable  : x
+Expression: x[0]
+Code      : result = x[0]
+Message   : 'int' object is not subscriptable
+
+-------------------------------------------------------------------------------
+
+[81] TypeError
+File      : test_operation_type_error.py
+Line      : 45
+Variable  : items
+Expression: items["key"]
+Code      : result = items["key"]
+Message   : list indices must be integers, not 'string'
+
+-------------------------------------------------------------------------------
+
+[82] TypeError
+File      : test_operation_type_error.py
+Line      : 57
+Variable  : x
+Expression: x[0]
+Code      : result = x[0]
+Message   : 'NoneType' object is not subscriptable
+
+-------------------------------------------------------------------------------
+
+[83] TypeError
+File      : test_operation_type_error.py
+Line      : 23
+Variable  : 10
+Expression: len(10)
+Code      : result = len(10)
+Message   : object of type 'int' has no len()
+
+-------------------------------------------------------------------------------
+
+[84] TypeError
+File      : test_operation_type_error.py
+Line      : 63
+Variable  : x
+Expression: len(x)
+Code      : result = len(x)
+Message   : object of type 'NoneType' has no len()
+
+-------------------------------------------------------------------------------
+
+[85] ZeroDivisionError
+File      : test_division.py
+Line      : 7
+Code      : x = 5 / 0
+Message   : division by zero - division operation ('/') with divisor '0' evaluates to 0
+
+-------------------------------------------------------------------------------
+
+[86] ZeroDivisionError
+File      : test_division.py
+Line      : 9
+Variable  : y
+Code      : z = 10 / y
+Message   : division by zero - division operation ('/') with divisor 'y' evaluates to 0
+
+-------------------------------------------------------------------------------
+
+[87] ZeroDivisionError
+File      : test_division.html
+Line      : 4
+Variable  : count
+Code      : <p>{{ price / count }}</p>
+Message   : division by zero - division operation ('/') with divisor 'count' evaluates to 0 in template
+
+-------------------------------------------------------------------------------
+
+[88] ZeroDivisionError
+File      : test_division.html
+Line      : 5
+Variable  : count
+Code      : <p>{{ price % count }}</p>
+Message   : division by zero - modulo operation ('%') with divisor 'count' evaluates to 0 in template
+
+-------------------------------------------------------------------------------
+
+[89] TypeError
+File      : test_return_type_mismatch.py
+Line      : 7
+Variable  : get_age
+Expression: return ...
+Code      : return "twenty"
+Message   : Function 'get_age' declares return type 'int' but returns 'str'
+
+-------------------------------------------------------------------------------
+
+[90] TypeError
+File      : test_return_type_mismatch.py
+Line      : 15
+Variable  : get_name
+Expression: return ...
+Code      : return 25
+Message   : Function 'get_name' declares return type 'str' but returns 'int'
+
+-------------------------------------------------------------------------------
+
+[91] TypeError
+File      : test_return_type_mismatch.py
+Line      : 26
+Variable  : calc
+Expression: return ...
+Code      : return "error"
+Message   : Function 'calc' declares return type 'int' but returns 'str'
+
+-------------------------------------------------------------------------------
+
+[92] TypeError
+File      : test_return_type_mismatch.py
+Line      : 34
+Variable  : get_number
+Expression: return ...
+Code      : return None
+Message   : Function 'get_number' declares return type 'int' but returns 'None'
+
+-------------------------------------------------------------------------------
+
+[93] UnboundLocalError
+File      : test_unbound_local.py
+Line      : 13
+Variable  : x
+Expression: x +=
+Code      : x += 1
+Message   : cannot access local variable 'x' before assignment. Variable 'x' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+
+-------------------------------------------------------------------------------
+
+[94] UnboundLocalError
+File      : test_unbound_local.py
+Line      : 16
+Variable  : count
+Expression: count -=
+Code      : count -= 1
+Message   : cannot access local variable 'count' before assignment. Variable 'count' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+
+-------------------------------------------------------------------------------
+
+[95] UnboundLocalError
+File      : test_unbound_local.py
+Line      : 30
+Variable  : total
+Expression: total *=
+Code      : total *= 2
+Message   : cannot access local variable 'total' before assignment. Variable 'total' is referenced inside route_function 'test_unbound' but is defined in an outer scope without 'global' declaration
+
+-------------------------------------------------------------------------------
+
+[96] NameError
+File      : test_use_before_init.py
+Line      : 9
+Variable  : x
+Code      : print(x)
+Message   : name 'x' is not defined
+
+-------------------------------------------------------------------------------
+
+[97] ScopeError
+File      : test_use_before_init.py
+Line      : 18
+Variable  : x
+Code      : print(x)
+Message   : Variable 'x' has a type annotation but is used before being assigned a value.
+
+-------------------------------------------------------------------------------
+
+[98] ScopeError
+File      : test_use_before_init.py
+Line      : 28
+Variable  : y
+Code      : print(y)
+Message   : Variable 'y' may be used before initialization. It is only assigned inside a conditional block.
+
+-------------------------------------------------------------------------------
+
+[99] NameError
+File      : test_missing_flask_var.html
+Line      : 14
+Variable  : car
+Expression: {{ car }}
+Code      : <p>Car: {{ car }}</p>
+Message   : Variable 'car' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[100] NameError
+File      : test_missing_flask_var.html
+Line      : 17
+Variable  : color
+Expression: {{ color }}
+Code      : <p>Color: {{ color }}</p>
+Message   : Variable 'color' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[101] NameError
+File      : test_missing_flask_var.html
+Line      : 20
+Variable  : users
+Expression: {{ users }}
+Code      : {% for user in users %}
+Message   : Variable 'users' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[102] NameError
+File      : test_invalid_func_call.html
+Line      : 8
+Variable  : name
+Expression: {{ name }}
+Code      : <p>{{ name|upper }}</p>
+Message   : Variable 'name' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[103] NameError
+File      : test_invalid_func_call.html
+Line      : 14
+Variable  : unknown_filter
+Expression: {{ unknown_filter }}
+Code      : <p>{{ name|unknown_filter }}</p>
+Message   : Variable 'unknown_filter' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[104] NameError
+File      : test_invalid_func_call.html
+Line      : 17
+Variable  : age
+Expression: {{ age }}
+Code      : <p>{{ age|super_filter }}</p>
+Message   : Variable 'age' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[105] NameError
+File      : test_invalid_func_call.html
+Line      : 17
+Variable  : super_filter
+Expression: {{ super_filter }}
+Code      : <p>{{ age|super_filter }}</p>
+Message   : Variable 'super_filter' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[106] NameError
+File      : test_invalid_func_call.html
+Line      : 28
+Variable  : non_existent_macro
+Expression: {{ non_existent_macro }}
+Code      : {{ non_existent_macro("test") }}
+Message   : Variable 'non_existent_macro' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[107] NameError
+File      : test_invalid_func_call.py
+Line      : 17
+Variable  : foo
+Expression: foo()
+Code      : foo()
+Message   : Function 'foo' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[108] NameError
+File      : test_invalid_func_call.py
+Line      : 21
+Variable  : x
+Expression: x()
+Code      : x()
+Message   : Function 'x' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[109] NameError
+File      : test_invalid_func_call.py
+Line      : 28
+Variable  : calculate_total
+Expression: calculate_total()
+Code      : calculate_total(100)
+Message   : Function 'calculate_total' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[110] NameError
+File      : test_invalid_func_call.html
+Line      : 14
+Expression: {{ ...|unknown_filter }}
+Code      : <p>{{ name|unknown_filter }}</p>
+Message   : Jinja filter 'unknown_filter' does not exist
+
+-------------------------------------------------------------------------------
+
+[111] NameError
+File      : test_invalid_func_call.html
+Line      : 17
+Expression: {{ ...|super_filter }}
+Code      : <p>{{ age|super_filter }}</p>
+Message   : Jinja filter 'super_filter' does not exist
+
+-------------------------------------------------------------------------------
+
+[112] TypeError
+File      : test_invalid_func_call.html
+Line      : 28
+Variable  : non_existent_macro
+Expression: non_existent_macro()
+Code      : {{ non_existent_macro("test") }}
+Message   : Identifier 'non_existent_macro' is used as a function but is declared as jinja_var
+
+-------------------------------------------------------------------------------
+
+[113] NameError
+File      : test_wrong_args_count.html
+Line      : 9
+Variable  : content
+Expression: {{ content }}
+Code      : <div>{{ title }}: {{ content }}</div>
+Message   : Variable 'content' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[114] TypeError
+File      : test_wrong_args_count.py
+Line      : 23
+Variable  : greet
+Expression: greet(...)
+Code      : greet("Ali")
+Message   : Function 'greet' expects 2 argument(s) but called with 1 (1 argument(s) missing)
+
+-------------------------------------------------------------------------------
+
+[115] TypeError
+File      : test_wrong_args_count.py
+Line      : 26
+Variable  : greet
+Expression: greet(...)
+Code      : greet("Ali", "Hello", "Extra")
+Message   : Function 'greet' expects 2 argument(s) but called with 3 (1 extra argument(s))
+
+-------------------------------------------------------------------------------
+
+[116] TypeError
+File      : test_wrong_args_count.py
+Line      : 32
+Variable  : add
+Expression: add(...)
+Code      : add(1)
+Message   : Function 'add' expects 2 argument(s) but called with 1 (1 argument(s) missing)
+
+-------------------------------------------------------------------------------
+
+[117] TypeError
+File      : test_wrong_args_count.py
+Line      : 35
+Variable  : add
+Expression: add(...)
+Code      : add(1, 2, 3)
+Message   : Function 'add' expects 2 argument(s) but called with 3 (1 extra argument(s))
+
+-------------------------------------------------------------------------------
+
+[118] TypeError
+File      : test_wrong_args_count.py
+Line      : 41
+Variable  : no_args
+Expression: no_args(...)
+Code      : no_args("extra")
+Message   : Function 'no_args' expects 0 argument(s) but called with 1 (1 extra argument(s))
+
+-------------------------------------------------------------------------------
+
+[119] TypeError
+File      : test_wrong_args_count.py
+Line      : 47
+Variable  : three_args
+Expression: three_args(...)
+Code      : three_args(1, 2)
+Message   : Function 'three_args' expects 3 argument(s) but called with 2 (1 argument(s) missing)
+
+-------------------------------------------------------------------------------
+
+[120] NameError
+File      : test_no_errors.html
+Line      : 26
+Variable  : person
+Expression: {{ person }}
+Code      : Hello {{ person }}!
+Message   : Variable 'person' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[121] NameError
+File      : test_no_errors.html
+Line      : 29
+Variable  : greeting
+Expression: greeting()
+Code      : {{ greeting(name) }}
+Message   : Function 'greeting' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[122] NameError
+File      : test_all_errors.html
+Line      : 16
+Variable  : car
+Expression: {{ car }}
+Code      : <p>Car: {{ car }}</p>
+Message   : Variable 'car' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[123] NameError
+File      : test_all_errors.html
+Line      : 19
+Variable  : city
+Expression: {{ city }}
+Code      : <p>City: {{ city }}</p>
+Message   : Variable 'city' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[124] NameError
+File      : test_all_errors.html
+Line      : 27
+Variable  : users
+Expression: {{ users }}
+Code      : {% for user in users %}
+Message   : Variable 'users' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[125] NameError
+File      : test_all_errors.html
+Line      : 36
+Variable  : super_cool_filter
+Expression: {{ super_cool_filter }}
+Code      : <p>{{ name|super_cool_filter }}</p>
+Message   : Variable 'super_cool_filter' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[126] NameError
+File      : test_all_errors.html
+Line      : 40
+Variable  : person
+Expression: {{ person }}
+Code      : Hello {{ person }}!
+Message   : Variable 'person' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[127] NameError
+File      : test_all_errors.html
+Line      : 44
+Variable  : greeting
+Expression: {{ greeting }}
+Code      : {{ greeting("Ali") }}
+Message   : Variable 'greeting' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[128] NameError
+File      : test_all_errors.html
+Line      : 53
+Variable  : unknown_macro
+Expression: {{ unknown_macro }}
+Code      : {{ unknown_macro("test") }}
+Message   : Variable 'unknown_macro' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[129] NameError
+File      : test_all_errors.html
+Line      : 56
+Variable  : score
+Expression: {{ score }}
+Code      : <p>Score: {{ score }}</p>
+Message   : Variable 'score' is used in Jinja but not passed from Flask via render_template
+
+-------------------------------------------------------------------------------
+
+[130] NameError
+File      : test_all_errors.py
+Line      : 70
+Variable  : unknown_function
+Expression: unknown_function()
+Code      : unknown_function()
+Message   : Function 'unknown_function' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[131] NameError
+File      : test_all_errors.py
+Line      : 74
+Variable  : x
+Expression: x()
+Code      : x()
+Message   : Function 'x' is called but not defined
+
+-------------------------------------------------------------------------------
+
+[132] NameError
+File      : test_all_errors.html
+Line      : 36
+Expression: {{ ...|super_cool_filter }}
+Code      : <p>{{ name|super_cool_filter }}</p>
+Message   : Jinja filter 'super_cool_filter' does not exist
+
+-------------------------------------------------------------------------------
+
+[133] TypeError
+File      : test_all_errors.html
+Line      : 44
+Variable  : greeting
+Expression: greeting()
+Code      : {{ greeting("Ali") }}
+Message   : Identifier 'greeting' is used as a function but is declared as jinja_var
+
+-------------------------------------------------------------------------------
+
+[134] TypeError
+File      : test_all_errors.html
+Line      : 47
+Variable  : greeting
+Expression: greeting()
+Code      : {{ greeting() }}
+Message   : Identifier 'greeting' is used as a function but is declared as jinja_var
+
+-------------------------------------------------------------------------------
+
+[135] TypeError
+File      : test_all_errors.html
+Line      : 50
+Variable  : greeting
+Expression: greeting()
+Code      : {{ greeting("Ali", "Extra") }}
+Message   : Identifier 'greeting' is used as a function but is declared as jinja_var
+
+-------------------------------------------------------------------------------
+
+[136] TypeError
+File      : test_all_errors.html
+Line      : 53
+Variable  : unknown_macro
+Expression: unknown_macro()
+Code      : {{ unknown_macro("test") }}
+Message   : Identifier 'unknown_macro' is used as a function but is declared as jinja_var
+
+-------------------------------------------------------------------------------
+
+[137] TypeError
+File      : test_all_errors.py
+Line      : 58
+Variable  : greet
+Expression: greet(...)
+Code      : greet("Ali")
+Message   : Function 'greet' expects 2 argument(s) but called with 1 (1 argument(s) missing)
+
+-------------------------------------------------------------------------------
+
+[138] TypeError
+File      : test_all_errors.py
+Line      : 61
+Variable  : greet
+Expression: greet(...)
+Code      : greet("Ali", "Hello", "Extra")
+Message   : Function 'greet' expects 2 argument(s) but called with 3 (1 extra argument(s))
+
+-------------------------------------------------------------------------------
+
+[139] TypeError
+File      : test_all_errors.py
+Line      : 67
+Variable  : add
+Expression: add(...)
+Code      : add(1)
+Message   : Function 'add' expects 2 argument(s) but called with 1 (1 argument(s) missing)
+
+-------------------------------------------------------------------------------
+
+[140] TypeError
+File      : test_all_errors.py
+Line      : 77
+Variable  : calculate
+Expression: calculate(...)
+Code      : calculate(1)
+Message   : Function 'calculate' expects 3 argument(s) but called with 1 (2 argument(s) missing)
+
+-------------------------------------------------------------------------------
+
+[141] TypeError
+File      : test_all_errors.py
+Line      : 96
+Variable  : compute
+Expression: compute()
+Code      : result = compute()
+Message   : Function 'compute' expects 1 argument(s) but called with 0 (1 argument(s) missing)
+
+-------------------------------------------------------------------------------
+
+[142] TypeError
+File      : test_all_errors.py
+Line      : 8
+Variable  : get_age
+Expression: return ...
+Code      : return "twenty"
+Message   : Function 'get_age' declares return type 'int' but returns 'str'
+
+-------------------------------------------------------------------------------
+
+[143] TypeError
+File      : test_all_errors.py
+Line      : 11
+Variable  : get_price
+Expression: return ...
+Code      : return "free"
+Message   : Function 'get_price' declares return type 'float' but returns 'str'
+
+-------------------------------------------------------------------------------
+
+[144] TypeError
+File      : test_all_errors.py
+Line      : 14
+Variable  : get_info
+Expression: return ...
+Code      : return 42
+Message   : Function 'get_info' declares return type 'str' but returns 'int'
+
+================================================================================

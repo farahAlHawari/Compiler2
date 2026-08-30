@@ -5,16 +5,16 @@
 --- Log Entries ---
 [ContextBuilder] Starting source-based extraction...
 [ContextBuilder] extractProductsFromSource...
-[ContextBuilder] Skipped products.append at line 30 — inside a function/route body (runtime data, not static)
-[ContextBuilder] Products: 4
+[ContextBuilder] Skipped products.append at line 29 — inside a function/route body (runtime data, not static)
+[ContextBuilder] Products: 3
 [ContextBuilder] extractRoutesFromSource...
-[ContextBuilder] Decorator / @ line 23
+[ContextBuilder] Decorator / @ line 22
 [ContextBuilder] Route: / → index
-[ContextBuilder] Decorator /add @ line 27
+[ContextBuilder] Decorator /add @ line 26
 [ContextBuilder] Route: /add → add
-[ContextBuilder] Decorator /delete/<int:i> @ line 38
+[ContextBuilder] Decorator /delete/<int:i> @ line 37
 [ContextBuilder] Route: /delete/<int:i> → delete_product
-[ContextBuilder] Decorator /details/<int:i> @ line 44
+[ContextBuilder] Decorator /details/<int:i> @ line 43
 [ContextBuilder] Route: /details/<int:i> → details
 [ContextBuilder] Routes: 4
 [ContextBuilder] extractTemplateVariablesFromSource...
@@ -39,7 +39,7 @@
 [ContextBuilder] product_details.html extends base.html
 [ContextBuilder] Globals: [products]
 [GenerationContext] Frozen — core data is now read-only
-[ContextBuilder] Done. Products=4 Routes=4 Templates=4 ASTs=4 Route->Template=3
+[ContextBuilder] Done. Products=3 Routes=4 Templates=4 ASTs=4 Route->Template=3
 [Generator] Started
 [Generator] Processing index.html [index → /]
 [TemplateProcessor] Merged base.html
@@ -49,9 +49,7 @@
 [JinjaRenderer] Evaluated condition: p.image → true
 [JinjaRenderer] Evaluated condition: p.details → true
 [JinjaRenderer] Evaluated condition: p.image → false
-[JinjaRenderer] Evaluated condition: p.details → true
-[JinjaRenderer] Evaluated condition: p.image → true
-[JinjaRenderer] Expanded for loop: p in products (4 iterations)
+[JinjaRenderer] Expanded for loop: p in products (3 iterations)
 [JinjaRenderer] Evaluated condition: products → true
 [Generator] Processing add_product.html [add → /add]
 [TemplateProcessor] Merged base.html
@@ -67,11 +65,7 @@
 [TemplateProcessor] Merged base.html
 [JinjaRenderer] Evaluated condition: product.image → false
 [JinjaRenderer] Evaluated condition: product.details → true
-[Generator] Processing product_details.html [details i=3]
-[TemplateProcessor] Merged base.html
-[JinjaRenderer] Evaluated condition: product.image → true
-[JinjaRenderer] Evaluated condition: product.details → true
-[Generator] Rendered 6 page(s)
+[Generator] Rendered 5 page(s)
 [Generator] Serializing template ASTs to JSON
 [Generator] Writing output files
 [OutputWriter] Written: output\index.html
@@ -79,7 +73,6 @@
 [OutputWriter] Written: output\product_details_0.html
 [OutputWriter] Written: output\product_details_1.html
 [OutputWriter] Written: output\product_details_2.html
-[OutputWriter] Written: output\product_details_3.html
 [OutputWriter] Written: compiler_output\ast_jinja.json
 [OutputWriter] Written: compiler_output\ast_python.json
 
@@ -92,6 +85,5 @@ Warning: No template mapped for route /delete/<int:i> (function: delete_product)
   product_details_0.html
   product_details_1.html
   product_details_2.html
-  product_details_3.html
 
 ============================================================
