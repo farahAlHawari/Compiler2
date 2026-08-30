@@ -44,28 +44,31 @@ public class Main {
     // Semantic Test Files
 
     private static final String[][] SEMANTIC_TESTS = {
+            {"src/tests/test_type_error.py",          "TypeError (binary op)"},
+            {"src/tests/test_operation_type_error.py","Operation Type Error"},
+
             {"src/tests/test_undefined.py",           "NameError (undefined variable)"},
+            {"src/tests/test_type_mismatch.py",       "Type Mismatch (declared type / Bridge)"},
+            {"src/tests/test_missing_flask_var.py",   "Missing Flask Variable"},
+            {"src/tests/test_unbound_local.py",       "UnboundLocalError(Scope Error)"},
+
+
             {"src/tests/test_invalid_attr.py",        "AttributeError (invalid attribute)"},
             {"src/tests/test_operation_on_none.py",   "TypeError (operation on None)"},
             {"src/tests/test_none_attr.py",            "AttributeError on NoneType"},
-            {"src/tests/test_type_error.py",          "TypeError (binary op)"},
-            {"src/tests/test_type_mismatch.py",       "Type Mismatch (declared type / Bridge)"},
             {"src/tests/test_division.py",             "Division By Zero"},
-            {"src/tests/test_operation_type_error.py","Operation Type Error"},
             {"src/tests/test_return_type_mismatch.py","Return Type Mismatch"},
-            {"src/tests/test_unbound_local.py",       "UnboundLocalError"},
             {"src/tests/test_use_before_init.py",     "Use Before Initialization"},
-            {"src/tests/test_missing_flask_var.py",   "Missing Flask Variable"},
             {"src/tests/test_invalid_func_call.py",   "Invalid Function Call"},
             {"src/tests/test_wrong_args_count.py",    "Wrong Arguments Count"},
-            {"src/tests/test_no_errors.py",           "No Errors (clean code)"},
+
 
     };
 
     private static final String GENERATION_PYTHON  = "src/tests/app1.py";
     private static final String GENERATION_TEMPLATES = "src/templets";
 
-    // compileAndCheck
+
 
     public static List<semantic_errors.SemanticError> compileAndCheck(
             String pythonFile, String htmlFile, String outputTitle) throws Exception {
@@ -144,7 +147,7 @@ public class Main {
         return errors;
     }
 
-    // compilePythonOnly
+
 
     public static void compilePythonOnly(String pythonFile,
                                          String outputTitle) throws Exception {
@@ -192,7 +195,7 @@ public class Main {
         }
     }
 
-    //  compileAndGenerate
+
 
     public static GenerationContext compileAndGenerate(String pythonFile, String templatesDir,
                                                        String outputTitle) throws Exception {
@@ -267,11 +270,11 @@ public class Main {
             }
         }
 
-        //  3. Print Symbol Table + Scope Structure
+
         symbolTable.printSymbolTable();
         symbolTable.printScopeStructure();
 
-        //  4. Semantic Check
+
         SemanticChecker semanticChecker = new SemanticChecker(symbolTable);
         semanticChecker.checkErrors();
 
@@ -336,7 +339,7 @@ public class Main {
         return generationContext;
     }
 
-    //  printGenerationLogs
+
 
     private static void printGenerationLogs(GenerationContext context) {
         System.out.println();
@@ -373,7 +376,7 @@ public class Main {
         System.out.println("=".repeat(80));
     }
 
-    // main (Interactive Menu)
+
 
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
@@ -441,7 +444,7 @@ public class Main {
         System.out.println();
         System.out.println("  Available generation files:");
         System.out.println("    1. app1.py  +  src/templets");
-        System.out.print("  Choose [1-3] (or 0 to go back): ");
+        System.out.print("  Choose [1] (or 0 to go back): ");
 
         String input = scanner.nextLine().trim();
         if (input.equals("0")) return;

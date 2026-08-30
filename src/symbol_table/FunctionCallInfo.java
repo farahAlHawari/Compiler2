@@ -1,39 +1,14 @@
 package symbol_table;
 
-/**
- * Represents a function call record for semantic analysis.
- * Stores information about each function call encountered during visitor walks.
- *
- * Used by:
- *   - InvalidFuncCallChecker: to verify the called function exists and is a function
- *   - WrongArgsCountChecker: to verify argument count matches parameter count
- *
- * Example (Python):
- *   greet("Ali", "Hi")
- *   → functionName = "greet"
- *   → argCount = 2
- *   → line = 25
- *   → source = "python"
- *   → isMethodCall = false
- *   → isJinjaFilter = false
- *
- * Example (Jinja):
- *   {{ name|upper }}
- *   → functionName = "upper"
- *   → argCount = 0
- *   → line = 10
- *   → source = "template"
- *   → isMethodCall = false
- *   → isJinjaFilter = true
- */
+
 public class FunctionCallInfo {
 
     private String functionName;
     private int argCount;
     private int line;
-    private String source;        // "python" or "template"
-    private boolean isMethodCall;  // true if obj.method() call
-    private boolean isJinjaFilter; // true if Jinja filter like {{ x|filter }}
+    private String source;
+    private boolean isMethodCall;
+    private boolean isJinjaFilter;
     private String fileName = "";
     private String filePath = "";
     public FunctionCallInfo(String functionName, int argCount, int line,

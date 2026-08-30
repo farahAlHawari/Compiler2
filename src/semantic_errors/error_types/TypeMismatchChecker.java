@@ -47,7 +47,7 @@ public class TypeMismatchChecker {
         checkJinjaSetUsages();
     }
 
-    // ===== حالة 1 و 2: type hint ≠ inferred type =====
+
     private void checkDeclaredVsInferredType() {
         for (SymbolEntry entry : symbolTable.getAllEntries()) {
             if (!"python".equals(entry.getSource())) continue;
@@ -62,23 +62,23 @@ public class TypeMismatchChecker {
 
 
 
-                // حالة 2: None مع type hint
+
                 errors.add(new SemanticError(
                         SemanticErrorType.TYPE_MISMATCH,
-                        "TypeError",
+                        "TypeMismatch",
                         "Type mismatch. Variable '" + entry.getName() + "' is declared as '"
                                 + declared + "' but assigned a value of type 'NoneType'.",
                         entry.getLine(),
                         entry.getFileName(),
                         entry.getName(),
                         "",
-                        SourceFileReader.getLine(entry.getFilePath(), entry.getLine())  // ← مو symbolTable
+                        SourceFileReader.getLine(entry.getFilePath(), entry.getLine())
                 ));
             } else if (!isOptionalType(declared) && !isCompatible(declared, actual)) {
-                // حالة 1: type hint ≠ actual type
+
                 errors.add(new SemanticError(
                         SemanticErrorType.TYPE_MISMATCH,
-                        "TypeError",
+                        "TypeMismatch",
                         "Type mismatch. Variable '" + entry.getName() + "' is declared as '"
                                 + declared + "' but assigned a value of type '" + actual + "'.",
                         entry.getLine(),
@@ -91,10 +91,9 @@ public class TypeMismatchChecker {
         }
     }
 
-    // ===== حالة 3 و 4: Bridge (Flask → Jinja) =====
-    // ===== حالة 3 و 4: Bridge (Flask → Jinja) =====
+
     private void checkJinjaBridgeUsages() {
-        // ✅ تعديل 4: نجمع كل الأنواع الممكنة لكل متغير من كل render_template calls
+
         Map<String, Set<String>> flaskVarTypes = new HashMap<>();
         for (FlaskTemplateCall call : symbolTable.getRenderTemplateCalls()) {
             for (String varName : call.getPassedVariables()) {
@@ -110,7 +109,7 @@ public class TypeMismatchChecker {
         for (JinjaFilterUsage usage : symbolTable.getJinjaFilterUsages()) {
             String varName = usage.getVariableName();
 
-            // ✅ تعديل 2: استخراج الجذر من user.name → user
+
             String rootVar = varName.contains(".")
                     ? varName.split("\\.")[0].trim()
                     : varName;
@@ -122,7 +121,7 @@ public class TypeMismatchChecker {
                 String expected = FILTER_EXPECTED_TYPES.get(usage.getFilterName());
                 if (expected == null || "any".equals(expected)) continue;
 
-                // ✅ تعديل 4: نتحقق لو كل الأنواع غير متوافقة
+
                 boolean anyCompatible = false;
                 for (String flaskType : flaskTypes) {
                     if (isCompatibleWithExpected(expected, flaskType)) {
@@ -133,11 +132,11 @@ public class TypeMismatchChecker {
 
                 if (!anyCompatible) {
                     String expectedMsg = "iterable".equals(expected) ? "iterable" : "'" + expected + "'";
-                    // نعرض كل الأنواع الممكنة في الرسالة
+
                     String typesStr = String.join(" or ", flaskTypes);
                     errors.add(new SemanticError(
                             SemanticErrorType.TYPE_MISMATCH,
-                            "TypeError",
+                            "TypeMismatch",
                             "Filter '" + usage.getFilterName() + "' expects " + expectedMsg
                                     + " but variable '" + varName + "' is of type '" + typesStr + "'.",
                             usage.getLine(),
@@ -149,7 +148,7 @@ public class TypeMismatchChecker {
                 }
 
             } else if ("for_loop".equals(usage.getUsageContext())) {
-                // ✅ تعديل 4: نتحقق لو كل الأنواع غير iterable
+
                 boolean anyIterable = false;
                 for (String flaskType : flaskTypes) {
                     if (ITERABLE_TYPES.contains(flaskType)) {
@@ -162,7 +161,7 @@ public class TypeMismatchChecker {
                     String typesStr = String.join(" or ", flaskTypes);
                     errors.add(new SemanticError(
                             SemanticErrorType.TYPE_MISMATCH,
-                            "TypeError",
+                            "TypeMismatch",
                             "Variable '" + varName + "' of type '" + typesStr
                                     + "' is not iterable.",
                             usage.getLine(),
@@ -175,16 +174,16 @@ public class TypeMismatchChecker {
             }
         }
     }
-    // ===== حالة 5: فحص Jinja {% set %} محلياً =====
+
     private void checkJinjaSetUsages() {
-        // خطوة 1: ابنِ خريطة من متغيرات {% set %} وأنواعها
+
         Map<String, Set<String>> jinjaSetTypes = new HashMap<>();
         for (SymbolEntry entry : symbolTable.getAllEntries()) {
             if (!"template".equals(entry.getSource())) continue;
             if (!"jinja_set_var".equals(entry.getType())) continue;
 
             String varName = entry.getName();
-            String inferredType = entry.getDeclaredType();  // ← اللي خزّناه في visitJinjaSet
+            String inferredType = entry.getDeclaredType();
             if (inferredType == null || inferredType.isEmpty()) {
                 inferredType = "unknown";
             }
@@ -196,11 +195,11 @@ public class TypeMismatchChecker {
 
         if (jinjaSetTypes.isEmpty()) return;
 
-        // خطوة 2: نفحص استخدامات Jinja (filters و for-loops)
+
         for (JinjaFilterUsage usage : symbolTable.getJinjaFilterUsages()) {
             String varName = usage.getVariableName();
 
-            // استخراج الجذر من user.name → user
+
             String rootVar = varName.contains(".")
                     ? varName.split("\\.")[0].trim()
                     : varName;
@@ -208,7 +207,6 @@ public class TypeMismatchChecker {
             Set<String> localTypes = jinjaSetTypes.get(rootVar);
             if (localTypes == null || localTypes.isEmpty()) continue;
 
-            // خطوة 3a: فحص filters
             if ("filter".equals(usage.getUsageContext())) {
                 String expected = FILTER_EXPECTED_TYPES.get(usage.getFilterName());
                 if (expected == null || "any".equals(expected)) continue;
@@ -216,7 +214,7 @@ public class TypeMismatchChecker {
                 boolean anyCompatible = false;
                 for (String localType : localTypes) {
                     if ("unknown".equals(localType)) {
-                        anyCompatible = true;   // نعطي benefit of the doubt
+                        anyCompatible = true;
                         break;
                     }
                     if (isCompatibleWithExpected(expected, localType)) {
@@ -230,7 +228,7 @@ public class TypeMismatchChecker {
                     String typesStr = String.join(" or ", localTypes);
                     errors.add(new SemanticError(
                             SemanticErrorType.TYPE_MISMATCH,
-                            "TypeError",
+                            "TypeMismatch",
                             "Filter '" + usage.getFilterName() + "' expects " + expectedMsg
                                     + " but variable '" + varName + "' (defined with {% set %}) is of type '"
                                     + typesStr + "'.",
@@ -242,7 +240,7 @@ public class TypeMismatchChecker {
                     ));
                 }
 
-                // خطوة 3b: فحص for-loops
+
             } else if ("for_loop".equals(usage.getUsageContext())) {
                 boolean anyIterable = false;
                 for (String localType : localTypes) {
@@ -260,7 +258,7 @@ public class TypeMismatchChecker {
                     String typesStr = String.join(" or ", localTypes);
                     errors.add(new SemanticError(
                             SemanticErrorType.TYPE_MISMATCH,
-                            "TypeError",
+                            "TypeMismatch",
                             "Variable '" + varName + "' (defined with {% set %}) of type '"
                                     + typesStr + "' is not iterable.",
                             usage.getLine(),
@@ -276,7 +274,7 @@ public class TypeMismatchChecker {
     private boolean isCompatible(String declared, String actual) {
         if (declared == null) return true;
 
-        // ✅ جديد: دعم Optional[X] و Union[X, None]
+
         if (declared.startsWith("Optional[")) {
             String inner = declared.substring(9, declared.length() - 1);
             if ("NoneType".equals(actual) || "none".equalsIgnoreCase(actual)) return true;
@@ -306,22 +304,19 @@ public class TypeMismatchChecker {
         if ("string".equals(expected)) return "string".equals(actual) || "str".equals(actual);
         return expected.equals(actual);
     }
-    /**
-     * يتحقق إذا كان الـ declared type يقبل None
-     * (Optional[X] أو Union[..., None] أو Any)
-     */
+
     private boolean isOptionalType(String declared) {
-        if (declared == null) return true;  // لا يوجد hint → مسموح بأي شيء
+        if (declared == null) return true;
         if ("Any".equals(declared) || "any".equals(declared)) return true;
         if (declared.startsWith("Optional[")) return true;
         if (declared.startsWith("Union[")) {
-            // تحقق إذا كانت None ضمن أعضاء الـ Union
+
             String inner = declared.substring(6, declared.length() - 1);
             String[] parts = inner.split(",");
             for (String p : parts) {
                 String t = p.trim();
                 if ("None".equals(t) || "NoneType".equals(t)) return true;
-                if (isOptionalType(t)) return true;  // دعم متداخل: Union[Optional[int], str]
+                if (isOptionalType(t)) return true;
             }
         }
         return false;

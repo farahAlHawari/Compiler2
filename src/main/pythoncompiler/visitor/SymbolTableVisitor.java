@@ -1,1456 +1,20 @@
-//package main.pythoncompiler.visitor;
-//
-//import main.pythoncompiler.ast.*;
-//import symbol_table.*;
-//import java.util.Stack;
-//
-///**
-// * Visitor that walks the Python AST and populates the Symbol Table.
-// *
-// * This visitor handles:
-// * - Variable declarations (assignments) -> stored as "variable" kind
-// * - Function definitions -> stored as "function" kind, opens a new scope
-// * - Class definitions -> stored as "class" kind, opens a new scope
-// * - Parameters -> stored as "parameter" kind within function scope
-// * - Import statements -> stored as "import" kind
-// * - Global declarations -> marks variables as global scope
-// * - Decorators -> stored as "decorator" kind
-// * - For loop iterators -> stored as "variable" within loop scope
-// * - Expressions that reference identifiers (for use-before-declaration checks)
-// *
-// * Scope rules:
-// * - Program level = global scope (level 0)
-// * - Class body = class scope (level 1)
-// * - Function body = function scope (level 1+)
-// * - Nested blocks (if/for/while) = block scope (level 2+)
-// * - Global keyword: variable should be looked up/inserted in global scope
-// */
-//public class SymbolTableVisitor {
-//
-//    private SymbolTable symbolTable;
-//    private java.util.List<String> errors;
-//    private java.util.Set<String> globalDeclarations; // Track 'global' keyword declarations
-//    private Stack<String> currentFunctionStack;  // Track which function we're inside (for return type checking)
-//
-//    private int conditionalDepth;  // Track nesting inside conditional blocks (if/while/for)
-//    private java.util.Set<String> conditionallyAssignedVars;  // Vars assigned only inside conditionals
-//    private java.util.Set<String> unconditionallyAssignedVars;  // Vars assigned outside conditionals
-//
-//    public SymbolTableVisitor(SymbolTable symbolTable) {
-//        this.symbolTable = symbolTable;
-//        this.errors = new java.util.ArrayList<>();
-//        this.globalDeclarations = new java.util.HashSet<>();
-//        this.symbolTable.setSource("python");
-//        this.currentFunctionStack = new Stack<>();
-//
-//        this.conditionalDepth = 0;
-//        this.conditionallyAssignedVars = new java.util.HashSet<>();
-//        this.unconditionallyAssignedVars = new java.util.HashSet<>();
-//    }
-//
-//    public java.util.List<String> getErrors() {
-//        return errors;
-//    }
-//
-//    public SymbolTable getSymbolTable() {
-//        return symbolTable;
-//    }
-//
-//    // ==================== Main Visit Method ====================
-//
-//    /**
-//     * Visit any ASTNode by dispatching based on nodeName.
-//     */
-//    public void visit(ASTNode node) {
-//        if (node == null) return;
-//
-//        switch (node.nodeName) {
-//            case "Program":
-//                visitProgram(node);
-//                break;
-//            case "Assignment":
-//                visitAssignment(node);
-//                break;
-//            case "FunctionDef":
-//            case "RouteFunction":
-//                visitFunctionDef(node);
-//                break;
-//            case "ClassDef":
-//                visitClassDef(node);
-//                break;
-//            case "Block":
-//                visitBlock(node);
-//                break;
-//            case "IfStatement":
-//                visitIfStatement(node);
-//                break;
-//            case "WhileLoop":
-//                visitWhileLoop(node);
-//                break;
-//            case "ForLoop":
-//                visitForLoop(node);
-//                break;
-//            case "ReturnStmt":
-//                visitReturnStmt(node);
-//                break;
-//            case "GlobalDecl":
-//                visitGlobalDecl(node);
-//                break;
-//            case "ImportStmt":
-//                visitImportStmt(node);
-//                break;
-//            case "CallExpr":
-//                visitCallExpr(node);
-//                break;
-//            case "Identifier":
-//                visitIdentifier(node);
-//                break;
-//            case "Literal":
-//                visitLiteral(node);
-//                break;
-//            case "BinaryOp":
-//                visitBinaryOp(node);
-//                break;
-//            case "UnaryOp":
-//                visitUnaryOp(node);
-//                break;
-//            case "Parameters":
-//                visitParameters(node);
-//                break;
-//            case "IndexAccess":
-//                visitIndexAccess(node);
-//                break;
-//            case "AttributeAccess":
-//                visitAttributeAccess(node);
-//                break;
-//            case "ListLiteral":
-//            case "DictLiteral":
-//                visitContainerLiteral(node);
-//                break;
-//            case "PassStmt":
-//            case "BreakStmt":
-//            case "ContinueStmt":
-//                // No symbol table operations needed
-//                break;
-//            case "TryExcept":
-//                visitTryExcept(node);
-//                break;
-//            case "WithStmt":
-//                visitWithStmt(node);
-//                break;
-//            default:
-//                // Visit children for unrecognized nodes
-//                for (ASTNode child : node.children) {
-//                    visit(child);
-//                }
-//                break;
-//        }
-//    }
-//
-//
-//
-//    private void visitTryExcept(ASTNode node) {
-//        for (ASTNode child : node.children) {
-//            if ("Block".equals(child.nodeName)) {
-//                conditionalDepth++;
-//                visit(child);
-//                conditionalDepth--;
-//            } else {
-//                visit(child);
-//            }
-//        }
-//    }
-//
-//    private void visitWithStmt(ASTNode node) {
-//        // node.getDetails() ترجع " (as file)"
-//        String details = node.getDetails();
-//        if (!details.isEmpty()) {
-//            String varName = details.replace("(as", "").replace(")", "").trim();
-//            SymbolEntry entry = new SymbolEntry(
-//                    varName, "variable", "unknown",
-//                    symbolTable.currentScope().getScopeType(),
-//                    symbolTable.currentScopeLevel(),
-//                    node.lineNumber, "python"
-//            );
-//            entry.setFileName(symbolTable.getCurrentFileName());
-//            entry.setFilePath(symbolTable.getCurrentFilePath());
-//            symbolTable.insert(entry);
-//
-//        }
-//        // ثم زوري أبناء الـ block
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== Program ====================
-//
-//    private void visitProgram(ASTNode node) {
-//        // Global scope is already created in SymbolTable constructor
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== Assignment ====================
-//
-//    private void visitAssignment(ASTNode node) {
-//        AssignNode assignNode = (AssignNode) node;
-//        String varName = assignNode.variableName;
-//        String operator = assignNode.operator;
-//
-//        // Handle type annotation only (e.g., x: int) — no operator
-//        if (operator.isEmpty()) {
-//            String currentScopeType = symbolTable.currentScope().getScopeType();
-//            SymbolEntry entry = new SymbolEntry(
-//                    varName, "variable", "unknown", currentScopeType,
-//                    symbolTable.currentScopeLevel(), node.lineNumber, "python"
-//            );
-//            entry.setDeclaredType(assignNode.declaredType);
-//            entry.setFileName(symbolTable.getCurrentFileName());
-//            entry.setFilePath(symbolTable.getCurrentFilePath());
-//            symbolTable.insert(entry);
-//            return;
-//        }
-//
-//
-//        // Determine the type and value from the right-hand side expression
-//        String inferredType = "unknown";
-//        String value = "";
-//
-//        if (!node.children.isEmpty()) {
-//            ASTNode valueNode = node.children.get(0);
-//            inferredType = inferType(valueNode);
-//            value = extractValue(valueNode);
-//        }
-//
-//        // Check if this is a global declaration
-//        if (globalDeclarations.contains(varName)) {
-//            // Variable declared as global - insert/update in global scope
-//            SymbolEntry existing = symbolTable.lookup(varName);
-//            if (existing != null && "global".equals(existing.getScopeType())) {
-//                // Update existing global variable
-//                existing.setValue(value);
-//                existing.setType(inferredType);
-//            } else {
-//                // Insert in global scope
-//                SymbolEntry entry = new SymbolEntry(
-//                        varName, "variable", inferredType, "global",
-//                        0, node.lineNumber, "python"
-//                );
-//                entry.setValue(value);
-//                entry.setFileName(symbolTable.getCurrentFileName());
-//                entry.setFilePath(symbolTable.getCurrentFilePath());
-//                if (assignNode.declaredType != null) {
-//                    entry.setDeclaredType(assignNode.declaredType);
-//                }
-//                // Navigate to global scope and insert
-//                insertInGlobalScope(entry);
-//            }
-//            globalDeclarations.remove(varName); // Consumed
-//        } else if (operator.equals("=")) {
-//            // Simple assignment - check if variable already exists in current scope
-//            SymbolEntry existingInCurrent = symbolTable.lookupCurrentScope(varName);
-//            if (existingInCurrent != null) {
-//                // Variable exists in current scope - update it
-//                existingInCurrent.setValue(value);
-//                existingInCurrent.setType(inferredType);
-//            } else {
-//                // Check if it exists in an outer scope
-//                String currentScopeType = symbolTable.currentScope().getScopeType();
-//                boolean isInsideFunction = currentScopeType.equals("function")
-//                        || currentScopeType.equals("route_function")
-//                        || currentScopeType.equals("class");
-//
-//                if (isInsideFunction) {
-//                    // داخل دالة: أنشئي local variable دائماً
-//                    SymbolEntry entry = new SymbolEntry(
-//                            varName, "variable", inferredType, currentScopeType,
-//                            symbolTable.currentScopeLevel(), node.lineNumber, "python"
-//                    );
-//                    entry.setValue(value);
-//                    entry.setFileName(symbolTable.getCurrentFileName());
-//                    entry.setFilePath(symbolTable.getCurrentFilePath());
-//                    if (assignNode.declaredType != null) {
-//                        entry.setDeclaredType(assignNode.declaredType);
-//                    }
-//                    symbolTable.insert(entry);
-//                } else {
-//                    // في global scope: عدّلي المتغير لو موجود
-//                    SymbolEntry existingAnywhere = symbolTable.lookup(varName);
-//                    if (existingAnywhere != null) {
-//                        existingAnywhere.setValue(value);
-//                        existingAnywhere.setType(inferredType);
-//                    } else {
-//                        SymbolEntry entry = new SymbolEntry(
-//                                varName, "variable", inferredType, currentScopeType,
-//                                symbolTable.currentScopeLevel(), node.lineNumber, "python"
-//                        );
-//                        entry.setValue(value);
-//                        entry.setFileName(symbolTable.getCurrentFileName());
-//                        entry.setFilePath(symbolTable.getCurrentFilePath());
-//                        if (assignNode.declaredType != null) {
-//                            entry.setDeclaredType(assignNode.declaredType);
-//                        }
-//                        symbolTable.insert(entry);
-//                        symbolTable.insert(entry); // شو سبب تكراره؟
-//                    }
-//                }
-//            }
-//        } else {
-//            // Augmented assignment (+=, -=, *=, /=, %=, etc.)
-//
-//            // تحقق هل نحن داخل دالة
-//            String currentScopeType = symbolTable.currentScope().getScopeType();
-//            boolean isInsideFunction = currentScopeType.equals("function")
-//                    || currentScopeType.equals("route_function");
-//
-//            // تحقق هل المتغير موجود في السكوب الحالي فقط
-//            SymbolEntry inCurrentScope = symbolTable.lookupCurrentScope(varName);
-//            boolean variableInCurrentScope = (inCurrentScope != null);
-//
-//            // تحقق هل المتغير موجود في أي سكوب خارجي
-//            SymbolEntry inAnyScope = symbolTable.lookup(varName);
-//            boolean variableInOuterScope = (inAnyScope != null && !variableInCurrentScope);
-//
-//            // تحقق هل المتغير معرّف بـ global
-//            boolean declaredGlobal = globalDeclarations.contains(varName);
-//
-//            // سجّل المعلومات للفحص اللاحق
-//            UnboundLocalInfo info = new UnboundLocalInfo(
-//                    varName, operator, node.lineNumber,
-//                    symbolTable.getCurrentFileName(),
-//                    symbolTable.getCurrentFilePath(),
-//                    currentScopeType,
-//                    symbolTable.currentScope().getContextName(),
-//                    isInsideFunction,
-//                    variableInCurrentScope,
-//                    variableInOuterScope,
-//                    declaredGlobal
-//            );
-//            symbolTable.addUnboundLocalInfo(info);
-//            // ===== جمع OperationTypeInfo للـ augmented assignment (Error Type) =====
-//            // augmented: varName <op>= expr  ←  مكافئ لـ varName = varName <op> expr
-//            String baseOp = operator.length() > 1
-//                    ? operator.substring(0, operator.length() - 1) : operator;
-//
-//            String leftType = "unknown";
-//            SymbolEntry existingForType = symbolTable.lookup(varName);
-//            if (existingForType != null) {
-//                leftType = existingForType.getType();
-//            }
-//
-//            String rightDisplay = "";
-//            if (!node.children.isEmpty()) {
-//                rightDisplay = extractValue(node.children.get(0));
-//            }
-//
-//            if (isArithmeticOperator(baseOp) || isComparisonOperator(baseOp)) {
-//                OperationTypeInfo opInfo = new OperationTypeInfo(
-//                        operator, leftType, inferredType,   // ← operator الكامل بدل baseOp
-//                        varName, rightDisplay, node.lineNumber
-//                );
-//                opInfo.setFileName(symbolTable.getCurrentFileName());
-//                opInfo.setFilePath(symbolTable.getCurrentFilePath());
-//                symbolTable.addOperationTypeInfo(opInfo);
-//            }
-//            if (variableInCurrentScope) {
-//                // المتغير معرّف محلياً في نفس السكوب → لا مشكلة، عدّل قيمته
-//                inCurrentScope.setValue(value);
-//            } else if (inAnyScope != null) {
-//                // المتغير موجود في سكوب خارجي
-//                if (declaredGlobal) {
-//                    // استُخدمت كلمة global → لا مشكلة، عدّل المتغير في مكانه
-//                    inAnyScope.setValue(value);
-//                }
-//                // إذا لم تُستخدم global: يتم كشف الخطأ لاحقاً في UnboundLocalErrorChecker
-//            } else {
-//                // المتغير غير موجود في أي سكوب
-//                SymbolEntry entry = new SymbolEntry(
-//                        varName, "variable", inferredType, currentScopeType,
-//                        symbolTable.currentScopeLevel(), node.lineNumber, "python"
-//                );
-//                entry.setValue(value);
-//                entry.setFileName(symbolTable.getCurrentFileName());
-//                entry.setFilePath(symbolTable.getCurrentFilePath());
-//                symbolTable.insert(entry);
-//                errors.add(String.format(
-//                        "Warning [Line %d]: Variable '%s' used with %s before declaration",
-//                        node.lineNumber, varName, operator
-//                ));
-//            }
-//        }
-//
-//        // Track assignment for use-before-init detection
-//        if (conditionalDepth > 0) {
-//            conditionallyAssignedVars.add(varName);
-//        } else {
-//            unconditionallyAssignedVars.add(varName);
-//            conditionallyAssignedVars.remove(varName);
-//        }
-//
-//
-//        // Visit the value expression (for nested references)
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== Function Definition ====================
-//
-//    private void visitFunctionDef(ASTNode node) {
-//        FunctionDefNode funcNode = (FunctionDefNode) node;
-//        String funcName = funcNode.functionName;
-//
-//        // Insert function symbol in current scope
-//        String scopeType = symbolTable.currentScope().getScopeType();
-//        int scopeLevel = symbolTable.currentScopeLevel();
-//
-//        SymbolEntry entry = new SymbolEntry(
-//                funcName, "function", "function", scopeType,
-//                scopeLevel, node.lineNumber, "python"
-//        );
-//        entry.setFileName(symbolTable.getCurrentFileName());
-//        entry.setFilePath(symbolTable.getCurrentFilePath());
-//        // NEW: Store return type and parameter count in the SymbolEntry
-//        if (funcNode.returnType != null && !funcNode.returnType.isEmpty()) {
-//            entry.setReturnType(funcNode.returnType);
-//        }
-//        entry.setParamCount(funcNode.paramCount);
-//
-//        // If it's a RouteFunction, add decorator info
-//        if ("RouteFunction".equals(node.nodeName)) {
-//            entry.setKind("route_function");
-//        }
-//
-//        symbolTable.insert(entry);
-//
-//        // NEW: Push current function name onto the stack (for return statement tracking)
-//        currentFunctionStack.push(funcName);
-//
-//        // Enter function scope (route functions get a distinctive scope type)
-//        if ("RouteFunction".equals(node.nodeName)) {
-//            symbolTable.enterScope("route_function",  funcName);
-//        } else {
-//            symbolTable.enterScope("function",  funcName);
-//        }
-//
-//        // Clear conditional tracking for new function scope
-//        conditionallyAssignedVars.clear();
-//        unconditionallyAssignedVars.clear();
-//        conditionalDepth = 0;
-//
-//        // Visit parameters (they go into function scope)
-//        for (ASTNode child : node.children) {
-//            if ("Parameters".equals(child.nodeName)) {
-//                visitParameters(child);
-//            }
-//        }
-//
-//        // Visit block (function body)
-//        for (ASTNode child : node.children) {
-//            if ("Block".equals(child.nodeName)) {
-//                visitBlock(child);
-//            }
-//        }
-//
-//        // Exit function scope
-//        symbolTable.exitScope();
-//
-//        // NEW: Pop current function name from the stack
-//        if (!currentFunctionStack.isEmpty()) {
-//            currentFunctionStack.pop();
-//        }
-//    }
-//
-//    // ==================== Class Definition ====================
-//
-//    private void visitClassDef(ASTNode node) {
-//        ClassDefNode classNode = (ClassDefNode) node;
-//        String className = classNode.className;
-//
-//        // Insert class symbol in current scope
-//        String scopeType = symbolTable.currentScope().getScopeType();
-//        int scopeLevel = symbolTable.currentScopeLevel();
-//
-//        SymbolEntry entry = new SymbolEntry(
-//                className, "class", "class", scopeType,
-//                scopeLevel, node.lineNumber, "python"
-//        );
-//        entry.setFileName(symbolTable.getCurrentFileName());
-//        entry.setFilePath(symbolTable.getCurrentFilePath());
-//        symbolTable.insert(entry);
-//
-//        // Enter class scope
-//        int newLevel = scopeLevel + 1;
-//        symbolTable.enterScope("class",  className);
-//
-//        // Visit class body
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//
-//        // Exit class scope
-//        symbolTable.exitScope();
-//    }
-//
-//    // ==================== Block ====================
-//
-//    private void visitBlock(ASTNode node) {
-//        // Blocks don't create a new scope by default in Python
-//        // (only functions, classes, and comprehensions create scopes)
-//        // So we just visit children within the current scope
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== If Statement ====================
-//
-//    private void visitIfStatement(ASTNode node) {
-//        // Save state BEFORE this if statement
-//        java.util.Set<String> savedCond = new java.util.HashSet<>(conditionallyAssignedVars);
-//        java.util.Set<String> savedUncond = new java.util.HashSet<>(unconditionallyAssignedVars);
-//
-//        java.util.List<java.util.Set<String>> branchVarsList = new java.util.ArrayList<>();
-//
-//        for (ASTNode child : node.children) {
-//            if (child.children == null || child.children.isEmpty()) continue;
-//
-//            boolean hasCondition = !child.nodeName.equals("ElseBlock");
-//
-//            // Reset to saved state before each branch (branches don't contaminate each other)
-//            conditionallyAssignedVars = new java.util.HashSet<>(savedCond);
-//            unconditionallyAssignedVars = new java.util.HashSet<>(savedUncond);
-//
-//            if (hasCondition) {
-//                // First child = condition → visit at normal depth
-//                visit(child.children.get(0));
-//                // Remaining = body Block(s) → visit at conditional depth
-//                for (int i = 1; i < child.children.size(); i++) {
-//                    conditionalDepth++;
-//                    visit(child.children.get(i));
-//                    conditionalDepth--;
-//                }
-//            } else {
-//                // ElseBlock: no condition, all children are body blocks
-//                for (ASTNode bodyChild : child.children) {
-//                    conditionalDepth++;
-//                    visit(bodyChild);
-//                    conditionalDepth--;
-//                }
-//            }
-//
-//            // Collect ALL variables assigned within this branch
-//            // (direct assignments + resolutions from nested if/else)
-//            java.util.Set<String> thisBranchVars = new java.util.HashSet<>();
-//            java.util.Set<String> newCond = new java.util.HashSet<>(conditionallyAssignedVars);
-//            newCond.removeAll(savedCond);
-//            thisBranchVars.addAll(newCond);
-//            java.util.Set<String> newUncond = new java.util.HashSet<>(unconditionallyAssignedVars);
-//            newUncond.removeAll(savedUncond);
-//            thisBranchVars.addAll(newUncond);
-//
-//            branchVarsList.add(thisBranchVars);
-//        }
-//
-//        // Restore saved state
-//        conditionallyAssignedVars = new java.util.HashSet<>(savedCond);
-//        unconditionallyAssignedVars = new java.util.HashSet<>(savedUncond);
-//
-//        // Compute net effect
-//        if (branchVarsList.size() >= 2) {
-//            // Variables assigned in ALL branches → effectively unconditional
-//            java.util.Set<String> allBranches = new java.util.HashSet<>(branchVarsList.get(0));
-//            for (int i = 1; i < branchVarsList.size(); i++) {
-//                allBranches.retainAll(branchVarsList.get(i));
-//            }
-//            unconditionallyAssignedVars.addAll(allBranches);
-//
-//            // Variables assigned in SOME but not ALL branches → conditional
-//            java.util.Set<String> anyBranch = new java.util.HashSet<>();
-//            for (java.util.Set<String> bv : branchVarsList) {
-//                anyBranch.addAll(bv);
-//            }
-//            anyBranch.removeAll(allBranches);
-//            conditionallyAssignedVars.addAll(anyBranch);
-//        } else if (branchVarsList.size() == 1) {
-//            // Single branch (if without else) → all conditional
-//            conditionallyAssignedVars.addAll(branchVarsList.get(0));
-//        }
-//    }
-//
-//    // ==================== While Loop ====================
-//
-//    private void visitWhileLoop(ASTNode node) {
-//        for (ASTNode child : node.children) {
-//            if ("Block".equals(child.nodeName)) {
-//                conditionalDepth++;
-//                visit(child);
-//                conditionalDepth--;
-//            } else {
-//                visit(child);
-//            }
-//        }
-//    }
-//
-//    // ==================== For Loop ====================
-//
-//    private void visitForLoop(ASTNode node) {
-//        ForNode forNode = (ForNode) node;
-//        String iteratorName = forNode.iteratorName;
-//
-//        // Insert iterator variable in current scope
-//        String scopeType = symbolTable.currentScope().getScopeType();
-//        int scopeLevel = symbolTable.currentScopeLevel();
-//
-//        SymbolEntry entry = new SymbolEntry(
-//                iteratorName, "variable", "unknown", scopeType,
-//                scopeLevel, node.lineNumber, "python"
-//        );
-//        // Don't flag as error if already exists (for loop can reassign)
-//        SymbolEntry existing = symbolTable.lookupCurrentScope(iteratorName);
-//        entry.setFileName(symbolTable.getCurrentFileName());
-//        entry.setFilePath(symbolTable.getCurrentFilePath());
-//        if (existing == null) {
-//            symbolTable.insert(entry);
-//        } else {
-//            existing.setType("unknown");
-//        }
-//
-//        // Visit children (iterable expression and body)
-//        for (ASTNode child : node.children) {
-//            if ("Block".equals(child.nodeName)) {
-//                conditionalDepth++;
-//                visit(child);
-//                conditionalDepth--;
-//            } else {
-//                visit(child);
-//            }
-//        }
-//    }
-//
-//    // ==================== Return Statement ====================
-//
-//    private void visitReturnStmt(ASTNode node) {
-//        // NEW: Track return statement for Return Type Mismatch checking
-//        String returnExprType = "unknown";
-//        String enclosingFuncName = currentFunctionStack.isEmpty() ? "" : currentFunctionStack.peek();
-//
-//        if (!node.children.isEmpty()) {
-//            ASTNode returnExpr = node.children.get(0);
-//            returnExprType = inferType(returnExpr);
-//        } else {
-//            returnExprType = "none"; // bare "return" or "return None"
-//        }
-//
-//        // Normalize the inferred type to match type hint format
-//        returnExprType = normalizeType(returnExprType);
-//
-//        // Add ReturnInfo to symbol table for semantic checker
-//        if (!enclosingFuncName.isEmpty()) {
-//            ReturnInfo returnInfo = new ReturnInfo(enclosingFuncName, returnExprType, node.lineNumber);
-//            returnInfo.setFileName(symbolTable.getCurrentFileName());
-//            returnInfo.setFilePath(symbolTable.getCurrentFilePath());
-//            symbolTable.addReturnInfo(returnInfo);
-//        }
-//
-//        // Visit children (for nested references)
-//
-//
-//        // Visit the value expression (for nested references)
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== Global Declaration ====================
-//
-//    private void visitGlobalDecl(ASTNode node) {
-//        // Extract variable name from the GlobalDecl details
-//        String details = node.getDetails();
-//        // Parse " (varName)" format
-//        String varName = details.replace("(", "").replace(")", "").trim();
-//
-//        globalDeclarations.add(varName);
-//
-//        // Check if variable exists in global scope
-//        if (!symbolTable.isGlobal(varName)) {
-//            // Mark it so next assignment will go to global scope
-//            // Don't insert yet - wait for the assignment
-//        }
-//    }
-//
-//    // ==================== Import Statement ====================
-//
-////    private void visitImportStmt(ASTNode node) {
-////        String details = node.getDetails();
-////        // Parse " (from moduleName)" format
-////        String modulePart = details.replace("(", "").replace(")", "").trim();
-////        if (modulePart.startsWith("from ")) {
-////            modulePart = modulePart.substring(5).trim();
-////        }
-////
-////        SymbolEntry entry = new SymbolEntry(
-////                modulePart, "import", "module", "global",
-////                0, node.lineNumber, "python"
-////        );
-////        // Insert in global scope
-////        insertInGlobalScope(entry);
-////    }
-//
-//
-//    private void visitImportStmt(ASTNode node) {
-//        // أزل كل ImportedName كـ child في global scope
-//        for (ASTNode child : node.children) {
-//            if (child instanceof IdentifierNode) {
-//                IdentifierNode idNode = (IdentifierNode) child;
-//
-//                String scopeType = symbolTable.currentScope().getScopeType();
-//                int scopeLevel = symbolTable.currentScopeLevel();
-//
-//                SymbolEntry entry = new SymbolEntry(
-//                        idNode.name, "imported_name",  "module", "global",
-//                        0, child.lineNumber, "python"
-//                );
-//                entry.setValue("imported");
-//                entry.setFileName(symbolTable.getCurrentFileName());
-//                entry.setFilePath(symbolTable.getCurrentFilePath());
-//                insertInGlobalScope(entry);
-//            }
-//        }
-//    }
-//
-//    // ==================== Parameters ====================
-//
-//    private void visitParameters(ASTNode node) {
-//        for (ASTNode child : node.children) {
-//            if ("Identifier".equals(child.nodeName)) {
-//                IdentifierNode idNode = (IdentifierNode) child;
-//                SymbolEntry entry = new SymbolEntry(
-//                        idNode.name, "parameter", "unknown",
-//                        symbolTable.currentScope().getScopeType(),
-//                        symbolTable.currentScopeLevel(), child.lineNumber, "python"
-//                );
-//                entry.setFileName(symbolTable.getCurrentFileName());
-//                entry.setFilePath(symbolTable.getCurrentFilePath());
-//                symbolTable.insert(entry);
-//            }
-//        }
-//    }
-//
-//    // ==================== Call Expression ====================
-//    private void visitCallExpr(ASTNode node) {
-//        CallNode callNode = (CallNode) node;
-//        String funcName = callNode.functionName;
-//
-//        // Check if this is a method call (e.g., obj.method())
-//        boolean isMethodCall = false;
-//        for (ASTNode child : node.children) {
-//            if (child instanceof AttributeNode) {
-//                isMethodCall = true;
-//                break;
-//            }
-//        }
-//
-//        // NEW: Track function call info for semantic error checking
-//        FunctionCallInfo callInfo = new FunctionCallInfo(
-//                funcName,
-//                callNode.argCount,
-//                node.lineNumber,
-//                "python",
-//                isMethodCall,
-//                false  // not a Jinja filter
-//        );
-//        callInfo.setFileName(symbolTable.getCurrentFileName());
-//        callInfo.setFilePath(symbolTable.getCurrentFilePath());
-//        symbolTable.addFunctionCallInfo(callInfo);
-//
-//        // NEW: Special handling for render_template() — track passed variables
-//        if ("render_template".equals(funcName)) {
-//            trackRenderTemplateCall(node);
-//        }
-//
-//        // NEW: Track argument type for len() calls (Error Type checking)
-//        if ("len".equals(funcName) && !isMethodCall) {
-//            checkLenArgumentType(node);
-//        }
-//
-//        // Track argument type for other built-in functions (sum, sorted, abs, max, min, round)
-//        if (!isMethodCall) {
-//            checkBuiltinFunctionArgTypes(node);
-//        }
-//        // Existing warning for undefined functions
-//        if (!isMethodCall) {
-//            SymbolEntry funcEntry = symbolTable.lookup(funcName);
-//            if (funcEntry == null) {
-//                if (!isBuiltinFunction(funcName)) {
-//                    errors.add(String.format(
-//                            "Warning [Line %d]: Function '%s' called but not defined in symbol table",
-//                            node.lineNumber, funcName
-//                    ));
-//                }
-//            }
-//        }
-//        // Visit children (arguments)
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== Identifier ====================
-//
-//    private void visitIdentifier(ASTNode node) {
-//        IdentifierNode idNode = (IdentifierNode) node;
-//        String name = idNode.name;
-//        if (isBuiltinFunction(name) || isCommonFlaskGlobal(name)) return;
-//
-//        SymbolEntry entry = symbolTable.lookup(name);
-//        String currentScopeType = symbolTable.currentScope().getScopeType();
-//        boolean isInsideFunction = currentScopeType.equals("function")
-//                || currentScopeType.equals("route_function")
-//                || currentScopeType.equals("class");
-//
-//        if (entry == null) {
-//            // Case 1: Variable not found in symbol table
-//            boolean declaredLater = false;
-//            for (SymbolEntry e : symbolTable.getAllEntries()) {
-//                if (e.getName().equals(name) && e.getLine() > node.lineNumber) {
-//                    declaredLater = true;
-//                    break;
-//                }
-//            }
-//            UseBeforeInitInfo info = new UseBeforeInitInfo();
-//            info.setVariableName(name);
-//            info.setUsageLine(node.lineNumber);
-//            info.setFileName(symbolTable.getCurrentFileName());
-//            info.setFilePath(symbolTable.getCurrentFilePath());
-//            info.setScopeType(currentScopeType);
-//            info.setScopeContextName(symbolTable.currentScope().getContextName());
-//            info.setInsideFunction(isInsideFunction);
-//            info.setDeclaredLater(declaredLater);
-//            symbolTable.addUseBeforeInitInfo(info);
-//
-//        } else if (entry.getDeclaredType() != null
-//                && !entry.getDeclaredType().isEmpty()
-//                && (entry.getValue() == null || entry.getValue().isEmpty())) {
-//            // Case 2: Has type annotation but no value (not initialized)
-//            UseBeforeInitInfo info = new UseBeforeInitInfo();
-//            info.setVariableName(name);
-//            info.setUsageLine(node.lineNumber);
-//            info.setFileName(symbolTable.getCurrentFileName());
-//            info.setFilePath(symbolTable.getCurrentFilePath());
-//            info.setScopeType(currentScopeType);
-//            info.setScopeContextName(symbolTable.currentScope().getContextName());
-//            info.setInsideFunction(isInsideFunction);
-//            info.setTypeAnnotationOnly(true);
-//            symbolTable.addUseBeforeInitInfo(info);
-//
-//        } else if (conditionalDepth == 0
-//                && conditionallyAssignedVars.contains(name)
-//                && !unconditionallyAssignedVars.contains(name)) {
-//            // Case 3: Variable only assigned inside a conditional block
-//            UseBeforeInitInfo info = new UseBeforeInitInfo();
-//            info.setVariableName(name);
-//            info.setUsageLine(node.lineNumber);
-//            info.setFileName(symbolTable.getCurrentFileName());
-//            info.setFilePath(symbolTable.getCurrentFilePath());
-//            info.setScopeType(currentScopeType);
-//            info.setScopeContextName(symbolTable.currentScope().getContextName());
-//            info.setInsideFunction(isInsideFunction);
-//            info.setConditionalAssignment(true);
-//            symbolTable.addUseBeforeInitInfo(info);
-//        }
-//    }
-//
-//    // أضيفي هالدالة المساعدة
-//    private boolean isCommonFlaskGlobal(String name) {
-//        return java.util.Set.of(
-//                "app", "request", "Flask", "render_template",
-//                "redirect", "url_for", "jsonify", "True", "False", "None"
-//        ).contains(name);
-//    }
-//
-//    // ==================== Literal ====================
-//
-//    private void visitLiteral(ASTNode node) {
-//        // Literals don't create symbol table entries
-//        // But we use them for type inference
-//    }
-//
-//    // ==================== Binary Op ====================
-//
-////    private void visitBinaryOp(ASTNode node) {
-////        for (ASTNode child : node.children) {
-////            visit(child);
-////        }
-////    }
-//private void visitBinaryOp(ASTNode node) {
-//    // Visit children first
-//    for (ASTNode child : node.children) {
-//        visit(child);
-//    }
-//
-//    if (node.children.size() < 2) return;
-//
-//    // استخرج الـ operator من BinaryOpNode
-//    String operator = null;
-//    if (node instanceof BinaryOpNode) {
-//        operator = ((BinaryOpNode) node).operator;
-//    }
-//    if (operator == null) return;
-//
-//    // ===== 1. Division by zero (الكود الأصلي) =====
-//    if ("/".equals(operator) || "%".equals(operator)) {
-//        DivisionInfo divInfo = new DivisionInfo(
-//                operator,
-//                node.children.get(0).nodeName,
-//                node.children.get(1).nodeName,
-//                node.lineNumber
-//        );
-//
-//        divInfo.setFileName(symbolTable.getCurrentFileName());
-//        divInfo.setFilePath(symbolTable.getCurrentFilePath());
-//        symbolTable.addDivisionInfo(divInfo);
-//    }
-//
-//    // ===== 2. Operation on None (الجديد) =====
-//    if (isArithmeticOperator(operator)) {
-//        checkOperationOnNone(node, operator);
-//    }
-//
-//    // ===== 3. Operand type compatibility (قسمي - Error Type) =====
-//    if (isArithmeticOperator(operator) || isComparisonOperator(operator)) {
-//        recordOperationTypeInfo(node, operator);
-//        }
-//}
-//
-//    // ==================== Unary Op ====================
-//
-//    private void visitUnaryOp(ASTNode node) {
-//        // زور الأبناء الأول (عشان يسجلوا أي متغيرات)
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//
-//        if (node instanceof UnaryOpNode) {
-//            UnaryOpNode unOp = (UnaryOpNode) node;
-//            String op = unOp.operator;
-//
-//            // بس `+` و `-` بيعطوا TypeError. `not` ما بيعطي أبداً.
-//            if (!"+".equals(op) && !"-".equals(op)) return;
-//
-//            if (!node.children.isEmpty()) {
-//                ASTNode operand = node.children.get(0);
-//                String operandType = inferType(operand);
-//                String operandDisplay = extractValue(operand);
-//
-//                if (!"unknown".equals(operandType)) {
-//                    UnaryOpTypeInfo info = new UnaryOpTypeInfo(
-//                            op, operandType, operandDisplay, node.lineNumber
-//                    );
-//                    info.setFileName(symbolTable.getCurrentFileName());
-//                    info.setFilePath(symbolTable.getCurrentFilePath());
-//                    symbolTable.addUnaryOpTypeInfo(info);
-//                }
-//            }
-//        }
-//    }
-//
-//    // ==================== Index Access ====================
-//
-//    private void visitIndexAccess(ASTNode node) {
-//        if (node.children.size() >= 2) {
-//            ASTNode container = node.children.get(0);
-//            ASTNode index = node.children.get(1);
-//
-//            String containerType = inferType(container);
-//            String indexType = inferType(index);
-//            String containerDisplay = extractValue(container);
-//            String indexDisplay = extractValue(index);
-//
-//            IndexTypeInfo info = new IndexTypeInfo(
-//                    containerType, indexType, containerDisplay, indexDisplay, node.lineNumber
-//            );
-//            info.setFileName(symbolTable.getCurrentFileName());
-//            info.setFilePath(symbolTable.getCurrentFilePath());
-//            symbolTable.addIndexTypeInfo(info);
-//        }
-//
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== Attribute Access ====================
-//
-//    private void visitAttributeAccess(ASTNode node) {
-//        String objectName = null;
-//        String attributeName = null;
-//        int line = node.lineNumber;
-//
-//        // استخرج اسم الـ attribute من AttributeNode
-//        if (node instanceof AttributeNode) {
-//            attributeName = ((AttributeNode) node).attributeName;
-//        }
-//
-//        // استخرج اسم الكائن من أول child (عادة IdentifierNode)
-//        if (node.children != null && node.children.size() > 0) {
-//            ASTNode objChild = node.children.get(0);
-//            if (objChild instanceof IdentifierNode) {
-//                objectName = ((IdentifierNode) objChild).name;
-//            } else {
-//                // expression معقد → زور الأبناء واطلع
-//                for (ASTNode child : node.children) {
-//                    visit(child);
-//                }
-//                return;
-//            }
-//        }
-//
-//        // زور الأبناء
-//        if (node.children != null) {
-//            for (ASTNode child : node.children) {
-//                visit(child);
-//            }
-//        }
-//
-//        // التحقق
-//        if (objectName == null || attributeName == null || attributeName.isEmpty()) {
-//            return;
-//        }
-//
-//        // ابحث عن الكائن في الـ SymbolTable
-//        SymbolEntry entry = symbolTable.lookup(objectName);
-//        String objectType = "unknown";
-//        String objectValue = null;
-//
-//        if (entry != null) {
-//            objectType = entry.getType() != null ? entry.getType() : "unknown";
-//            objectValue = entry.getValue() != null ? entry.getValue() : null;
-//        }
-//
-//        // أنشئ AttributeAccessInfo
-//        AttributeAccessInfo info = new AttributeAccessInfo(objectName, attributeName, line);
-//        info.setFileName(symbolTable.getCurrentFileName());
-//        info.setFilePath(symbolTable.getCurrentFilePath());
-//        info.setObjectType(objectType);
-//        info.setObjectValue(objectValue);
-//
-//        symbolTable.addAttributeAccessInfo(info);
-//    }
-//    // ==================== Container Literal ====================
-//
-//    private void visitContainerLiteral(ASTNode node) {
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
-//
-//    // ==================== Helper Methods ====================
-//
-//    /**
-//     * Infer the type of an expression node.
-//     */
-//    private String inferType(ASTNode node) {
-//        if (node == null) return "unknown";
-//
-//        switch (node.nodeName) {
-//            case "Literal":
-//                LiteralNode lit = (LiteralNode) node;
-//                return lit.type.toLowerCase();
-//            case "ListLiteral":
-//                return "list";
-//            case "DictLiteral":
-//                return "dict";
-//            case "CallExpr":
-//                CallNode call = (CallNode) node;
-//                // Some functions have known return types
-//                if (call.functionName.equals("list")) return "list";
-//                if (call.functionName.equals("dict")) return "dict";
-//                if (call.functionName.equals("int")) return "int";
-//                if (call.functionName.equals("str")) return "string";
-//                if (call.functionName.equals("Flask")) return "FlaskApp";
-//                return "unknown";
-//            case "BinaryOp":
-//                BinaryOpNode binOp = (BinaryOpNode) node;
-//                if ("and".equals(binOp.operator) || "or".equals(binOp.operator))
-//                    return "bool";
-//                if ("+".equals(binOp.operator) || "-".equals(binOp.operator)
-//                        || "*".equals(binOp.operator) || "/".equals(binOp.operator)
-//                        || "%".equals(binOp.operator))
-//                    return "int"; // Simplified
-//                return "bool"; // Comparison operators
-//            case "UnaryOp":
-//                UnaryOpNode unOp = (UnaryOpNode) node;
-//                if ("not".equals(unOp.operator)) return "bool";
-//                return "unknown";
-//            case "Identifier":
-//                SymbolEntry entry = symbolTable.lookup(((IdentifierNode) node).name);
-//                return entry != null ? entry.getType() : "unknown";
-//            case "IndexAccess":
-//                return "unknown"; // Could be any type
-//            case "AttributeAccess":
-//                return "unknown"; // Could be any type
-//            default:
-//                return "unknown";
-//        }
-//    }
-//
-//    /**
-//     * Extract a string representation of the value of an expression node.
-//     */
-//    private String extractValue(ASTNode node) {
-//        if (node == null) return "";
-//
-//        switch (node.nodeName) {
-//            case "Literal":
-//                return ((LiteralNode) node).value;
-//            case "Identifier":
-//                return ((IdentifierNode) node).name;
-//            case "ListLiteral":
-//                return "[...]";
-//            case "DictLiteral":
-//                return "{...}";
-//            case "CallExpr":
-//                return ((CallNode) node).functionName + "(...)";
-//            default:
-//                return node.nodeName;
-//        }
-//    }
-//
-//    /**
-//     * Check if a function name is a Python built-in.
-//     */
-////    private static final java.util.Set<String> PYTHON_BUILTINS = java.util.Set.of(
-////            "print", "len", "range", "int", "str", "float", "list", "dict",
-////            "set", "tuple", "type", "isinstance", "input", "open", "append",
-////            "super", "staticmethod", "classmethod", "property", "enumerate",
-////            "zip", "map", "filter", "sorted", "reversed", "min", "max", "sum",
-////            "abs", "round", "any", "all", "hasattr", "getattr", "setattr"
-////    );
-//    private static final java.util.Set<String> PYTHON_BUILTINS = java.util.Set.of(
-//            "print", "len", "range", "int", "str", "float", "list", "dict",
-//            "set", "tuple", "type", "isinstance", "input", "open", "append",
-//            "super", "staticmethod", "classmethod", "property", "enumerate",
-//            "zip", "map", "filter", "sorted", "reversed", "min", "max", "sum",
-//            "abs", "round", "any", "all", "hasattr", "getattr", "setattr",
-//            // Flask framework functions (imported)
-//            "Flask", "render_template", "request", "redirect", "url_for",
-//            "SQLAlchemy", "db",
-//            "__name__"
-//    );
-//
-//    private boolean isBuiltinFunction(String name) {
-//        return PYTHON_BUILTINS.contains(name);
-//    }
-//
-//    /**
-//     * Insert an entry in the global scope (scope at index 0 of the stack).
-//     */
-//    private void insertInGlobalScope(SymbolEntry entry) {
-//        // Temporarily navigate to global scope
-//        // Since we use a stack, we save current state and insert directly
-//        symbol_table.Scope globalScope = symbolTable.getScopeStack().get(0);
-//        if (globalScope.contains(entry.getName())) {
-//            // Already exists in global scope - update
-//            SymbolEntry existing = globalScope.lookup(entry.getName());
-//            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
-//                existing.setValue(entry.getValue());
-//            }
-//        } else {
-//            globalScope.insert(entry);
-//            symbolTable.getAllEntries().add(entry);
-//        }
-//    }
-//
-//    // ==================== NEW: Helper Methods for Semantic Error Tracking ====================
-//
-//    /**
-//     * Track a render_template() call for Missing Flask Variable checking.
-//     * Extracts the template name and keyword argument variable names.
-//     *
-//     * Example: render_template("page.html", name=name, age=age)
-//     *   → templateName = "page.html", passedVariables = ["name", "age"]
-//     */
-//    private void trackRenderTemplateCall(ASTNode callNode) {
-//        FlaskTemplateCall flaskCall = new FlaskTemplateCall("", callNode.lineNumber);
-//
-//        // Find the Arguments child node
-//        for (ASTNode child : callNode.children) {
-//            if ("Arguments".equals(child.nodeName)) {
-//                for (ASTNode arg : child.children) {
-//                    if ("PositionalArg".equals(arg.nodeName)) {
-//                        // First positional arg should be the template name (string literal)
-//                        if (!arg.children.isEmpty()) {
-//                            ASTNode expr = arg.children.get(0);
-//                            if (expr instanceof LiteralNode) {
-//                                String value = ((LiteralNode) expr).value;
-//                                // Remove quotes from the template name
-//                                flaskCall.setTemplateName(value.replace("\"", "").replace("'", ""));
-//                            }
-//                        }
-//                    } else if ("NamedArg".equals(arg.nodeName)) {
-//                        // Named arg like "name=name" — extract the parameter name
-//                        String details = arg.getDetails();
-//                        // details format: " (name=...)"
-//                        if (details.contains("=")) {
-//                            String varName = details.substring(
-//                                    details.indexOf("(") + 1,
-//                                    details.indexOf("=")
-//                            ).trim();
-//                            flaskCall.addPassedVariable(varName);
-//                            SymbolEntry varEntry = symbolTable.lookup(varName);
-//                            if (varEntry != null) {
-//                                flaskCall.addPassedVariableType(varName, varEntry.getType());
-//                                flaskCall.addPassedVariableValue(varName, varEntry.getValue());
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        symbolTable.addRenderTemplateCall(flaskCall);
-//    }
-//
-//    /**
-//     * Normalize type names to match type hint format.
-//     * Python uses "str" for strings, but LiteralNode uses "STRING".
-//     */
-//    private String normalizeType(String type) {
-//        if (type == null) return "unknown";
-//        switch (type.toLowerCase()) {
-//            case "string":
-//            case "str":
-//                return "str";
-//            case "int":
-//                return "int";
-//            case "float":
-//                return "float";
-//            case "bool":
-//            case "boolean":
-//                return "bool";
-//            case "list":
-//                return "list";
-//            case "dict":
-//            case "dictionary":
-//                return "dict";
-//            case "none":
-//            case "nonetype":
-//                return "None";
-//            default:
-//                return type;
-//        }
-//    }
-//    // ==================== Helper Methods for New Error Detection ====================
-//    /**
-//     * Comparison operators that can raise TypeError with incompatible types.
-//     * Note: == and != are intentionally EXCLUDED — in real Python they never
-//     * raise TypeError; they just return False for incompatible types
-//     * (e.g. "5" == 5 is valid Python, evaluates to False).
-//     */
-//    private boolean isComparisonOperator(String operator) {
-//        return "<".equals(operator)
-//                || ">".equals(operator)
-//                || "<=".equals(operator)
-//                || ">=".equals(operator);
-//    }
-//
-//    /**
-//     * Records operand type info for any arithmetic/comparison BinaryOp node,
-//     * to be checked later by OperationTypeErrorChecker.
-//     */
-//    private void recordOperationTypeInfo(ASTNode node, String operator) {
-//        ASTNode left = node.children.get(0);
-//        ASTNode right = node.children.get(1);
-//
-//        String leftType = inferType(left);
-//        String rightType = inferType(right);
-//        String leftDisplay = extractValue(left);
-//        String rightDisplay = extractValue(right);
-//
-//        OperationTypeInfo info = new OperationTypeInfo(
-//                operator, leftType, rightType, leftDisplay, rightDisplay, node.lineNumber
-//        );
-//        info.setFileName(symbolTable.getCurrentFileName());
-//        info.setFilePath(symbolTable.getCurrentFilePath());
-//        symbolTable.addOperationTypeInfo(info);
-//    }
-//
-//    /**
-//     * Extracts the argument type passed to len() so OperationTypeErrorChecker
-//     * can verify it's a sized/iterable type.
-//     */
-//    private void checkLenArgumentType(ASTNode node) {
-//        ASTNode argsNode = null;
-//        for (ASTNode child : node.children) {
-//            if ("Arguments".equals(child.nodeName)) {
-//                argsNode = child;
-//                break;
-//            }
-//        }
-//        if (argsNode == null || argsNode.children.isEmpty()) return;
-//
-//        ASTNode firstArgWrapper = argsNode.children.get(0);
-//        if (firstArgWrapper.children.isEmpty()) return;
-//        ASTNode argExpr = firstArgWrapper.children.get(0);
-//
-//        String argType = inferType(argExpr);
-//        String argDisplay = extractValue(argExpr);
-//
-//        FunctionArgTypeInfo info = new FunctionArgTypeInfo("len", argType, argDisplay, node.lineNumber);
-//        info.setFileName(symbolTable.getCurrentFileName());
-//        info.setFilePath(symbolTable.getCurrentFilePath());
-//        symbolTable.addFunctionArgTypeInfo(info);
-//    }
-//
-//    private boolean isArithmeticOperator(String operator) {
-//        return "+".equals(operator)
-//                || "-".equals(operator)
-//                || "*".equals(operator)
-//                || "/".equals(operator)
-//                || "//".equals(operator)
-//                || "%".equals(operator)
-//                || "**".equals(operator);
-//    }
-//
-//    private void checkOperationOnNone(ASTNode node, String operator) {
-//        ASTNode left = node.children.get(0);
-//        ASTNode right = node.children.get(1);
-//
-//        boolean leftIsNone = isNodeNone(left);
-//        boolean rightIsNone = isNodeNone(right);
-//
-//        if (leftIsNone || rightIsNone) {
-//            String leftName = getOperandName(left, "left");
-//            String rightName = getOperandName(right, "right");
-//
-//            OperationOnNoneInfo info = new OperationOnNoneInfo(
-//                    operator, leftName, rightName, leftIsNone, rightIsNone, node.lineNumber
-//            );
-//            info.setFileName(symbolTable.getCurrentFileName());
-//            info.setFilePath(symbolTable.getCurrentFilePath());
-//
-//            String otherType;
-//            if (leftIsNone) {
-//                otherType = getOperandName(right, "right");
-//            } else {
-//                otherType = getOperandName(left, "left");
-//            }
-//            info.setOtherOperandType(otherType);
-//            symbolTable.addOperationOnNoneInfo(info);
-//        }
-//    }
-//
-//    private boolean isNodeNone(ASTNode node) {
-//        if (node instanceof LiteralNode) {
-//            LiteralNode lit = (LiteralNode) node;
-//            if ("None".equals(lit.value)) return true;
-//            if ("NONE".equals(lit.type)) return true;
-//        }
-//
-//        if (node instanceof IdentifierNode) {
-//            String varName = ((IdentifierNode) node).name;
-//            SymbolEntry entry = symbolTable.lookup(varName);
-//            if (entry != null) {
-//                String type = entry.getType();
-//                String value = entry.getValue();
-//                if ("none".equals(type)) return true;
-//                if ("None".equals(value)) return true;
-//                if ("NONE".equals(type)) return true;
-//            }
-//        }
-//
-//        return false;
-//    }
-//
-//    private String getOperandName(ASTNode node, String side) {
-//        if (node instanceof IdentifierNode) {
-//            return ((IdentifierNode) node).name;
-//        } else if (node instanceof LiteralNode) {
-//            return ((LiteralNode) node).type.toLowerCase();
-//        }
-//        return side;
-//    }
-//
-//    /**
-//     * يجمع FunctionArgTypeInfo للدوال يلي ممكن ترمي TypeError:
-//     * sum, sorted, abs, max, min, round
-//     */
-//    private void checkBuiltinFunctionArgTypes(ASTNode node) {
-//        if (!(node instanceof CallNode)) return;
-//        CallNode call = (CallNode) node;
-//        String funcName = call.functionName;
-//
-//        // الدوال يلي بنفحصها
-//        java.util.Set<String> typeSensitiveBuiltins = java.util.Set.of(
-//                "sum", "sorted", "abs", "max", "min", "round"
-//        );
-//        if (!typeSensitiveBuiltins.contains(funcName)) return;
-//
-//        // نفس منطق checkLenArgumentType: نلاقي أول argument
-//        ASTNode argsNode = null;
-//        for (ASTNode child : node.children) {
-//            if ("Arguments".equals(child.nodeName)) {
-//                argsNode = child;
-//                break;
-//            }
-//        }
-//        if (argsNode == null || argsNode.children.isEmpty()) return;
-//
-//        ASTNode firstArgWrapper = argsNode.children.get(0);
-//        if (firstArgWrapper.children.isEmpty()) return;
-//        ASTNode argExpr = firstArgWrapper.children.get(0);
-//
-//        String argType = inferType(argExpr);
-//        String argDisplay = extractValue(argExpr);
-//
-//        FunctionArgTypeInfo info = new FunctionArgTypeInfo(
-//                funcName, argType, argDisplay, node.lineNumber
-//        );
-//        info.setFileName(symbolTable.getCurrentFileName());
-//        info.setFilePath(symbolTable.getCurrentFilePath());
-//        symbolTable.addFunctionArgTypeInfo(info);
-//    }
-//}
 package main.pythoncompiler.visitor;
 
 import main.pythoncompiler.ast.*;
 import symbol_table.*;
 import java.util.Stack;
 
-/**
- * Visitor that walks the Python AST and populates the Symbol Table.
- *
- * This visitor handles:
- * - Variable declarations (assignments) -> stored as "variable" kind
- * - Function definitions -> stored as "function" kind, opens a new scope
- * - Class definitions -> stored as "class" kind, opens a new scope
- * - Parameters -> stored as "parameter" kind within function scope
- * - Import statements -> stored as "import" kind
- * - Global declarations -> marks variables as global scope
- * - Decorators -> stored as "decorator" kind
- * - For loop iterators -> stored as "variable" within loop scope
- * - Expressions that reference identifiers (for use-before-declaration checks)
- *
- * Scope rules:
- * - Program level = global scope (level 0)
- * - Class body = class scope (level 1)
- * - Function body = function scope (level 1+)
- * - Nested blocks (if/for/while) = block scope (level 2+)
- * - Global keyword: variable should be looked up/inserted in global scope
- */
+
 public class SymbolTableVisitor {
 
     private SymbolTable symbolTable;
     private java.util.List<String> errors;
-    private java.util.Set<String> globalDeclarations; // Track 'global' keyword declarations
-    private Stack<String> currentFunctionStack;  // Track which function we're inside (for return type checking)
+    private java.util.Set<String> globalDeclarations;
+    private Stack<String> currentFunctionStack;
 
-    private int conditionalDepth;  // Track nesting inside conditional blocks (if/while/for)
-    private java.util.Set<String> conditionallyAssignedVars;  // Vars assigned only inside conditionals
-    private java.util.Set<String> unconditionallyAssignedVars;  // Vars assigned outside conditionals
+    private int conditionalDepth;
+    private java.util.Set<String> conditionallyAssignedVars;
+    private java.util.Set<String> unconditionallyAssignedVars;
 
     public SymbolTableVisitor(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -1474,9 +38,6 @@ public class SymbolTableVisitor {
 
     // ==================== Main Visit Method ====================
 
-    /**
-     * Visit any ASTNode by dispatching based on nodeName.
-     */
     public void visit(ASTNode node) {
         if (node == null) return;
 
@@ -1546,7 +107,6 @@ public class SymbolTableVisitor {
             case "PassStmt":
             case "BreakStmt":
             case "ContinueStmt":
-                // No symbol table operations needed
                 break;
             case "TryExcept":
                 visitTryExcept(node);
@@ -1555,7 +115,6 @@ public class SymbolTableVisitor {
                 visitWithStmt(node);
                 break;
             default:
-                // Visit children for unrecognized nodes
                 for (ASTNode child : node.children) {
                     visit(child);
                 }
@@ -1578,7 +137,6 @@ public class SymbolTableVisitor {
     }
 
     private void visitWithStmt(ASTNode node) {
-        // node.getDetails() ترجع " (as file)"
         String details = node.getDetails();
         if (!details.isEmpty()) {
             String varName = details.replace("(as", "").replace(")", "").trim();
@@ -1593,7 +151,6 @@ public class SymbolTableVisitor {
             symbolTable.insert(entry);
 
         }
-        // ثم زوري أبناء الـ block
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -1602,7 +159,6 @@ public class SymbolTableVisitor {
     // ==================== Program ====================
 
     private void visitProgram(ASTNode node) {
-        // Global scope is already created in SymbolTable constructor
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -1615,7 +171,6 @@ public class SymbolTableVisitor {
         String varName = assignNode.variableName;
         String operator = assignNode.operator;
 
-        // Handle type annotation only (e.g., x: int) — no operator
         if (operator.isEmpty()) {
             String currentScopeType = symbolTable.currentScope().getScopeType();
             SymbolEntry entry = new SymbolEntry(
@@ -1630,7 +185,6 @@ public class SymbolTableVisitor {
         }
 
 
-        // Determine the type and value from the right-hand side expression
         String inferredType = "unknown";
         String value = "";
 
@@ -1640,16 +194,13 @@ public class SymbolTableVisitor {
             value = extractValue(valueNode);
         }
 
-        // Check if this is a global declaration
         if (globalDeclarations.contains(varName)) {
-            // Variable declared as global - insert/update in global scope
             SymbolEntry existing = symbolTable.lookup(varName);
             if (existing != null && "global".equals(existing.getScopeType())) {
                 // Update existing global variable
                 existing.setValue(value);
                 existing.setType(inferredType);
             } else {
-                // Insert in global scope
                 SymbolEntry entry = new SymbolEntry(
                         varName, "variable", inferredType, "global",
                         0, node.lineNumber, "python"
@@ -1663,23 +214,20 @@ public class SymbolTableVisitor {
                 // Navigate to global scope and insert
                 insertInGlobalScope(entry);
             }
-            globalDeclarations.remove(varName); // Consumed
+            globalDeclarations.remove(varName);
         } else if (operator.equals("=")) {
-            // Simple assignment - check if variable already exists in current scope
             SymbolEntry existingInCurrent = symbolTable.lookupCurrentScope(varName);
             if (existingInCurrent != null) {
-                // Variable exists in current scope - update it
+
                 existingInCurrent.setValue(value);
                 existingInCurrent.setType(inferredType);
             } else {
-                // Check if it exists in an outer scope
                 String currentScopeType = symbolTable.currentScope().getScopeType();
                 boolean isInsideFunction = currentScopeType.equals("function")
                         || currentScopeType.equals("route_function")
                         || currentScopeType.equals("class");
 
                 if (isInsideFunction) {
-                    // داخل دالة: أنشئي local variable دائماً
                     SymbolEntry entry = new SymbolEntry(
                             varName, "variable", inferredType, currentScopeType,
                             symbolTable.currentScopeLevel(), node.lineNumber, "python"
@@ -1692,7 +240,6 @@ public class SymbolTableVisitor {
                     }
                     symbolTable.insert(entry);
                 } else {
-                    // في global scope: عدّلي المتغير لو موجود
                     SymbolEntry existingAnywhere = symbolTable.lookup(varName);
                     if (existingAnywhere != null) {
                         existingAnywhere.setValue(value);
@@ -1709,30 +256,30 @@ public class SymbolTableVisitor {
                             entry.setDeclaredType(assignNode.declaredType);
                         }
                         symbolTable.insert(entry);
-                        // symbolTable.insert(entry); // شو سبب تكراره؟
+
                     }
                 }
             }
         } else {
-            // Augmented assignment (+=, -=, *=, /=, %=, etc.)
 
-            // تحقق هل نحن داخل دالة
+
+
             String currentScopeType = symbolTable.currentScope().getScopeType();
             boolean isInsideFunction = currentScopeType.equals("function")
                     || currentScopeType.equals("route_function");
 
-            // تحقق هل المتغير موجود في السكوب الحالي فقط
+
             SymbolEntry inCurrentScope = symbolTable.lookupCurrentScope(varName);
             boolean variableInCurrentScope = (inCurrentScope != null);
 
-            // تحقق هل المتغير موجود في أي سكوب خارجي
+
             SymbolEntry inAnyScope = symbolTable.lookup(varName);
             boolean variableInOuterScope = (inAnyScope != null && !variableInCurrentScope);
 
-            // تحقق هل المتغير معرّف بـ global
+
             boolean declaredGlobal = globalDeclarations.contains(varName);
 
-            // سجّل المعلومات للفحص اللاحق
+
             UnboundLocalInfo info = new UnboundLocalInfo(
                     varName, operator, node.lineNumber,
                     symbolTable.getCurrentFileName(),
@@ -1745,8 +292,6 @@ public class SymbolTableVisitor {
                     declaredGlobal
             );
             symbolTable.addUnboundLocalInfo(info);
-            // ===== جمع OperationTypeInfo للـ augmented assignment (Error Type) =====
-            // augmented: varName <op>= expr  ←  مكافئ لـ varName = varName <op> expr
             String baseOp = operator.length() > 1
                     ? operator.substring(0, operator.length() - 1) : operator;
 
@@ -1763,7 +308,7 @@ public class SymbolTableVisitor {
 
             if (isArithmeticOperator(baseOp) || isComparisonOperator(baseOp)) {
                 OperationTypeInfo opInfo = new OperationTypeInfo(
-                        operator, leftType, inferredType,   // ← operator الكامل بدل baseOp
+                        operator, leftType, inferredType,
                         varName, rightDisplay, node.lineNumber
                 );
                 opInfo.setFileName(symbolTable.getCurrentFileName());
@@ -1771,17 +316,17 @@ public class SymbolTableVisitor {
                 symbolTable.addOperationTypeInfo(opInfo);
             }
             if (variableInCurrentScope) {
-                // المتغير معرّف محلياً في نفس السكوب → لا مشكلة، عدّل قيمته
+
                 inCurrentScope.setValue(value);
             } else if (inAnyScope != null) {
-                // المتغير موجود في سكوب خارجي
+
                 if (declaredGlobal) {
-                    // استُخدمت كلمة global → لا مشكلة، عدّل المتغير في مكانه
+
                     inAnyScope.setValue(value);
                 }
-                // إذا لم تُستخدم global: يتم كشف الخطأ لاحقاً في UnboundLocalErrorChecker
+
             } else {
-                // المتغير غير موجود في أي سكوب
+
                 SymbolEntry entry = new SymbolEntry(
                         varName, "variable", inferredType, currentScopeType,
                         symbolTable.currentScopeLevel(), node.lineNumber, "python"
@@ -1797,7 +342,7 @@ public class SymbolTableVisitor {
             }
         }
 
-        // Track assignment for use-before-init detection
+
         if (conditionalDepth > 0) {
             conditionallyAssignedVars.add(varName);
         } else {
@@ -1806,7 +351,6 @@ public class SymbolTableVisitor {
         }
 
 
-        // Visit the value expression (for nested references)
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -1828,52 +372,48 @@ public class SymbolTableVisitor {
         );
         entry.setFileName(symbolTable.getCurrentFileName());
         entry.setFilePath(symbolTable.getCurrentFilePath());
-        // NEW: Store return type and parameter count in the SymbolEntry
         if (funcNode.returnType != null && !funcNode.returnType.isEmpty()) {
             entry.setReturnType(funcNode.returnType);
         }
         entry.setParamCount(funcNode.paramCount);
 
-        // If it's a RouteFunction, add decorator info
         if ("RouteFunction".equals(node.nodeName)) {
             entry.setKind("route_function");
         }
 
         symbolTable.insert(entry);
 
-        // NEW: Push current function name onto the stack (for return statement tracking)
+
         currentFunctionStack.push(funcName);
 
-        // Enter function scope (route functions get a distinctive scope type)
         if ("RouteFunction".equals(node.nodeName)) {
             symbolTable.enterScope("route_function",  funcName);
         } else {
             symbolTable.enterScope("function",  funcName);
         }
 
-        // Clear conditional tracking for new function scope
+
         conditionallyAssignedVars.clear();
         unconditionallyAssignedVars.clear();
         conditionalDepth = 0;
 
-        // Visit parameters (they go into function scope)
+
         for (ASTNode child : node.children) {
             if ("Parameters".equals(child.nodeName)) {
                 visitParameters(child);
             }
         }
 
-        // Visit block (function body)
         for (ASTNode child : node.children) {
             if ("Block".equals(child.nodeName)) {
                 visitBlock(child);
             }
         }
 
-        // Exit function scope
+
         symbolTable.exitScope();
 
-        // NEW: Pop current function name from the stack
+
         if (!currentFunctionStack.isEmpty()) {
             currentFunctionStack.pop();
         }
@@ -1885,7 +425,7 @@ public class SymbolTableVisitor {
         ClassDefNode classNode = (ClassDefNode) node;
         String className = classNode.className;
 
-        // Insert class symbol in current scope
+
         String scopeType = symbolTable.currentScope().getScopeType();
         int scopeLevel = symbolTable.currentScopeLevel();
 
@@ -1897,25 +437,23 @@ public class SymbolTableVisitor {
         entry.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.insert(entry);
 
-        // Enter class scope
+
         int newLevel = scopeLevel + 1;
         symbolTable.enterScope("class",  className);
 
-        // Visit class body
+
         for (ASTNode child : node.children) {
             visit(child);
         }
 
-        // Exit class scope
+
         symbolTable.exitScope();
     }
 
     // ==================== Block ====================
 
     private void visitBlock(ASTNode node) {
-        // Blocks don't create a new scope by default in Python
-        // (only functions, classes, and comprehensions create scopes)
-        // So we just visit children within the current scope
+
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -1924,7 +462,7 @@ public class SymbolTableVisitor {
     // ==================== If Statement ====================
 
     private void visitIfStatement(ASTNode node) {
-        // Save state BEFORE this if statement
+
         java.util.Set<String> savedCond = new java.util.HashSet<>(conditionallyAssignedVars);
         java.util.Set<String> savedUncond = new java.util.HashSet<>(unconditionallyAssignedVars);
 
@@ -1935,21 +473,18 @@ public class SymbolTableVisitor {
 
             boolean hasCondition = !child.nodeName.equals("ElseBlock");
 
-            // Reset to saved state before each branch (branches don't contaminate each other)
             conditionallyAssignedVars = new java.util.HashSet<>(savedCond);
             unconditionallyAssignedVars = new java.util.HashSet<>(savedUncond);
 
             if (hasCondition) {
-                // First child = condition → visit at normal depth
                 visit(child.children.get(0));
-                // Remaining = body Block(s) → visit at conditional depth
                 for (int i = 1; i < child.children.size(); i++) {
                     conditionalDepth++;
                     visit(child.children.get(i));
                     conditionalDepth--;
                 }
             } else {
-                // ElseBlock: no condition, all children are body blocks
+
                 for (ASTNode bodyChild : child.children) {
                     conditionalDepth++;
                     visit(bodyChild);
@@ -1957,8 +492,7 @@ public class SymbolTableVisitor {
                 }
             }
 
-            // Collect ALL variables assigned within this branch
-            // (direct assignments + resolutions from nested if/else)
+
             java.util.Set<String> thisBranchVars = new java.util.HashSet<>();
             java.util.Set<String> newCond = new java.util.HashSet<>(conditionallyAssignedVars);
             newCond.removeAll(savedCond);
@@ -1970,20 +504,20 @@ public class SymbolTableVisitor {
             branchVarsList.add(thisBranchVars);
         }
 
-        // Restore saved state
+
         conditionallyAssignedVars = new java.util.HashSet<>(savedCond);
         unconditionallyAssignedVars = new java.util.HashSet<>(savedUncond);
 
-        // Compute net effect
+
         if (branchVarsList.size() >= 2) {
-            // Variables assigned in ALL branches → effectively unconditional
+
             java.util.Set<String> allBranches = new java.util.HashSet<>(branchVarsList.get(0));
             for (int i = 1; i < branchVarsList.size(); i++) {
                 allBranches.retainAll(branchVarsList.get(i));
             }
             unconditionallyAssignedVars.addAll(allBranches);
 
-            // Variables assigned in SOME but not ALL branches → conditional
+
             java.util.Set<String> anyBranch = new java.util.HashSet<>();
             for (java.util.Set<String> bv : branchVarsList) {
                 anyBranch.addAll(bv);
@@ -1991,7 +525,7 @@ public class SymbolTableVisitor {
             anyBranch.removeAll(allBranches);
             conditionallyAssignedVars.addAll(anyBranch);
         } else if (branchVarsList.size() == 1) {
-            // Single branch (if without else) → all conditional
+
             conditionallyAssignedVars.addAll(branchVarsList.get(0));
         }
     }
@@ -2016,7 +550,7 @@ public class SymbolTableVisitor {
         ForNode forNode = (ForNode) node;
         String iteratorName = forNode.iteratorName;
 
-        // Insert iterator variable in current scope
+
         String scopeType = symbolTable.currentScope().getScopeType();
         int scopeLevel = symbolTable.currentScopeLevel();
 
@@ -2024,7 +558,7 @@ public class SymbolTableVisitor {
                 iteratorName, "variable", "unknown", scopeType,
                 scopeLevel, node.lineNumber, "python"
         );
-        // Don't flag as error if already exists (for loop can reassign)
+
         SymbolEntry existing = symbolTable.lookupCurrentScope(iteratorName);
         entry.setFileName(symbolTable.getCurrentFileName());
         entry.setFilePath(symbolTable.getCurrentFilePath());
@@ -2034,7 +568,7 @@ public class SymbolTableVisitor {
             existing.setType("unknown");
         }
 
-        // Visit children (iterable expression and body)
+
         for (ASTNode child : node.children) {
             if ("Block".equals(child.nodeName)) {
                 conditionalDepth++;
@@ -2049,7 +583,7 @@ public class SymbolTableVisitor {
     // ==================== Return Statement ====================
 
     private void visitReturnStmt(ASTNode node) {
-        // NEW: Track return statement for Return Type Mismatch checking
+
         String returnExprType = "unknown";
         String enclosingFuncName = currentFunctionStack.isEmpty() ? "" : currentFunctionStack.peek();
 
@@ -2057,13 +591,13 @@ public class SymbolTableVisitor {
             ASTNode returnExpr = node.children.get(0);
             returnExprType = inferType(returnExpr);
         } else {
-            returnExprType = "none"; // bare "return" or "return None"
+            returnExprType = "none";
         }
 
-        // Normalize the inferred type to match type hint format
+
         returnExprType = normalizeType(returnExprType);
 
-        // Add ReturnInfo to symbol table for semantic checker
+
         if (!enclosingFuncName.isEmpty()) {
             ReturnInfo returnInfo = new ReturnInfo(enclosingFuncName, returnExprType, node.lineNumber);
             returnInfo.setFileName(symbolTable.getCurrentFileName());
@@ -2071,10 +605,7 @@ public class SymbolTableVisitor {
             symbolTable.addReturnInfo(returnInfo);
         }
 
-        // Visit children (for nested references)
 
-
-        // Visit the value expression (for nested references)
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -2083,41 +614,25 @@ public class SymbolTableVisitor {
     // ==================== Global Declaration ====================
 
     private void visitGlobalDecl(ASTNode node) {
-        // Extract variable name from the GlobalDecl details
+
         String details = node.getDetails();
         // Parse " (varName)" format
         String varName = details.replace("(", "").replace(")", "").trim();
 
         globalDeclarations.add(varName);
 
-        // Check if variable exists in global scope
+
         if (!symbolTable.isGlobal(varName)) {
-            // Mark it so next assignment will go to global scope
-            // Don't insert yet - wait for the assignment
+
         }
     }
 
     // ==================== Import Statement ====================
 
-//    private void visitImportStmt(ASTNode node) {
-//        String details = node.getDetails();
-//        // Parse " (from moduleName)" format
-//        String modulePart = details.replace("(", "").replace(")", "").trim();
-//        if (modulePart.startsWith("from ")) {
-//            modulePart = modulePart.substring(5).trim();
-//        }
-//
-//        SymbolEntry entry = new SymbolEntry(
-//                modulePart, "import", "module", "global",
-//                0, node.lineNumber, "python"
-//        );
-//        // Insert in global scope
-//        insertInGlobalScope(entry);
-//    }
 
 
     private void visitImportStmt(ASTNode node) {
-        // أزل كل ImportedName كـ child في global scope
+
         for (ASTNode child : node.children) {
             if (child instanceof IdentifierNode) {
                 IdentifierNode idNode = (IdentifierNode) child;
@@ -2176,27 +691,27 @@ public class SymbolTableVisitor {
                 node.lineNumber,
                 "python",
                 isMethodCall,
-                false  // not a Jinja filter
+                false
         );
         callInfo.setFileName(symbolTable.getCurrentFileName());
         callInfo.setFilePath(symbolTable.getCurrentFilePath());
         symbolTable.addFunctionCallInfo(callInfo);
 
-        // NEW: Special handling for render_template() — track passed variables
+
         if ("render_template".equals(funcName)) {
             trackRenderTemplateCall(node);
         }
 
-        // NEW: Track argument type for len() calls (Error Type checking)
+
         if ("len".equals(funcName) && !isMethodCall) {
             checkLenArgumentType(node);
         }
 
-        // Track argument type for other built-in functions (sum, sorted, abs, max, min, round)
+
         if (!isMethodCall) {
             checkBuiltinFunctionArgTypes(node);
         }
-        // Existing warning for undefined functions
+
         if (!isMethodCall) {
             SymbolEntry funcEntry = symbolTable.lookup(funcName);
             if (funcEntry == null) {
@@ -2208,7 +723,7 @@ public class SymbolTableVisitor {
                 }
             }
         }
-        // Visit children (arguments)
+
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -2228,7 +743,7 @@ public class SymbolTableVisitor {
                 || currentScopeType.equals("class");
 
         if (entry == null) {
-            // Case 1: Variable not found in symbol table
+
             boolean declaredLater = false;
             for (SymbolEntry e : symbolTable.getAllEntries()) {
                 if (e.getName().equals(name) && e.getLine() > node.lineNumber) {
@@ -2279,7 +794,7 @@ public class SymbolTableVisitor {
         }
     }
 
-    // أضيفي هالدالة المساعدة
+
     private boolean isCommonFlaskGlobal(String name) {
         return java.util.Set.of(
                 "app", "request", "Flask", "render_template",
@@ -2290,33 +805,28 @@ public class SymbolTableVisitor {
     // ==================== Literal ====================
 
     private void visitLiteral(ASTNode node) {
-        // Literals don't create symbol table entries
-        // But we use them for type inference
+
     }
 
     // ==================== Binary Op ====================
 
-    //    private void visitBinaryOp(ASTNode node) {
-//        for (ASTNode child : node.children) {
-//            visit(child);
-//        }
-//    }
+
     private void visitBinaryOp(ASTNode node) {
-        // Visit children first
+
         for (ASTNode child : node.children) {
             visit(child);
         }
 
         if (node.children.size() < 2) return;
 
-        // استخرج الـ operator من BinaryOpNode
+
         String operator = null;
         if (node instanceof BinaryOpNode) {
             operator = ((BinaryOpNode) node).operator;
         }
         if (operator == null) return;
 
-        // ===== 1. Division by zero (الكود الأصلي) =====
+
         if ("/".equals(operator) || "%".equals(operator)) {
             ASTNode divisorNode = node.children.get(1);
             boolean divisorIsLiteral = divisorNode instanceof LiteralNode;
@@ -2338,12 +848,11 @@ public class SymbolTableVisitor {
             symbolTable.addDivisionInfo(divInfo);
         }
 
-        // ===== 2. Operation on None (الجديد) =====
+
         if (isArithmeticOperator(operator)) {
             checkOperationOnNone(node, operator);
         }
 
-        // ===== 3. Operand type compatibility (قسمي - Error Type) =====
         if (isArithmeticOperator(operator) || isComparisonOperator(operator)) {
             recordOperationTypeInfo(node, operator);
         }
@@ -2352,7 +861,7 @@ public class SymbolTableVisitor {
     // ==================== Unary Op ====================
 
     private void visitUnaryOp(ASTNode node) {
-        // زور الأبناء الأول (عشان يسجلوا أي متغيرات)
+
         for (ASTNode child : node.children) {
             visit(child);
         }
@@ -2361,7 +870,6 @@ public class SymbolTableVisitor {
             UnaryOpNode unOp = (UnaryOpNode) node;
             String op = unOp.operator;
 
-            // بس `+` و `-` بيعطوا TypeError. `not` ما بيعطي أبداً.
             if (!"+".equals(op) && !"-".equals(op)) return;
 
             if (!node.children.isEmpty()) {
@@ -2413,18 +921,18 @@ public class SymbolTableVisitor {
         String attributeName = null;
         int line = node.lineNumber;
 
-        // استخرج اسم الـ attribute من AttributeNode
+
         if (node instanceof AttributeNode) {
             attributeName = ((AttributeNode) node).attributeName;
         }
 
-        // استخرج اسم الكائن من أول child (عادة IdentifierNode)
+
         if (node.children != null && node.children.size() > 0) {
             ASTNode objChild = node.children.get(0);
             if (objChild instanceof IdentifierNode) {
                 objectName = ((IdentifierNode) objChild).name;
             } else {
-                // expression معقد → زور الأبناء واطلع
+
                 for (ASTNode child : node.children) {
                     visit(child);
                 }
@@ -2432,19 +940,19 @@ public class SymbolTableVisitor {
             }
         }
 
-        // زور الأبناء
+
         if (node.children != null) {
             for (ASTNode child : node.children) {
                 visit(child);
             }
         }
 
-        // التحقق
+
         if (objectName == null || attributeName == null || attributeName.isEmpty()) {
             return;
         }
 
-        // ابحث عن الكائن في الـ SymbolTable
+
         SymbolEntry entry = symbolTable.lookup(objectName);
         String objectType = "unknown";
         String objectValue = null;
@@ -2454,7 +962,7 @@ public class SymbolTableVisitor {
             objectValue = entry.getValue() != null ? entry.getValue() : null;
         }
 
-        // أنشئ AttributeAccessInfo
+
         AttributeAccessInfo info = new AttributeAccessInfo(objectName, attributeName, line);
         info.setFileName(symbolTable.getCurrentFileName());
         info.setFilePath(symbolTable.getCurrentFilePath());
@@ -2473,9 +981,7 @@ public class SymbolTableVisitor {
 
     // ==================== Helper Methods ====================
 
-    /**
-     * Infer the type of an expression node.
-     */
+
     private String inferType(ASTNode node) {
         if (node == null) return "unknown";
 
@@ -2489,7 +995,7 @@ public class SymbolTableVisitor {
                 return "dict";
             case "CallExpr":
                 CallNode call = (CallNode) node;
-                // Some functions have known return types
+
                 if (call.functionName.equals("list")) return "list";
                 if (call.functionName.equals("dict")) return "dict";
                 if (call.functionName.equals("int")) return "int";
@@ -2503,8 +1009,8 @@ public class SymbolTableVisitor {
                 if ("+".equals(binOp.operator) || "-".equals(binOp.operator)
                         || "*".equals(binOp.operator) || "/".equals(binOp.operator)
                         || "%".equals(binOp.operator))
-                    return "int"; // Simplified
-                return "bool"; // Comparison operators
+                    return "int";
+                return "bool";
             case "UnaryOp":
                 UnaryOpNode unOp = (UnaryOpNode) node;
                 if ("not".equals(unOp.operator)) return "bool";
@@ -2513,17 +1019,15 @@ public class SymbolTableVisitor {
                 SymbolEntry entry = symbolTable.lookup(((IdentifierNode) node).name);
                 return entry != null ? entry.getType() : "unknown";
             case "IndexAccess":
-                return "unknown"; // Could be any type
+                return "unknown";
             case "AttributeAccess":
-                return "unknown"; // Could be any type
+                return "unknown";
             default:
                 return "unknown";
         }
     }
 
-    /**
-     * Extract a string representation of the value of an expression node.
-     */
+
     private String extractValue(ASTNode node) {
         if (node == null) return "";
 
@@ -2543,23 +1047,14 @@ public class SymbolTableVisitor {
         }
     }
 
-    /**
-     * Check if a function name is a Python built-in.
-     */
-//    private static final java.util.Set<String> PYTHON_BUILTINS = java.util.Set.of(
-//            "print", "len", "range", "int", "str", "float", "list", "dict",
-//            "set", "tuple", "type", "isinstance", "input", "open", "append",
-//            "super", "staticmethod", "classmethod", "property", "enumerate",
-//            "zip", "map", "filter", "sorted", "reversed", "min", "max", "sum",
-//            "abs", "round", "any", "all", "hasattr", "getattr", "setattr"
-//    );
+
     private static final java.util.Set<String> PYTHON_BUILTINS = java.util.Set.of(
             "print", "len", "range", "int", "str", "float", "list", "dict",
             "set", "tuple", "type", "isinstance", "input", "open", "append",
             "super", "staticmethod", "classmethod", "property", "enumerate",
             "zip", "map", "filter", "sorted", "reversed", "min", "max", "sum",
             "abs", "round", "any", "all", "hasattr", "getattr", "setattr",
-            // Flask framework functions (imported)
+
             "Flask", "render_template", "request", "redirect", "url_for",
             "SQLAlchemy", "db",
             "__name__"
@@ -2569,12 +1064,10 @@ public class SymbolTableVisitor {
         return PYTHON_BUILTINS.contains(name);
     }
 
-    /**
-     * Insert an entry in the global scope (scope at index 0 of the stack).
-     */
+
     private void insertInGlobalScope(SymbolEntry entry) {
-        // Temporarily navigate to global scope
-        // Since we use a stack, we save current state and insert directly
+
+
         symbol_table.Scope globalScope = symbolTable.getScopeStack().get(0);
         if (globalScope.contains(entry.getName())) {
             // Already exists in global scope - update
@@ -2588,24 +1081,18 @@ public class SymbolTableVisitor {
         }
     }
 
-    // ==================== NEW: Helper Methods for Semantic Error Tracking ====================
 
-    /**
-     * Track a render_template() call for Missing Flask Variable checking.
-     * Extracts the template name and keyword argument variable names.
-     *
-     * Example: render_template("page.html", name=name, age=age)
-     *   → templateName = "page.html", passedVariables = ["name", "age"]
-     */
+
+
     private void trackRenderTemplateCall(ASTNode callNode) {
         FlaskTemplateCall flaskCall = new FlaskTemplateCall("", callNode.lineNumber);
 
-        // Find the Arguments child node
+
         for (ASTNode child : callNode.children) {
             if ("Arguments".equals(child.nodeName)) {
                 for (ASTNode arg : child.children) {
                     if ("PositionalArg".equals(arg.nodeName)) {
-                        // First positional arg should be the template name (string literal)
+
                         if (!arg.children.isEmpty()) {
                             ASTNode expr = arg.children.get(0);
                             if (expr instanceof LiteralNode) {
@@ -2615,9 +1102,9 @@ public class SymbolTableVisitor {
                             }
                         }
                     } else if ("NamedArg".equals(arg.nodeName)) {
-                        // Named arg like "name=name" — extract the parameter name
+
                         String details = arg.getDetails();
-                        // details format: " (name=...)"
+
                         if (details.contains("=")) {
                             String varName = details.substring(
                                     details.indexOf("(") + 1,
@@ -2638,10 +1125,7 @@ public class SymbolTableVisitor {
         symbolTable.addRenderTemplateCall(flaskCall);
     }
 
-    /**
-     * Normalize type names to match type hint format.
-     * Python uses "str" for strings, but LiteralNode uses "STRING".
-     */
+
     private String normalizeType(String type) {
         if (type == null) return "unknown";
         switch (type.toLowerCase()) {
@@ -2667,13 +1151,7 @@ public class SymbolTableVisitor {
                 return type;
         }
     }
-    // ==================== Helper Methods for New Error Detection ====================
-    /**
-     * Comparison operators that can raise TypeError with incompatible types.
-     * Note: == and != are intentionally EXCLUDED — in real Python they never
-     * raise TypeError; they just return False for incompatible types
-     * (e.g. "5" == 5 is valid Python, evaluates to False).
-     */
+
     private boolean isComparisonOperator(String operator) {
         return "<".equals(operator)
                 || ">".equals(operator)
@@ -2681,10 +1159,6 @@ public class SymbolTableVisitor {
                 || ">=".equals(operator);
     }
 
-    /**
-     * Records operand type info for any arithmetic/comparison BinaryOp node,
-     * to be checked later by OperationTypeErrorChecker.
-     */
     private void recordOperationTypeInfo(ASTNode node, String operator) {
         ASTNode left = node.children.get(0);
         ASTNode right = node.children.get(1);
@@ -2702,10 +1176,7 @@ public class SymbolTableVisitor {
         symbolTable.addOperationTypeInfo(info);
     }
 
-    /**
-     * Extracts the argument type passed to len() so OperationTypeErrorChecker
-     * can verify it's a sized/iterable type.
-     */
+
     private void checkLenArgumentType(ASTNode node) {
         ASTNode argsNode = null;
         for (ASTNode child : node.children) {
@@ -2798,22 +1269,19 @@ public class SymbolTableVisitor {
         return side;
     }
 
-    /**
-     * يجمع FunctionArgTypeInfo للدوال يلي ممكن ترمي TypeError:
-     * sum, sorted, abs, max, min, round
-     */
+
     private void checkBuiltinFunctionArgTypes(ASTNode node) {
         if (!(node instanceof CallNode)) return;
         CallNode call = (CallNode) node;
         String funcName = call.functionName;
 
-        // الدوال يلي بنفحصها
+
         java.util.Set<String> typeSensitiveBuiltins = java.util.Set.of(
                 "sum", "sorted", "abs", "max", "min", "round"
         );
         if (!typeSensitiveBuiltins.contains(funcName)) return;
 
-        // نفس منطق checkLenArgumentType: نلاقي أول argument
+
         ASTNode argsNode = null;
         for (ASTNode child : node.children) {
             if ("Arguments".equals(child.nodeName)) {

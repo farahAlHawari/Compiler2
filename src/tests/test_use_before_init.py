@@ -2,7 +2,6 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-# === Case 1: Variable used before declaration (declared later) ===
 
 @app.route('/case1')
 def case1():
@@ -10,7 +9,6 @@ def case1():
     x = 5
     return render_template("index.html")
 
-# === Case 2: Type annotation without value ===
 
 @app.route('/case2')
 def case2():
@@ -19,7 +17,6 @@ def case2():
     x = 10
     return render_template("index.html")
 
-# === Case 3: Variable only assigned inside a conditional ===
 
 @app.route('/case3')
 def case3():
@@ -28,7 +25,6 @@ def case3():
     print(y)
     return render_template("index.html")
 
-# === Negative: properly initialized before use (no error) ===
 
 @app.route('/ok1')
 def ok1():
@@ -36,7 +32,6 @@ def ok1():
     print(z)
     return render_template("index.html")
 
-# === Negative: unconditional init exists before conditional ===
 
 @app.route('/ok2')
 def ok2():

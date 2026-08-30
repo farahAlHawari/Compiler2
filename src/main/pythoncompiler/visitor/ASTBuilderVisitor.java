@@ -48,15 +48,7 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
     }
 
 
-//    @Override
-//    public ASTNode visitDecoratedFunctionNode(PythonParser.DecoratedFunctionNodeContext ctx) {
-//        FunctionDefNode func = (FunctionDefNode) visit(ctx.functionDef());
-//
-//        if (ctx.decorator() != null) {
-//            func.nodeName = "RouteFunction";
-//        }
-//        return func;
-//    }
+
 
 
     @Override
@@ -83,7 +75,7 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
 
         decoratorList.addChild(decorator);
 
-        // نضيفها قبل البلوك
+
         funcNode.children.add(0, decoratorList);
 
         return funcNode;
@@ -91,7 +83,7 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
 
     private ASTNode buildDecoratorExpression(PythonParser.DecoratorNodeContext ctx) {
 
-        // 1️⃣ بناء اسم decorator مثل app.route
+
         StringBuilder nameBuilder = new StringBuilder();
 
         for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
@@ -103,11 +95,11 @@ public class ASTBuilderVisitor extends PythonParserBaseVisitor<ASTNode> {
 
         String decoratorName = nameBuilder.toString();
 
-        // 2️⃣ إنشاء CallNode
+
         CallNode callNode = new CallNode(decoratorName);
         callNode.lineNumber = ctx.start.getLine();
 
-        // 3️⃣ arguments
+
         if (ctx.argList() != null) {
             ASTNode argsNode = visit(ctx.argList());
             if (argsNode != null) {
@@ -350,14 +342,13 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
         AssignNode assignNode = new AssignNode(varName, op);
         assignNode.lineNumber = ctx.start.getLine();
 
-        // ← التعديل: تحقق إذا في type hint بالسطر الأصلي (x: int = value)
-        // بما إن الـ grammar ما بيدعمها، نقرأ النص الأصلي للسطر ونستخرج النوع منه
+
         String originalText = ctx.start.getInputStream()
                 .getText(new Interval(
                         ctx.start.getStartIndex(),
                         ctx.stop.getStopIndex()));
         if (originalText.contains(":")) {
-            // الشكل: varName : type = value
+
             String beforeAssign = originalText.substring(0, originalText.indexOf("=")).trim();
             if (beforeAssign.contains(":")) {
                 String declaredType = beforeAssign.substring(
@@ -419,14 +410,7 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
         };
     }
 
-//    @Override
-//    public ASTNode visitFromImportNode(PythonParser.FromImportNodeContext ctx) {
-//        final String moduleName = ctx.IDENTIFIER(0).getText();
-//        return new ASTNode("ImportStmt", ctx.start.getLine()) {
-//            @Override
-//            public String getDetails() { return " (from " + moduleName + ")"; }
-//        };
-//    }
+
 
     @Override
     public ASTNode visitFromImportNode(PythonParser.FromImportNodeContext ctx) {
@@ -436,7 +420,7 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
         ASTNode importNode = new ASTNode("ImportStmt", line) {
             @Override
             public String getDetails() {
-                return " (from " + moduleName + ")";   // ← بس اسم الموديول
+                return " (from " + moduleName + ")";
             }
         };
 
@@ -444,7 +428,7 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
             String importedName = ctx.IDENTIFIER(i).getText();
             IdentifierNode nameNode = new IdentifierNode(importedName);
             nameNode.lineNumber = ctx.IDENTIFIER(i).getSymbol().getLine();
-            importNode.addChild(nameNode);           // ← الأسماء كأطفال
+            importNode.addChild(nameNode);
         }
 
         return importNode;
@@ -765,7 +749,6 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
             public String getDetails() { return ""; }
         };
         tryNode.lineNumber = ctx.start.getLine();
-        // ctx.block() بترجع List — كل الـ blocks (try + except + finally)
         for (PythonParser.BlockContext block : ctx.block()) {
             tryNode.addChild(visit(block));
         }
@@ -774,7 +757,6 @@ public ASTNode visitIfElseNode(PythonParser.IfElseNodeContext ctx) {
 
     @Override
     public ASTNode visitWithStmtNode(PythonParser.WithStmtNodeContext ctx) {
-        // ctx.IDENTIFIER() بيكون null لو ما في "as varName"
         String asName = (ctx.AS() != null && ctx.IDENTIFIER() != null)
                 ? ctx.IDENTIFIER().getText()
                 : "";

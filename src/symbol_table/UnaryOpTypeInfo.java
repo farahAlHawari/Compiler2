@@ -1,19 +1,11 @@
 package symbol_table;
 
-/**
- * Represents a unary operation (-x or +x) found in Python code,
- * recorded so OperationTypeErrorChecker can verify the operand type
- * is numeric (int, float, bool).
- *
- * Example:
- *   s = "hello"
- *   -s    -> operator="-", operandType="string" -> ERROR
- */
+
 public class UnaryOpTypeInfo {
 
-    private String operator;       // "-" أو "+"
-    private String operandType;    // نوع الـ operand
-    private String operandDisplay; // اسم المتغير أو القيمة
+    private String operator;
+    private String operandType;
+    private String operandDisplay;
     private int line;
     private String fileName = "";
     private String filePath = "";

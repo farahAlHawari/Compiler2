@@ -1,13 +1,13 @@
 package symbol_table;
 
 public class AttributeAccessInfo {
-    private String objectName;       // اسم الكائن (مثلاً "user")
-    private String attributeName;    // اسم الـ attribute (مثلاً "age")
+    private String objectName;
+    private String attributeName;
     private int line;
     private String fileName = "";
     private String filePath = "";
-    private String objectType;       // نوع الكائن من الـ SymbolTable (مثلاً "none", "string")
-    private String objectValue;      // قيمة الكائن (مثلاً "None")
+    private String objectType;
+    private String objectValue;
 
     public AttributeAccessInfo(String objectName, String attributeName, int line) {
         this.objectName = objectName;
@@ -15,7 +15,7 @@ public class AttributeAccessInfo {
         this.line = line;
     }
 
-    // Getters and Setters
+
     public String getObjectName() { return objectName; }
     public String getAttributeName() { return attributeName; }
     public int getLine() { return line; }

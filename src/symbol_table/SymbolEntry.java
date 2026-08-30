@@ -1,30 +1,22 @@
 package symbol_table;
 
-/**
- * Represents a single entry in the Symbol Table.
- * Each entry stores information about a symbol (variable, function, class, etc.)
- * including its name, type, scope level, and additional attributes.
- *
- * We use a flexible attribute map so that different kinds of symbols
- * (Python variables, CSS properties, Jinja variables, etc.) can store
- * their own specific information without needing separate classes.
- */
+
 public class SymbolEntry {
 
-    private String name;           // Symbol name (variable, function, class, etc.)
-    private String kind;           // Kind: "variable", "function", "class", "parameter",
-    //       "css_property", "css_selector", "jinja_var", "html_tag", "html_attribute"
-    private String type;           // Data type: "int", "string", "bool", "list", "dict", "none", "unknown", etc.
-    private String scopeType;      // Scope type: "global", "class", "function", "block", "style", "jinja_block"
-    private int scopeLevel;        // Scope nesting depth (0=global, 1=first nested, etc.)
-    private int line;              // Line number where the symbol was declared
-    private String value;          // Initial/assigned value (as string representation)
-    private String source;         // Source of the symbol: "python" or "template"
+    private String name;
+    private String kind;
+
+    private String type;
+    private String scopeType;
+    private int scopeLevel;
+    private int line;
+    private String value;
+    private String source;
     private String fileName = "";
-    private String returnType;     // For functions: declared return type from type hint (e.g., "int", "string")
-    // Empty/null if no type hint declared
-    private int paramCount;        // For functions: number of parameters in the definition
-    // -1 if unknown
+    private String returnType;
+
+    private int paramCount;
+
     private String declaredType = "";
     private String filePath = "";
     public SymbolEntry(String name, String kind, String type, String scopeType,
@@ -38,13 +30,12 @@ public class SymbolEntry {
         this.source = source;
 
         this.value = "";
-        this.returnType = "";     // NEW: default empty (no type hint)
+        this.returnType = "";
         this.paramCount = -1;
         // NEW: default -1 (unknown)
         this.declaredType = null;
     }
 
-    // ==================== Getters and Setters ====================
 
     public String getName() {
         return name;
@@ -141,10 +132,7 @@ public class SymbolEntry {
     public void setDeclaredType(String declaredType) {
         this.declaredType = declaredType;
     }
-    /**
-     * Returns a scope-qualified name like "global::x" or "function(index)::products"
-     * This helps distinguish symbols with the same name in different scopes.
-     */
+
     public String getQualifiedName() {
         return scopeType + "(" + scopeLevel + ")::" + name;
     }

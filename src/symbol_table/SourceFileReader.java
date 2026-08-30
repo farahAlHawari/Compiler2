@@ -8,18 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * يقرأ سطر معين من ملف مصدر (Python أو HTML).
- * يستخدم cache عشان ما نقرأ الملف كل مرة.
- */
+
 public class SourceFileReader {
 
     private static final Map<String, List<String>> cache = new HashMap<>();
 
-    /**
-     * يرجع سطر معين من ملف (1-indexed).
-     * لو ما قدر يقرأ، يرجع "".
-     */
+
     public static String getLine(String filePath, int lineNumber) {
         if (filePath == null || filePath.isEmpty() || lineNumber < 1) return "";
 
@@ -40,9 +34,7 @@ public class SourceFileReader {
         return "";
     }
 
-    /**
-     * يمسح الكاش (مثلاً بين تشغيلتين).
-     */
+
     public static void clearCache() {
         cache.clear();
     }

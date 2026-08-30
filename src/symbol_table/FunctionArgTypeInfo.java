@@ -1,16 +1,6 @@
 package symbol_table;
 
-/**
- * Records the type of an argument passed to a specific built-in function,
- * so OperationTypeErrorChecker can verify the function accepts that type.
- *
- * Currently used for: len() -> argument must be string/list/dict/tuple/set.
- * Designed generically (functionName field) so it can be reused later for
- * other type-sensitive built-ins (abs, sum, sorted...) without redesign.
- *
- * Example:
- *   len(10)  -> functionName="len", argType="int" -> ERROR (no len())
- */
+
 public class FunctionArgTypeInfo {
 
     private String functionName;

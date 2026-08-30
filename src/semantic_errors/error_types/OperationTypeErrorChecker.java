@@ -19,7 +19,7 @@ public class OperationTypeErrorChecker {
     private static final Set<String> SIZED_TYPES =
             Set.of("string", "list", "dict", "tuple", "set");
 
-    // ===== جديد: تحويل عامل augmented (//=) لعامله الأساسي (//) =====
+
     private static final java.util.Map<String, String> AUGMENTED_TO_BASE = java.util.Map.of(
             "+=", "+", "-=", "-", "*=", "*", "/=", "/",
             "%=", "%", "**=", "**", "//=", "//"
@@ -42,7 +42,7 @@ public class OperationTypeErrorChecker {
         checkBuiltinFunctionCalls();
     }
 
-    // ===== 1. العمليات الثنائية (حالات 1-11) =====
+
     private void checkOperationTypes() {
         for (OperationTypeInfo info : symbolTable.getOperationTypeInfos()) {
             String operator = info.getOperator();
@@ -52,7 +52,7 @@ public class OperationTypeErrorChecker {
 
             if ("unknown".equals(leftType) || "unknown".equals(rightType)) continue;
 
-            // العمليات الحسابية مع NoneType مسؤولية OperationOnNoneChecker
+
             if (isArithmeticOperator(baseOperator)
                     && ("NoneType".equals(leftType) || "NoneType".equals(rightType))) {
                 continue;
@@ -76,13 +76,13 @@ public class OperationTypeErrorChecker {
         }
     }
 
-    // ===== 2. العمليات الأحادية — -x +x (حالات 25-26) =====
+
     private void checkUnaryOperations() {
         for (UnaryOpTypeInfo info : symbolTable.getUnaryOpTypeInfos()) {
             String operandType = normalize(info.getOperandType());
 
             if ("unknown".equals(operandType)) continue;
-            if (isNumeric(operandType)) continue; // int, float, bool — صحيح
+            if (isNumeric(operandType)) continue;
 
             String message = "bad operand type for unary "
                     + info.getOperator() + ": '" + operandType + "'";
@@ -100,7 +100,7 @@ public class OperationTypeErrorChecker {
         }
     }
 
-    // ===== 3. الفهرسة (حالات 14-16) =====
+
     private void checkIndexTypes() {
         for (IndexTypeInfo info : symbolTable.getIndexTypeInfos()) {
             String containerType = normalize(info.getContainerType());
@@ -140,7 +140,7 @@ public class OperationTypeErrorChecker {
         }
     }
 
-    // ===== 4. len() على نوع مش قابل للقياس (حالة 17) =====
+
     private void checkLenCalls() {
         for (FunctionArgTypeInfo info : symbolTable.getFunctionArgTypeInfos()) {
             if (!"len".equals(info.getFunctionName())) continue;
@@ -163,11 +163,10 @@ public class OperationTypeErrorChecker {
         }
     }
 
-    // ===== 5. دوال built-in أخرى (حالات 28-32) =====
     private void checkBuiltinFunctionCalls() {
         for (FunctionArgTypeInfo info : symbolTable.getFunctionArgTypeInfos()) {
             String funcName = info.getFunctionName();
-            if ("len".equals(funcName)) continue; // مفحوص فوق
+            if ("len".equals(funcName)) continue;
 
             String argType = normalize(info.getArgType());
             if ("unknown".equals(argType)) continue;
@@ -177,7 +176,6 @@ public class OperationTypeErrorChecker {
                 case "sorted":
                 case "max":
                 case "min":
-                    // هالدول بتحتاج iterable (list, string, dict, tuple, set)
                     if (!SIZED_TYPES.contains(argType)) {
                         errors.add(new SemanticError(
                                 SemanticErrorType.OPERATION_TYPE_ERROR,
@@ -225,7 +223,7 @@ public class OperationTypeErrorChecker {
         }
     }
 
-    // ==================== Type Compatibility ====================
+
 
     private boolean isCompatible(String operator, String leftType, String rightType) {
         String op = stripAugmented(operator);
@@ -290,7 +288,7 @@ public class OperationTypeErrorChecker {
             return "not all arguments converted during string formatting";
         }
 
-        // خاص جديد: + مع str/list بالطرف الأيسر → رسالة concatenate
+
         if ("+".equals(baseOperator) && ("string".equals(leftType) || "list".equals(leftType))) {
             String leftDisplayType = leftType.equals("string") ? "str" : leftType;
             String rightDisplayType = rightType.equals("string") ? "str" : rightType;
@@ -298,7 +296,7 @@ public class OperationTypeErrorChecker {
                     + " (not \"" + rightDisplayType + "\") to " + leftDisplayType;
         }
 
-        // خاص: * مع sequence و non-int
+
         if ("*".equals(baseOperator)) {
             boolean leftSeq = isRepeatable(leftType);
             boolean rightSeq = isRepeatable(rightType);
@@ -315,7 +313,7 @@ public class OperationTypeErrorChecker {
                     + leftType + "' and '" + rightType + "'";
         }
 
-        // خاص جديد: ** بيحتاج "or pow()" زيادة عن العامل
+
         String displayOperator = "**".equals(baseOperator) ? "** or pow()" : operator;
         return "unsupported operand type(s) for " + displayOperator + ": '"
                 + leftType + "' and '" + rightType + "'";

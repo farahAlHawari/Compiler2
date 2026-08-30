@@ -1,41 +1,4 @@
-//package semantic_errors;
-//
-//public class SemanticError {
-//        private SemanticErrorType errorType;
-//        private String errorName;
-//        private String errorDescription;
-//        private int errorLine;
-//
-//        public SemanticError(SemanticErrorType errorType, String errorName, String errorDescription, int errorLine) {
-//            this.errorType = errorType;
-//            this.errorName = errorName;
-//            this.errorDescription = errorDescription;
-//            this.errorLine = errorLine;
-//        }
-//
-//        public SemanticErrorType getErrorType() {
-//            return errorType;
-//        }
-//
-//        public String getErrorName() {
-//            return errorName;
-//        }
-//
-//        public String getErrorDescription() {
-//            return errorDescription;
-//        }
-//
-//        public int getErrorLine() {
-//            return errorLine;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return "Error Name : " + errorName +
-//                    " , Error Description : " + errorDescription +
-//                    " , Error Location : " + errorLine;
-//        }
-//}
+
 package semantic_errors;
 
 public class SemanticError {
@@ -48,7 +11,7 @@ public class SemanticError {
     private String expression = "";
     private String codeSnippet = "";
 
-    // Constructor قديم (للتوافق مع الكود الموجود)
+
     public SemanticError(SemanticErrorType errorType, String errorName,
                          String errorDescription, int errorLine) {
         this.errorType = errorType;
@@ -57,7 +20,7 @@ public class SemanticError {
         this.errorLine = errorLine;
     }
 
-    // Constructor جديد (كل الحقول)
+
     public SemanticError(SemanticErrorType errorType, String errorName,
                          String message, int errorLine, String fileName,
                          String variable, String expression, String codeSnippet) {
@@ -81,18 +44,14 @@ public class SemanticError {
     public String getExpression() { return expression; }
     public String getCodeSnippet() { return codeSnippet; }
 
-    /**
-     * يطبع سطر واحد للموضع القديم (إن لزم)
-     */
+
     public String toSingleLine() {
         return "Error Name : " + errorName +
                 " , Message : " + message +
                 " , Error Location : " + errorLine;
     }
 
-    /**
-     * يطبع الخطأ بالشكل الجديد المتعدد الأسطر مع index
-     */
+
     public String toReportString(int index) {
         StringBuilder sb = new StringBuilder();
         sb.append("[").append(index).append("] ").append(errorName).append("\n");

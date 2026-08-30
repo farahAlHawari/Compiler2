@@ -2,19 +2,7 @@ package symbol_table;
 
 import java.util.*;
 
-/**
- * Represents a render_template() call from Flask (Python) code.
- * Stores which template is being rendered and which variables are passed to it.
- *
- * Example:
- *   render_template("page.html", name=name, age=age)
- *   → templateName = "page.html"
- *   → passedVariables = ["name", "age"]
- *   → line = 15
- *
- * This data is used by MissingFlaskVarChecker to verify that
- * all Jinja template variables are properly passed from Flask.
- */
+
 public class FlaskTemplateCall {
 
     private String templateName;
@@ -60,12 +48,12 @@ public class FlaskTemplateCall {
                 .add(type);
     }
 
-    /** ترجع كل الأنواع المسجّلة للمتغير (من كل render_template calls) */
+
     public Set<String> getPassedVariableTypes(String varName) {
         return passedVariableTypes.getOrDefault(varName, Collections.emptySet());
     }
 
-    /** ترجع true لو المتغير مُمرر من Flask */
+
     public boolean hasPassedVariableType(String varName) {
         return passedVariableTypes.containsKey(varName);
     }

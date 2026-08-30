@@ -9,31 +9,7 @@ import symbol_table.SourceFileReader;
 
 import java.util.List;
 
-/**
- * Checker for USE_BEFORE_INIT error (ScopeError: Use Before Init).
- *
- * Covers 3 cases:
- *
- *   1. Variable used before declaration (declared at a later line or not at all).
- *        print(x)
- *        x = 5
- *
- *   2. Variable has a type annotation but no value, used before real assignment.
- *        x: int
- *        print(x)
- *        x = 10
- *
- *   3. Variable only assigned inside a conditional block, used outside it.
- *        if cond:
- *            y = 5
- *        print(y)    // y may not be initialized if cond is False
- *
- * Algorithm:
- *   - Walks every UseBeforeInitInfo recorded by SymbolTableVisitor.visitIdentifier.
- *   - Skips forward references to non-variable symbols (functions, classes, imports)
- *     because Python allows forward references for those.
- *   - Generates an appropriate SemanticError for each case.
- */
+
 public class UseBeforeInitChecker {
 
     private SymbolTable symbolTable;
@@ -47,7 +23,7 @@ public class UseBeforeInitChecker {
     public void check() {
         for (UseBeforeInitInfo info : symbolTable.getUseBeforeInitInfos()) {
 
-            // Skip forward references to non-variable symbols
+
             if (!info.isConditionalAssignment() && !info.hasTypeAnnotationOnly()
                     && info.isDeclaredLater()) {
                 boolean isLaterNonVariable = false;
@@ -62,7 +38,7 @@ public class UseBeforeInitChecker {
                 if (isLaterNonVariable) continue;
             }
 
-            // ✅ التعديل الأساسي: تحديد نوع الخطأ بدقة
+
             String errorName;
             String message;
 
@@ -76,18 +52,18 @@ public class UseBeforeInitChecker {
                 message = "Variable '" + info.getVariableName()
                         + "' has a type annotation but is used before being assigned a value.";
             } else if (info.isDeclaredLater()) {
-                errorName = "NameError";                    // ✅ تعديل
-                message = "name '" + info.getVariableName() // ✅ صيغة بايثون الحقيقية
+                errorName = "NameError";
+                message = "name '" + info.getVariableName()
                         + "' is not defined. It is declared at a later line.";
             } else {
-                errorName = "NameError";                    // ✅ تعديل
-                message = "name '" + info.getVariableName() // ✅ صيغة بايثون الحقيقية
+                errorName = "NameError";
+                message = "name '" + info.getVariableName()
                         + "' is not defined";
             }
 
             errors.add(new SemanticError(
                     SemanticErrorType.USE_BEFORE_INIT,
-                    errorName,     // ✅ NameError أو ScopeError حسب الحالة
+                    errorName,
                     message,
                     info.getUsageLine(),
                     info.getFileName(),

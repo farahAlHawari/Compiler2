@@ -12,7 +12,7 @@ import antlr.TemplateParserBaseVisitor;
 public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
 
-    //جديدددددددددددددددد
+
     private String getOriginalText(org.antlr.v4.runtime.ParserRuleContext ctx) {
         if (ctx == null || ctx.getStart() == null || ctx.getStop() == null) return "";
         int start = ctx.getStart().getStartIndex();
@@ -162,13 +162,13 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
     public ASTNode visitDeclarationNode(TemplateParser.DeclarationNodeContext ctx) {
         String property = ctx.property.getText();
 
-        // ✅ بناء قيمة CSS من الأبناء بدل ""
+
         StringBuilder valueBuilder = new StringBuilder();
 
         if (ctx.val != null) {
             for (int i = 0; i < ctx.val.getChildCount(); i++) {
                 if (ctx.val.getChild(i) instanceof TemplateParser.StyleValuePartContext) {
-                    // خذي النص الأصلي من الـ token
+
                     String partText = ctx.val.getChild(i).getText().trim();
                     if (!partText.isEmpty()) {
                         if (valueBuilder.length() > 0) valueBuilder.append(" ");
@@ -180,7 +180,7 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
         DeclarationNode node = new DeclarationNode(property, valueBuilder.toString(), ctx.start.getLine());
 
-        // ما زلنا نخزن الأبناء كـ AST nodes
+
         if (ctx.val != null) {
             for (int i = 0; i < ctx.val.getChildCount(); i++) {
                 if (ctx.val.getChild(i) instanceof TemplateParser.StyleValuePartContext) {
@@ -194,33 +194,7 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
         return node;
     }
-//    @Override
-//    public ASTNode visitDeclarationNode(TemplateParser.DeclarationNodeContext ctx) {
-//        String property = ctx.property.getText();
-//
-//
-//        DeclarationNode node = new DeclarationNode(property, "", ctx.start.getLine());
-//
-//        if (ctx.val != null) {
-//
-//            for (int i = 0; i < ctx.val.getChildCount(); i++) {
-//
-//
-//                if (ctx.val.getChild(i) instanceof TemplateParser.StyleValuePartContext) {
-//
-//
-//                    ASTNode valueNode = visit(ctx.val.getChild(i));
-//
-//
-//                    if (valueNode != null) {
-//                        node.addChild(valueNode);
-//                    }
-//                }
-//            }
-//        }
-//
-//        return node;
-//    }
+
 
 
     // CSS SELECTORS SECTION
@@ -339,34 +313,6 @@ public class HtmlCssJinjaVisitor extends TemplateParserBaseVisitor<ASTNode> {
 
 
     @Override
-//    public ASTNode visitJinjaSimpleNode(TemplateParser.JinjaSimpleNodeContext ctx) {
-//        String body = getOriginalText(ctx.body).trim();
-//        int line = ctx.start.getLine();
-//
-//        if (body.startsWith("extends")) return new JinjaExtendsNode(body, line);
-//        if (body.startsWith("include")) return new JinjaIncludeNode(body, line);
-//        if (body.startsWith("import")) return new JinjaImportNode(body, line);
-//        if (body.startsWith("set")) return new JinjaSetNode(body, line);
-//        if (body.startsWith("elif")) return new JinjaElifNode(body, line);
-//        if (body.startsWith("else")) return new JinjaElseNode(line);
-//        if (body.startsWith("macro")) {
-//
-//            String cleanBody = body.replace("macro", "").trim();
-//
-//
-//            String macroName = cleanBody.split("\\(")[0].trim();
-//
-//            return new JinjaMacroNode(macroName, line);
-//        }
-//
-//        if (body.startsWith("endmacro")) {
-//            return new JinjaEndMacroNode(line);
-//        }
-//
-//        return new JinjaNode("JinjaSimple " + body, line) {};
-//    }
-
-
     public ASTNode visitJinjaSimpleNode(TemplateParser.JinjaSimpleNodeContext ctx) {
         String body = getOriginalText(ctx.body).trim();
         int line = ctx.start.getLine();

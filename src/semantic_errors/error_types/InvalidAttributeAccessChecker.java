@@ -13,7 +13,7 @@ public class InvalidAttributeAccessChecker {
     private SymbolTable symbolTable;
     private List<SemanticError> errors;
 
-    // Attributes المعروفة لأنواع بايثون المدمجة
+
     private static final java.util.Set<String> STRING_ATTRS = java.util.Set.of(
             "upper", "lower", "strip", "lstrip", "rstrip", "split", "replace",
             "find", "startswith", "endswith", "count", "format", "join",
@@ -46,8 +46,7 @@ public class InvalidAttributeAccessChecker {
             String objValue = info.getObjectValue();
             String attr = info.getAttributeName();
 
-            // ===== الحالة 1: AttributeError on NoneType =====
-            // إذا الكائن قيمته None أو نوعه none/NoneType
+
             if ("none".equalsIgnoreCase(objType)
                     || "NoneType".equalsIgnoreCase(objType)
                     || "None".equals(objValue)) {
@@ -65,8 +64,7 @@ public class InvalidAttributeAccessChecker {
                 continue;
             }
 
-            // ===== الحالة 2: invalid attribute access =====
-            // إذا عرفنا نوع الكائن والـ attribute غير موجود فيه
+
             if (objType != null && !"unknown".equals(objType)) {
                 java.util.Set<String> validAttrs = getValidAttributes(objType);
                 if (validAttrs != null && !validAttrs.contains(attr)) {
@@ -100,7 +98,7 @@ public class InvalidAttributeAccessChecker {
             case "float":
                 return FLOAT_ATTRS;
             default:
-                return null; // غير معروف → لا نتحقق
+                return null;
         }
     }
 }

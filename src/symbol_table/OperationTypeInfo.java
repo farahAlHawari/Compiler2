@@ -1,18 +1,6 @@
 package symbol_table;
 
-/**
- * Represents a single binary operation (arithmetic or comparison) found in
- * Python code, recorded so OperationTypeErrorChecker can later verify whether
- * the two operand types are compatible with the operator used, mirroring
- * Python's real TypeError behavior.
- *
- * Covers cases like:
- *   "Sara" + 4   -> operator="+", leftType="string", rightType="int"
- *   "Sara" < 4   -> operator="<", leftType="string", rightType="int"
- *   arr + 3      -> operator="+", leftType="list",   rightType="int"
- *   5 / "hello"  -> operator="/", leftType="int",     rightType="string"
- *   "a" * "b"    -> operator="*", leftType="string",  rightType="string"
- */
+
 public class OperationTypeInfo {
 
     private String operator;

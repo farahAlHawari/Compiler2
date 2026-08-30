@@ -2,8 +2,8 @@ package symbol_table;
 
 public class JinjaFilterUsage {
     private String variableName;
-    private String filterName;      // اسم الفلتر (upper, join...) أو null للـ for-loop
-    private String usageContext;    // "filter" أو "for_loop"
+    private String filterName;
+    private String usageContext;
     private int line;
     private String fileName = "";
     private String filePath = "";

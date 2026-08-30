@@ -9,24 +9,18 @@ total = 100
 
 @app.route('/test')
 def test_unbound():
-    # خطأ 1: x موجود في global، يُعدَّل بـ += بدون global
     x += 1
 
-    # خطأ 2: count موجود في global، يُعدَّل بـ -= بدون global
     count -= 1
 
-    # لا خطأ: z معرّف محلياً قبل +=
     z = 0
     z += 10
 
-    # لا خطأ: يُستخدم global
     global name
     name += " Ali"
 
-    # لا خطأ: total ما بيتعدل (قراءة فقط)
     print(total)
 
-    # خطأ 3: total يُعدَّل بـ *= بدون global
     total *= 2
 
     return render_template("test.html", x=x, z=z, name=name)

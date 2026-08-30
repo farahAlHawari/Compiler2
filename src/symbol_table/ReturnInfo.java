@@ -1,19 +1,6 @@
 package symbol_table;
 
-/**
- * Represents a return statement record for semantic analysis.
- * Stores information about each return statement encountered during visitor walks.
- *
- * Used by:
- *   - ReturnTypeMismatchChecker: to verify return type matches declared type hint
- *
- * Example:
- *   def get_age() -> int:
- *       return "twenty"
- *   → enclosingFunctionName = "get_age"
- *   → returnExprType = "string"
- *   → line = 5
- */
+
 public class ReturnInfo {
 
     private String enclosingFunctionName;
