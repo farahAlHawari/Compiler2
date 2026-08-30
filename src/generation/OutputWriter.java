@@ -4,56 +4,34 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.Map;
 
-/**
- * Person 4 — يكتب كل المخرجات النهائية لملفات.
- * يستقبل البيانات الجاهزة من GenerationContext.
- *
- * ⚠️ لا يُنفذ أي rendering — يكتب فقط.
- * ⚠️ كل File I/O Error → Warning + لا انهيار.
- * ⚠️ يدعم أي عدد من templates — Loop على كل outputHtml.
- */
+
 public class OutputWriter {
 
     private String outputDir = "output";
     private String compilerOutputDir = "compiler_output";
 
-    // =====================================================================
-    // Public API
-    // =====================================================================
-
-    /**
-     * يكتب كل المخرجات: HTML files + JSON + generation_log.
-     * يُفترض أن يُستدعى بعد Generator.generate().
-     *
-     * @param context       السياق الجاهز بالـ rendered HTML
-     * @param astJinjaJson  JSON string للـ Jinja ASTs
-     */
     public void writeAll(GenerationContext context, String astJinjaJson) {
-        // ① قراءة output directory من الـ context
+
         String ctxDir = context.getOutputDirectory();
         if (ctxDir != null && !ctxDir.isEmpty()) {
             this.outputDir = ctxDir;
         }
 
-        // ② إنشاء المجلدات
+
         if (!createDirectories(context)) {
             context.addWarning("Failed to create output directories");
             return;
         }
 
-        // ③ كتابة ملفات HTML
+
         writeHtmlFiles(context);
 
-        // ④ كتابة JSON files
         writeJsonFiles(context, astJinjaJson);
 
-        // ⑤ كتابة generation_log
+
         writeGenerationLog(context);
     }
 
-    /**
-     * ينسخ app.py من المسار المصدري إلى output/.
-     */
     public void copyAppPy(GenerationContext context) {
         String sourcePath = context.getPythonFilePath();
         if (sourcePath == null || sourcePath.isEmpty()) {
@@ -79,9 +57,6 @@ public class OutputWriter {
         }
     }
 
-    // =====================================================================
-    // Directory Creation
-    // =====================================================================
 
     private boolean createDirectories(GenerationContext context) {
         boolean ok = true;
@@ -103,25 +78,17 @@ public class OutputWriter {
         return ok;
     }
 
-    // =====================================================================
-    // HTML Files
-    // =====================================================================
 
-    /**
-     * يكتب كل الصفحات المولّدة كملفات HTML.
-     * Loop على كل outputHtml — لا أسماء ثابتة.
-     * ⚠️ لا يكتب base.html (مدمجة داخل الصفحات).
-     */
     private void writeHtmlFiles(GenerationContext context) {
         for (Map.Entry<String, String> entry : context.getOutputHtml().entrySet()) {
             String fileName = entry.getKey();
 
-            // تأكد إن الاسم ينتهي بـ .html
+
             if (!fileName.endsWith(".html")) {
                 fileName = fileName + ".html";
             }
 
-            // لا نكتب base.html — مدمجة
+
             if (fileName.equals("base.html")) {
                 context.addLog("[OutputWriter] Skipped base.html (merged into child templates)");
                 continue;
@@ -136,12 +103,10 @@ public class OutputWriter {
         }
     }
 
-    // =====================================================================
-    // JSON Files
-    // =====================================================================
+
 
     private void writeJsonFiles(GenerationContext context, String astJinjaJson) {
-        // ast_jinja.json
+
         if (astJinjaJson != null && !astJinjaJson.isEmpty()) {
             String path = compilerOutputDir + File.separator + "ast_jinja.json";
             if (!writeToFile(path, astJinjaJson)) {
@@ -151,7 +116,7 @@ public class OutputWriter {
             }
         }
 
-        // ast_python.json — من Compiler 1 عبر ContextBuilder
+
         String pythonJson = context.getPythonAstJson();
         if (pythonJson != null && !pythonJson.isEmpty()) {
             String path = compilerOutputDir + File.separator + "ast_python.json";
@@ -164,13 +129,7 @@ public class OutputWriter {
             context.addLog("[OutputWriter] Skipped ast_python.json (not provided by Compiler 1)");
         }
     }
-    // =====================================================================
-    // Generation Log
-    // =====================================================================
 
-    /**
-     * يكتب generation_log.txt内容包括 كل log entries + warnings.
-     */
     private void writeGenerationLog(GenerationContext context) {
         StringBuilder log = new StringBuilder();
 
@@ -216,13 +175,7 @@ public class OutputWriter {
         }
     }
 
-    // =====================================================================
-    // Helpers
-    // =====================================================================
 
-    /**
-     * يكتب محتوى نصي لملف. يرجع true عند النجاح.
-     */
     private boolean writeToFile(String path, String content) {
         try {
             Files.createDirectories(Paths.get(path).getParent());
@@ -235,9 +188,7 @@ public class OutputWriter {
         }
     }
 
-    /**
-     * يهرب نص بسيط لـ JSON (بدون quotes خارجية).
-     */
+
     private String escapeForJson(String value) {
         if (value == null) return "";
         return value.replace("\\", "\\\\").replace("\"", "\\\"");

@@ -143,19 +143,7 @@ public class JinjaRenderer {
         return str;
     }
 
-    /**
-     * ★★★ الإصلاح: النسخة القديمة كانت "مقفلة" على app1.py بالذات — تفحص
-     * قيماً حرفية ثابتة ("/", "/add", بادئة "/details/", بادئة "/delete/").
-     * كانت تعمل بالصدفة مع هذا التطبيق فقط لأن أسماء الدوال طابقت أسماء
-     * القوالب (index→index.html، add→add.html). أي تطبيق Flask آخر
-     * بمسارات أو أسماء دوال مختلفة كانت ستكسر الروابط الناتجة.
-     *
-     * النسخة الجديدة تبني المطابقة ديناميكياً من context.getRoutes() +
-     * context.getTemplateForRoute()، بنفس منطق تسمية الملفات المستخدم
-     * فعلياً في Generator (funcName + ".html" العادي، أو
-     * baseName + "_" + i + ".html" للـ Routes المعاملية)، فتدعم أي عدد
-     * من الـ Routes بدل مسارين اثنين فقط.
-     */
+
     private String convertRouteToStaticPage(String attrName, String value) {
         if (!attrName.equals("href") && !attrName.equals("action")) {
             return value;
@@ -176,8 +164,6 @@ public class JinjaRenderer {
 
             String templateName = context.getTemplateForRoute(funcName);
             if (templateName == null) {
-                // Route موجود لكن لا يعرض صفحة (مثل /delete/<int:i> الذي
-                // يعمل redirect فقط) — لا صفحة له فعلياً
                 return "#";
             }
 
@@ -190,10 +176,10 @@ public class JinjaRenderer {
                     : funcName + ".html";
         }
 
-        return value; // رابط خارجي غير معروف — إرجاعه كما هو
+        return value;
     }
 
-    /** يحوّل نمط Route من Flask (مثل /details/<int:i>) إلى Regex قابل للمطابقة. */
+
     private String routeToRegex(String routePattern) {
         StringBuilder regex = new StringBuilder("^");
         int i = 0;
@@ -244,7 +230,6 @@ public class JinjaRenderer {
         String forExpr = node.getForExpr();
         String[] parts = forExpr.split(" in ");
 
-        // ★ إصلاح: forExpr مشوّه (بدون " in ") → تحذير بدل انهيار
         if (parts.length < 2) {
             context.addWarning("Malformed for-expression: '" + forExpr + "'");
             return;
@@ -259,10 +244,7 @@ public class JinjaRenderer {
             return;
         }
 
-        // ★★★ الإصلاح: كان فيه (List<Object>) collectionObj بدون حراسة.
-        // لو المتغير مربوط بقيمة مش List (مثلاً Map أو نص) كان يرمي
-        // ClassCastException ويوقف التوليد بالكامل — مخالف صراحة لمبدأ
-        // "لا ينهار البرنامج". الآن: تحذير + skip فقط.
+
         if (!(collectionObj instanceof List)) {
             context.addWarning("Collection '" + collectionName + "' is not a list (found "
                     + collectionObj.getClass().getSimpleName() + ") — skipping for loop");

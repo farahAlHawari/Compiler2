@@ -27,7 +27,6 @@ public class TemplateProcessor {
 
         Map<String, List<ASTNode>> childBlocks = collectBlocks(childPage);
 
-        // ★ تعديل: مرّرنا context لـ deepCopy حتى تقدر تسجّل تحذيراً لو الفشل صار
         PageNode merged = deepCopy(parentPage, context);
 
         replaceBlocks(merged, childBlocks, context);
@@ -105,15 +104,7 @@ public class TemplateProcessor {
         return copy;
     }
 
-    /**
-     * ★★★ الإصلاح: كانت createNodeCopy لو فشلت (نوع عقدة ما يطابق أي
-     * منشئ معروف) ترجع null بصمت، وdeepCopyNode كانت حينها تُرجع العقدة
-     * الأصلية *نفسها* (نفس المرجع) بدل نسخة عنها. هذا يعني أن "merged"
-     * ممكن يشارك مرجعياً أجزاء من شجرة base.html الأصلية، وreplaceBlocksInList
-     * بعدين قد تُعدّل تلك الأجزاء المشتركة فعلياً — أي تُعدّل الشجرة
-     * الأصلية رغم أن التعليق يقول صراحة "لا نعدّل الأصلية!".
-     * الآن: نسجّل تحذيراً واضحاً بدل أن يمر الأمر بصمت.
-     */
+
     private ASTNode deepCopyNode(ASTNode node, GenerationContext context) {
         ASTNode copy = createNodeCopy(node);
         if (copy == null) {

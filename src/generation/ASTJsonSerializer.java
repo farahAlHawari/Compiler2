@@ -21,17 +21,9 @@ import main.pythoncompiler.ast.UnaryOpNode;
 
 import java.util.*;
 
-/**
- * Person 4 — يحوّل شجرة AST (Jinja/HTML/CSS) إلى JSON string.
- * يستخدم StringBuilder فقط — بدون مكتبات خارجية.
- *
- * ⚠️ يحترم بنية AST — يقرأ فقط، ما يعدّل.
- */
+
 public class ASTJsonSerializer {
 
-    // =================================================================
-    // Public API — Jinja/HTML/CSS
-    // =================================================================
 
     public String serializeJinjaASTs(GenerationContext context) {
         StringBuilder sb = new StringBuilder();
@@ -56,14 +48,8 @@ public class ASTJsonSerializer {
         return sb.toString();
     }
 
-    // =================================================================
-    // Public API — Python AST
-    // =================================================================
 
-    /**
-     * يُسلسل Python AST (Program root) إلى JSON string.
-     * ★ يستقبل main.pythoncompiler.ast.ASTNode (مش AST.Core.ASTNode) ★
-     */
+
     public String serializePythonAST(main.pythoncompiler.ast.ASTNode pythonRoot) {
         if (pythonRoot == null) return null;
         StringBuilder sb = new StringBuilder();
@@ -71,9 +57,6 @@ public class ASTJsonSerializer {
         return sb.toString();
     }
 
-    // =================================================================
-    // Recursive Serialization — Jinja/HTML/CSS (AST.Core.ASTNode)
-    // =================================================================
 
     private void serializeNode(ASTNode node, StringBuilder sb, int indent) {
         if (node == null) {
@@ -120,14 +103,7 @@ public class ASTJsonSerializer {
         sb.append("\n").append(pad).append("}");
     }
 
-    // =================================================================
-    // Recursive Serialization — Python (main.pythoncompiler.ast.ASTNode)
-    // =================================================================
 
-    /**
-     * يُسلسل عقدة Python AST واحدة وأولادها.
-     * ★ نسخة موازية لـ serializeNode بس لـ main.pythoncompiler.ast.ASTNode ★
-     */
     private void serializePyNode(main.pythoncompiler.ast.ASTNode node, StringBuilder sb, int indent) {
         if (node == null) {
             sb.append("null");
@@ -144,7 +120,7 @@ public class ASTJsonSerializer {
         sb.append(pad).append("  \"nodeName\": ")
                 .append(escapeJson(node.nodeName)).append(",\n");
 
-        // line — Python AST يستخدم lineNumber (public field) مش getLine()
+
         sb.append(pad).append("  \"line\": ").append(node.lineNumber);
 
         String extraFields = extractPyExtraFields(node);
@@ -169,21 +145,13 @@ public class ASTJsonSerializer {
         sb.append("\n").append(pad).append("}");
     }
 
-    // =================================================================
-    // Extra Fields — Jinja/HTML/CSS
-    // =================================================================
 
     private String extractExtraFields(ASTNode node) {
         String pad = "  ";
 
         if (node instanceof HtmlElementNode) {
             HtmlElementNode el = (HtmlElementNode) node;
-            // ★★★ الإصلاح: كان String.valueOf(el) بدل el.getTagName() ★★★
-            // String.valueOf(el) يستدعي toString() الافتراضي من Object
-            // (مثل AST.Html.HtmlElementNode@1a2b3c)، وبما إن الصنف ما بيعمل
-            // override لـ toString()، فـ isVoidTag كانت ترجع false دائماً
-            // حتى لو كان الوسم فعلياً img أو br أو input. النتيجة: حقل
-            // "isVoid" في ast_jinja.json كان دائماً false بشكل خاطئ.
+
             return pad + "  \"tagName\": " + escapeJson(el.getTagName())
                     + ",\n" + pad + "  \"isVoid\": " + isVoidTag(el.getTagName());
         }
@@ -220,9 +188,7 @@ public class ASTJsonSerializer {
         return null;
     }
 
-    // =================================================================
-    // Extra Fields — Python
-    // =================================================================
+
 
     private String extractPyExtraFields(main.pythoncompiler.ast.ASTNode node) {
         String pad = "  ";
@@ -293,9 +259,7 @@ public class ASTJsonSerializer {
         return null;
     }
 
-    // =================================================================
-    // Helpers
-    // =================================================================
+
 
     private boolean isVoidTag(String tagName) {
         return tagName.equals("area") || tagName.equals("base") || tagName.equals("br")

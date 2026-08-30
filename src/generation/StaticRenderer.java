@@ -35,7 +35,7 @@ public class StaticRenderer {
 
     public void renderStaticNode(ASTNode node, StringBuilder html) {
         if (node instanceof PageNode) {
-            for (ASTNode child : node.children) {       // ✅ تعديل: children بدل getChildren()
+            for (ASTNode child : node.children) {
                 renderStaticNode(child, html);
             }
         }
@@ -61,7 +61,7 @@ public class StaticRenderer {
             renderDeclaration((DeclarationNode) node, html);
         }
         else if (node instanceof DeclarationListNode) {
-            for (ASTNode child : node.children) {       // ✅ تعديل: children بدل getChildren()
+            for (ASTNode child : node.children) {
                 renderStaticNode(child, html);
             }
         }
@@ -80,7 +80,7 @@ public class StaticRenderer {
         else if (node instanceof IdentifierCssValue) { renderCssValue(node, html); }
         else if (node instanceof FunctionCallCssValue) { renderCssValue(node, html); }
         else if (node instanceof ColorCssValue) { renderCssValue(node, html); }
-        // ★ Unknown node → Warning + skip ★
+        // Unknown node → Warning + skip
         else {
             context.addWarning("Unknown static node: " + node.getClass().getSimpleName());
         }
@@ -88,20 +88,20 @@ public class StaticRenderer {
 
     private void renderHtmlElement(HtmlElementNode node, StringBuilder html) {
         html.append("<").append(node.getTagName());
-        // كتابة attributes
-        for (ASTNode child : node.children) {          // ✅ تعديل: children بدل getChildren()
+
+        for (ASTNode child : node.children) {
             if (child instanceof HtmlAttributeNode) {
                 renderAttribute((HtmlAttributeNode) child, html);
             }
         }
-        // ✅ تعديل: isVoidTag() private بال HtmlElementNode → helper خاص بنا
+
         if (isVoidTag(node.getTagName())) {
             html.append(">\n");
             return;
         }
         html.append(">\n");
-        // كتابة children (ما عدا attributes)
-        for (ASTNode child : node.children) {          // ✅ تعديل: children بدل getChildren()
+
+        for (ASTNode child : node.children) {
             if (!(child instanceof HtmlAttributeNode)) {
                 renderStaticNode(child, html);
             }
@@ -109,7 +109,7 @@ public class StaticRenderer {
         html.append("</").append(node.getTagName()).append(">\n");
     }
 
-    // ✅ تعديل: أضفنا helper لأن isVoidTag private بال HtmlElementNode
+
     private boolean isVoidTag(String tagName) {
         return tagName.equals("area") || tagName.equals("base") || tagName.equals("br")
                 || tagName.equals("col") || tagName.equals("embed") || tagName.equals("hr")
@@ -121,7 +121,6 @@ public class StaticRenderer {
     private void renderAttribute(HtmlAttributeNode node, StringBuilder html) {
         html.append(" ").append(node.getAttrName());
         String val = node.getAttrValue();
-        // Strip quotes لو الـ parser حطها
         if (val.startsWith("\"") && val.endsWith("\"") && val.length() > 1) {
             val = val.substring(1, val.length() - 1);
         }
@@ -132,7 +131,7 @@ public class StaticRenderer {
 
     private void renderStyleBlock(StyleBlockNode node, StringBuilder html) {
         html.append("<style>\n");
-        for (ASTNode child : node.children) {          // ✅ تعديل: children بدل getChildren()
+        for (ASTNode child : node.children) {
             renderStaticNode(child, html);
         }
         html.append("</style>\n");
@@ -170,7 +169,7 @@ public class StaticRenderer {
         List<ASTNode> ch = node.children;
         if (ch.isEmpty()) return;
 
-        // Render كل الـ selectors اللي قبل أول declaration
+
         int declStartIdx = 0;
         boolean first = true;
         for (int i = 0; i < ch.size(); i++) {
@@ -180,7 +179,7 @@ public class StaticRenderer {
                 first = false;
                 declStartIdx = i + 1;
             } else {
-                break; // وصلنا لـ declarations
+                break;
             }
         }
 
@@ -191,7 +190,7 @@ public class StaticRenderer {
         html.append("}\n");
     }
 
-    // Helper — يحدد هل الـ node هو selector
+
     private boolean isSelectorNode(ASTNode node) {
         return node instanceof TypeSelectorNode || node instanceof ClassSelectorNode
                 || node instanceof IdSelectorNode || node instanceof UniversalSelectorNode
